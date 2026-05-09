@@ -15,7 +15,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "document", "document", "{83838A4C-0F78-4D87-A609-BA7652923DAE}"
 	ProjectSection(SolutionItems) = preProject
+		C:\Users\Admin\Downloads\ctda.png = C:\Users\Admin\Downloads\ctda.png
 		Cấu trúc dự án.txt = Cấu trúc dự án.txt
+		C:\Users\Admin\Downloads\HuongDan.png = C:\Users\Admin\Downloads\HuongDan.png
+		C:\Users\Admin\Downloads\tang1.png = C:\Users\Admin\Downloads\tang1.png
+		C:\Users\Admin\Downloads\tang2.png = C:\Users\Admin\Downloads\tang2.png
+		C:\Users\Admin\Downloads\tang3.png = C:\Users\Admin\Downloads\tang3.png
+		C:\Users\Admin\Downloads\tang4.png = C:\Users\Admin\Downloads\tang4.png
 	EndProjectSection
 EndProject
 Global
