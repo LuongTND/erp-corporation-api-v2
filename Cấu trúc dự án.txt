@@ -1,0 +1,479 @@
+﻿MyProject — .NET Web API
+
+Tài liệu cấu trúc dự án & hướng dẫn phụ thuộc
+
+| Kiến trúc | Clean Architecture (Layered) — 4 tầng tách biệt |
+
+| Framework | .NET 8 / ASP.NET Core Web API |
+| ORM | Entity Framework Core 8 |
+| Pattern | CQRS + Repository + Unit of Work + Mediator |
+| Auth | JWT Bearer Token |
+| Logging | Serilog |
+| Testing | xUnit + Moq + FluentAssertions |
+
+## 📁 Cây thư mục tổng quan
+
+MyProject/
+
+├── src/
+
+│   ├── MyProject.Api/
+
+│   ├── MyProject.Application/
+
+│   ├── MyProject.Domain/
+
+│   └── MyProject.Infrastructure/
+
+├── tests/
+
+│   ├── MyProject.UnitTests/
+
+│   └── MyProject.IntegrationTests/
+
+└── MyProject.sln
+
+## 🔗 Nguyên tắc phụ thuộc (Dependency Rule)
+
+Phụ thuộc chỉ đi một chiều hướng vào trong. Tầng trong không bao giờ biết đến tầng ngoài:
+
+| Api | → Application  (gọi use case, inject service) |
+
+| Application | → Domain  (dùng entity, value object, domain event) |
+| Infrastructure | → Application + Domain  (implement interface, dùng entity) |
+| Domain | → (không phụ thuộc gì)  Hoàn toàn độc lập |
+
+
+
+
+
+
+| 🌐  Tầng 1 — MyProject.Api Điểm vào của ứng dụng · Xử lý HTTP Request/Response · Dependency Injection · Middleware |
+| --- |
+
+### Chức năng
+
+Đây là tầng ngoài cùng, tiếp nhận mọi HTTP request từ client. Không chứa business logic, chỉ định tuyến request đến Application layer và trả response về client.
+
+### 📂 Controllers/
+
+Chứa các API controller. Mỗi controller tương ứng một nhóm tài nguyên (resource).
+
+- Nhận HttpRequest, giải mã DTO từ body/query/route
+
+- Gọi MediatR.Send() hoặc IService tương ứng
+
+- Trả về ActionResult<T> với status code phù hợp
+
+- KHÔNG chứa business logic, KHÔNG truy cập database trực tiếp
+
+UserController.cs      // CRUD user: GET /users, POST /users, PUT /users/{id}
+
+AuthController.cs      // Đăng nhập, đăng ký, refresh token
+
+ProductController.cs   // Quản lý sản phẩm
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| UserController.cs | IMediator, CreateUserRequest, GetUserQuery | Inject qua constructor DI |
+| AuthController.cs | IMediator, LoginCommand, ITokenService | Gọi LoginHandler qua Mediator |
+| BaseApiController.cs | ControllerBase, IMediator | Base class tất cả controller kế thừa |
+
+### 📂 Middlewares/
+
+Xử lý cross-cutting concern: lỗi toàn cục, xác thực, ghi log, rate limit.
+
+- ExceptionMiddleware.cs — bắt mọi exception chưa xử lý, trả về chuẩn ProblemDetails RFC 7807
+
+- LoggingMiddleware.cs — ghi log request/response với correlation ID
+
+- RateLimitMiddleware.cs — giới hạn số request mỗi IP / mỗi phút
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| ExceptionMiddleware.cs | ILogger<T>, ProblemDetails | Đăng ký đầu tiên trong pipeline |
+| LoggingMiddleware.cs | ILogger<T>, ICorrelationIdService | Tạo request ID duy nhất mỗi call |
+
+### 📂 Filters/
+
+Action filter và Exception filter chạy trước/sau khi action method thực thi.
+
+- ValidationFilter.cs — tự động validate ModelState, trả 400 nếu sai mà không cần if check trong controller
+
+- AuthorizationFilter.cs — kiểm tra permission cụ thể theo role
+
+### 📄 Program.cs & DependencyInjection.cs
+
+Đăng ký toàn bộ service vào DI container, cấu hình middleware pipeline, kết nối database, cài JWT, Swagger.
+
+builder.Services.AddApplicationServices(); // từ Application layer
+
+builder.Services.AddInfrastructureServices(config); // từ Infrastructure layer
+
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthentication().AddJwtBearer();
+
+appsettings.json chứa ConnectionStrings, JwtSettings, SerilogConfig, CorsPolicy. Không bao giờ commit secret production vào git.
+
+
+
+
+
+
+| ⚙️  Tầng 2 — MyProject.Application Business Logic · Use Cases · CQRS · DTO · Interfaces · Validation |
+| --- |
+
+### Chức năng
+
+Trái tim của ứng dụng. Định nghĩa mọi use case theo pattern CQRS. Không biết đến HTTP, không biết đến database cụ thể — chỉ làm việc qua interface.
+
+### 📂 Features/ (CQRS)
+
+Tổ chức theo feature (vertical slice). Mỗi feature = 1 thư mục chứa Command + Query + Handler riêng biệt.
+
+Features/
+
+└── Users/
+
+    ├── Commands/
+
+    │   ├── CreateUserCommand.cs   // record CreateUserCommand(string Email, string Password)
+
+    │   ├── CreateUserHandler.cs   // IRequestHandler<CreateUserCommand, UserDto>
+
+    │   ├── UpdateUserCommand.cs
+
+    │   └── DeleteUserCommand.cs
+
+    └── Queries/
+
+        ├── GetUserByIdQuery.cs
+
+        ├── GetUserByIdHandler.cs  // IRequestHandler<GetUserByIdQuery, UserDto?>
+
+        └── GetUsersListQuery.cs
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| CreateUserHandler.cs | IUserRepository, IUnitOfWork, IMapper, IPasswordHasher | Implement IRequestHandler từ MediatR |
+| GetUserByIdHandler.cs | IUserRepository, IMapper | Chỉ đọc, không cần UnitOfWork |
+| CreateUserCommand.cs | (không phụ thuộc) | Plain record/class, chứa input data |
+| GetUserByIdQuery.cs | (không phụ thuộc) | Plain record/class, chứa query params |
+
+### 📂 DTOs/
+
+Data Transfer Object — định hình dữ liệu ra/vào qua API. Tách hoàn toàn khỏi Entity để tự do thay đổi database schema mà không ảnh hưởng API contract.
+
+- Request DTO (CreateUserRequest, LoginRequest) — nhận dữ liệu từ client
+
+- Response DTO (UserDto, TokenDto) — trả dữ liệu về client
+
+- Không bao giờ expose Entity trực tiếp ra ngoài API
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| UserDto.cs | (không phụ thuộc) | Output DTO, không có PasswordHash |
+| CreateUserRequest.cs | FluentValidation (qua Validator) | Input DTO từ POST /users |
+| PaginatedResult<T>.cs | (không phụ thuộc) | Generic wrapper cho paging |
+
+### 📂 Interfaces/
+
+Định nghĩa contract (hợp đồng) mà Infrastructure phải implement. Application chỉ biết interface, không biết class cụ thể — đây là Dependency Inversion Principle.
+
+IUserRepository.cs    // Task<User?> GetByEmailAsync(string email); Task AddAsync(User user)
+
+IGenericRepository<T> // CRUD cơ bản cho mọi entity
+
+IUnitOfWork.cs        // Task<int> SaveChangesAsync(); IUserRepository Users
+
+IEmailService.cs      // Task SendWelcomeEmailAsync(string to, string name)
+
+IJwtService.cs        // string GenerateToken(User user); ClaimsPrincipal ValidateToken(string token)
+
+ICurrentUserService.cs// Guid? UserId { get; } — lấy user ID từ JWT claim hiện tại
+
+Infrastructure sẽ kế thừa và implement các interface này. Application test dễ dàng bằng cách mock interface.
+
+### 📂 Validators/
+
+Dùng FluentValidation để validate input trước khi handler xử lý. Validator được đăng ký tự động và chạy qua MediatR pipeline behavior.
+
+CreateUserValidator.cs:
+
+  RuleFor(x => x.Email).NotEmpty().EmailAddress()
+
+  RuleFor(x => x.Password).MinimumLength(8).Matches("[A-Z]")
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| CreateUserValidator.cs | AbstractValidator<CreateUserRequest> (FluentValidation) | Chạy tự động trước Handler |
+| ValidationBehavior.cs | IPipelineBehavior<TReq,TRes>, IValidator<TReq>[] | MediatR pipeline, throw nếu invalid |
+
+
+
+
+
+
+
+
+| 💎  Tầng 3 — MyProject.Domain Entities · Value Objects · Domain Events · Enums · Business Rules · Không phụ thuộc gì |
+| --- |
+
+### Chức năng
+
+Tầng quan trọng nhất và sạch nhất. Chứa toàn bộ business concept và business rule. Không có NuGet package nào ngoài thư viện chuẩn của .NET. Không biết database, không biết HTTP, không biết EF Core.
+
+### 📂 Entities/
+
+Đối tượng có danh tính (Identity). Hai entity bằng nhau khi có cùng ID, dù properties khác nhau.
+
+BaseEntity.cs:
+
+  Guid Id { get; private set; }
+
+  DateTime CreatedAt { get; private set; }
+
+  DateTime? UpdatedAt { get; private set; }
+
+  List<IDomainEvent> DomainEvents { get; }
+
+  void AddDomainEvent(IDomainEvent e)
+
+User.cs:  (kế thừa BaseEntity)
+
+  Email Email { get; private set; }      // Value Object
+
+  string PasswordHash { get; private set; }
+
+  UserRole Role { get; private set; }
+
+  static User Create(string email, string passwordHash)  // Factory method
+
+  void ChangeEmail(string newEmail)   // Business method, raise domain event
+
+Quy tắc: Properties dùng private setter. Thay đổi state qua method có tên nghiệp vụ rõ ràng.
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| User.cs | BaseEntity, Email (Value Object), UserRole (Enum) | Factory method User.Create() |
+| Product.cs | BaseEntity, Money (Value Object) | Domain method: Discount(), Archive() |
+| Order.cs | BaseEntity, List<OrderItem> | Aggregate root, quản lý OrderItem |
+| OrderItem.cs | Entity, Product reference (by Id) | Child entity của Order aggregate |
+
+### 📂 ValueObjects/
+
+Đối tượng không có danh tính, bằng nhau khi có cùng giá trị. Immutable (không thể thay đổi sau khi tạo). Chứa validation logic của chính nó.
+
+Email.cs:
+
+  private Email(string value) { Value = value; }
+
+  public static Email Create(string value) {
+
+    if (!IsValid(value)) throw new DomainException("Email không hợp lệ");
+
+    return new Email(value);
+
+  }
+
+Money.cs:         Amount (decimal) + Currency (string)
+
+Address.cs:       Street, City, Province, PostalCode, Country
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| Email.cs | (không phụ thuộc) | Tự validate, throw DomainException |
+| Money.cs | (không phụ thuộc) | Operator +, -,  overloaded |
+| Address.cs | (không phụ thuộc) | Record với equality tự động |
+
+### 📂 Events/
+
+Domain Event là sự kiện quan trọng đã xảy ra trong domain. Cho phép các phần khác của hệ thống phản ứng mà không cần coupling trực tiếp.
+
+IDomainEvent.cs        // interface IDomainEvent : INotification
+
+UserCreatedEvent.cs    // record UserCreatedEvent(Guid UserId, string Email)
+
+UserEmailChangedEvent.cs
+
+OrderPlacedEvent.cs    // record OrderPlacedEvent(Guid OrderId, Guid UserId, Money Total)
+
+Infrastructure publish các event sau khi SaveChanges. Application handler xử lý event (gửi email chào mừng, ghi audit log, v.v.)
+
+### 📂 Enums/
+
+Các tập hợp giá trị cố định thuộc về domain. Dùng enum thay vì magic string hay số nguyên.
+
+UserRole.cs:    Customer = 1, Staff = 2, Admin = 3, SuperAdmin = 4
+
+UserStatus.cs:  Active = 1, Inactive = 2, Banned = 3, PendingVerify = 4
+
+OrderStatus.cs: Draft, Submitted, Processing, Shipped, Delivered, Cancelled
+
+
+
+
+
+
+
+
+| 🔧  Tầng 4 — MyProject.Infrastructure EF Core · Repository · External Services · JWT · Email · Cache · Storage |
+| --- |
+
+### Chức năng
+
+Implement tất cả interface mà Application đã định nghĩa. Làm việc với database, email, file storage, cache, third-party API. Không được để tầng nào khác phụ thuộc vào tầng này trực tiếp.
+
+### 📂 Persistence/
+
+AppDbContext.cs — DbContext trung tâm của EF Core. Cấu hình tất cả entity, interceptor, publish domain event sau SaveChanges.
+
+AppDbContext.cs:
+
+  DbSet<User> Users
+
+  DbSet<Product> Products
+
+  DbSet<Order> Orders
+
+  override SaveChangesAsync() {
+
+    // 1. Tự động set CreatedAt, UpdatedAt
+
+    // 2. Collect domain events từ entities
+
+    // 3. SaveChanges()
+
+    // 4. Publish domain events qua MediatR
+
+  }
+
+Configurations/ — Fluent API config từng entity. Tách khỏi DbContext cho dễ đọc.
+
+UserConfiguration.cs:
+
+  builder.ToTable("Users")
+
+  builder.HasKey(u => u.Id)
+
+  builder.Property(u => u.Email).HasConversion(...) // Value Object → string
+
+  builder.HasIndex(u => u.Email).IsUnique()
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| AppDbContext.cs | DbContext (EF Core), IMediator, IUserRepository | Implement tất cả DbSet |
+| UserConfiguration.cs | IEntityTypeConfiguration<User> | Cấu hình mapping User → bảng Users |
+| Migrations/ | AppDbContext | Auto-gen bởi dotnet ef migrations add |
+
+### 📂 Repositories/
+
+Implement các IRepository interface từ Application. Truy vấn qua EF Core DbContext.
+
+GenericRepository<T>.cs:   // Implement IGenericRepository<T>
+
+  Task<T?> GetByIdAsync(Guid id)
+
+  Task<IReadOnlyList<T>> GetAllAsync()
+
+  Task AddAsync(T entity)
+
+  void Update(T entity)
+
+  void Delete(T entity)
+
+UserRepository.cs:  (kế thừa GenericRepository<User>, implement IUserRepository)
+
+  Task<User?> GetByEmailAsync(string email)
+
+  Task<IReadOnlyList<User>> GetActiveUsersAsync()
+
+  Task<PaginatedResult<User>> GetPaginatedAsync(int page, int pageSize)
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| GenericRepository<T>.cs | AppDbContext, IGenericRepository<T> | Base repo, tất cả repo kế thừa |
+| UserRepository.cs | GenericRepository<User>, IUserRepository | Thêm query đặc thù của User |
+| UnitOfWork.cs | AppDbContext, IUserRepository, IOrderRepository | Implement IUnitOfWork, quản lý transaction |
+
+### 📂 Services/
+
+Implement các IService interface từ Application. Giao tiếp với hệ thống bên ngoài.
+
+| File / Class | Phụ thuộc vào | Ghi chú |
+| --- | --- | --- |
+| JwtService.cs | IJwtService, IOptions<JwtSettings>, ILogger | Tạo và validate JWT token |
+| EmailService.cs | IEmailService, IOptions<EmailSettings>, SendGrid SDK | Gửi email qua SendGrid |
+| FileStorageService.cs | IFileStorageService, IOptions<StorageSettings> | Upload/download file AWS S3 / Azure Blob |
+| CacheService.cs | ICacheService, IConnectionMultiplexer (Redis) | Get/Set/Delete cache với TTL |
+| CurrentUserService.cs | ICurrentUserService, IHttpContextAccessor | Lấy UserId từ JWT claim trong request |
+
+## 🧪 Tests
+
+### 📂 MyProject.UnitTests/
+
+Test từng class độc lập bằng cách mock tất cả dependency. Không cần database, không cần network.
+
+Features/Users/CreateUserHandlerTests.cs
+
+Features/Users/GetUserByIdHandlerTests.cs
+
+Domain/Entities/UserTests.cs
+
+Domain/ValueObjects/EmailTests.cs
+
+Stack: xUnit + Moq + FluentAssertions
+
+### 📂 MyProject.IntegrationTests/
+
+Test toàn bộ luồng thực tế với database thật (dùng testcontainers hoặc SQLite in-memory). Kiểm tra API endpoint thực sự trả đúng status code và data.
+
+Api/UsersControllerTests.cs    // Gọi POST /api/users, check 201 Created
+
+Persistence/UserRepositoryTests.cs  // Test query database thực
+
+Stack: xUnit + WebApplicationFactory<Program> + Testcontainers
+
+## 📦 NuGet Packages chính
+
+| Package | Dùng tại tầng | Chức năng |
+| --- | --- | --- |
+| MediatR | Application | CQRS: dispatch Command/Query đến Handler |
+| AutoMapper | Application | Map Entity → DTO và ngược lại |
+| FluentValidation | Application | Validate input trước khi handler chạy |
+| EF Core 8 | Infrastructure | ORM, migration, query database |
+| Serilog | Api | Structured logging ra Console, File, Seq |
+| StackExchange.Redis | Infrastructure | Redis distributed cache |
+| JWT Bearer | Api + Infrastructure | Xác thực token, parse claim |
+| Swashbuckle | Api | Swagger UI và OpenAPI spec |
+| xUnit + Moq | Tests | Unit test framework và mock library |
+| Testcontainers | IntegrationTests | Spin up Docker DB cho integration test |
+
+## 🚀 Khởi động nhanh
+
+# Clone và restore package
+
+git clone https://github.com/yourname/myproject.git
+
+cd myproject && dotnet restore
+
+# Cập nhật connection string trong appsettings.Development.json
+
+# Chạy migration
+
+dotnet ef database update --project src/MyProject.Infrastructure
+
+# Chạy ứng dụng
+
+dotnet run --project src/MyProject.Api
+
+# Mở Swagger: https://localhost:5001/swagger
+
+# Chạy test
+
+dotnet test
+
+MyProject .NET API — Tài liệu kiến trúc nội bộ
+
+MyProject .NET API  —  Trang  /
