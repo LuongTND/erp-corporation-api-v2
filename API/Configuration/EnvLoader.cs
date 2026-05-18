@@ -1,14 +1,7 @@
 namespace API.Configuration;
 
-/// <summary>
-/// Đọc <c>.env</c> và đưa các biến vào <see cref="Microsoft.Extensions.Configuration.IConfiguration"/>
-/// theo key lồng nhau (dùng <c>GetSection("Jwt")</c>, <c>Bind</c>, v.v.).
-/// </summary>
 public static class EnvLoader
 {
-    /// <summary>
-    /// Cặp (tên biến môi trường, đường dẫn cấu hình). Thứ tự không quan trọng.
-    /// </summary>
     private static readonly (string EnvKey, string ConfigKey)[] Mappings =
     [
         // Database
