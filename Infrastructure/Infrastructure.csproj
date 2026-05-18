@@ -9,8 +9,8 @@
   <ItemGroup>
     <Folder Include="External\MemoryCache\" />
     <Folder Include="External\Redis\" />
-    <Folder Include="Services\" />
     <Folder Include="Repositories\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
