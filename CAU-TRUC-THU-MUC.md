@@ -2,7 +2,7 @@
 
 ## Cấu trúc thư mục (ALL)
 
-> Chỉ liệt kê **thư mục** (không liệt kê từng file `.cs`, `.json`, `.env`, `.sln`, `.md`…). Bỏ qua `bin/`, `obj/`, `.git/`, `.vs/`. File project (`.csproj`) nằm trong thư mục project tương ứng. Ở root repo còn các **file** solution / tài liệu (không hiện trong cây): `erp-corporation-api-v2.sln`, `README.md`, `.gitignore`, `Cấu trúc dự án.txt`, `CAU-TRUC-THU-MUC.md`.
+> Chỉ liệt kê **thư mục** (không liệt kê từng file `.cs`, `.json`, `.env`, `.sln`, `.md`…). Bỏ qua `bin/`, `obj/`, `.git/`, `.vs/`. File project (`.csproj`) nằm trong thư mục project tương ứng. Ở root repo còn các **file** solution / tài liệu (không hiện trong cây): `erp-corporation-api-v2.sln`, `README.md`, `.gitignore`, `Cấu trúc dự án.txt`, `CAU-TRUC-THU-MUC.md`, `CHECKLIST-PR.md`.
 
 ```
 erp-corporation-api-v2/
@@ -42,11 +42,14 @@ erp-corporation-api-v2/
 │   └── Common/
 │
 ├── Infrastructure/                                 # [10] Triển khai kỹ thuật
+│   ├── Extensions/                                 # [8]  DI manual + scan
 │   ├── Implementations/
 │   │   ├── Repositories/                           # [10] Repo
 │   │   └── Services/                               # [10] Service
+│   ├── Outbox/                                     # [8]  Outbox processor + serializer
 │   ├── Persistence/
-│   │   └── Configurations/
+│   │   ├── Configurations/
+│   │   └── Outbox/
 │   ├── Migrations/
 │   └── External/
 │       ├── Redis/
@@ -84,7 +87,7 @@ Tài liệu mô tả cây thư mục hiện tại, mục đích từng folder, n
 | **1–3**   | Phụ trợ — tiện dev, tài liệu, không ảnh hưởng runtime |
 |-----------|-------------------------------------------------------|
 
-**Kiến trúc:** Clean Architecture · .NET 8 · CQRS (MediatR) · Repository + Service · EF Core
+**Kiến trúc:** Clean Architecture · .NET 8 · **Service-first** · Repository + Service · EF Core · Outbox (domain events) · MediatR (handlers / Outbox dispatch)
 
 **Luồng phụ thuộc:**
 
@@ -111,9 +114,9 @@ Controller → IService → IRepository → Database
 | Thư mục / file            | Mục đích                                  | Chứa gì                                                               | Quan trọng    |
 |---------------------------|-------------------------------------------|-----------------------------------------------------------------------|:-------------:|
 | **`API/`** (root project) | Host Web API, `Program.cs`                | `Program.cs`, `appsettings*.json`, `.env`                             | **10**        |
-| **`Base/`**               | Class controller dùng chung               | `BaseApiController` (inject `IMediator`, route `api/[controller]`)    | **8**         |
+| **`Base/`**               | Class controller dùng chung               | `BaseApiController` — **Service-first**, inject `I*Service`           | **8**         |
 | **`Controllers/`**        | Endpoint theo resource / module           | `*Controller.cs` — gọi `IService` hoặc `IMediator`                    | **10**        |
-| **`Configuration/`**      | Cấu hình app, load biến môi trường        | `EnvLoader.cs` (đọc `.env` → `ConnectionStrings`)                     | **9**         |
+| **`Configuration/`**      | Cấu hình app, load biến môi trường        | `EnvLoader.cs` (đọc `.env` → map vào `IConfiguration` theo quy ước)   | **9**         |
 | **`Middlewares/`**        | Xử lý cross-cutting trên pipeline HTTP    | `ExceptionMiddleware` (ProblemDetails), sau này: logging, rate limit  | **8**         |
 | **`Filters/`**            | Action / authorization filter             | `ValidationFilter`, `AuthorizationFilter` (khi có)                    | **6**         |
 | **`Properties/`**         | Launch profile VS                         | `launchSettings.json`                                                 | **4**         |
@@ -263,7 +266,7 @@ Implementations/
 | EF mapping            | `Infrastructure/Persistence/Configurations/`      |
 | Controller            | `API/Controllers/`                                |
 | Middleware HTTP       | `API/Middlewares/`                                |
-| Đọc `.env`            | `API/Configuration/`                              |
+| Đọc `.env`            | `API/Configuration/` (EnvLoader auto-map )        |
 |-----------------------|---------------------------------------------------|
 
 ---
@@ -316,15 +319,18 @@ Implementations/
 
 ## 9. Trạng thái hiện tại (source base)
 
-|-----------------------------------------------------------|---------------------------------------------------|
-| Đã có code                                                | Chỉ folder / skeleton                             |
-|-----------------------------------------------------------|---------------------------------------------------|
-| `BaseEntity`, `IDomainEvent`, `DomainException`           | `Entities/`, `Enums/`, `ValueObjects/`            |
-| `IGenericRepository`, `IUnitOfWork`                       | `Interfaces/Services/` (chưa có IService cụ thể)  |
-| `GenericRepository`, `UnitOfWork`, `AppDbContext`         | `Implementations/Services/`                       |
-| `EnvLoader`, `ExceptionMiddleware`, `HealthController`    | `Filters/`, `Features/`, `DTOs/`, `Validators/`   |
-| Migration `InitialCreate` (chưa có bảng nghiệp vụ)        | `External/`, `Persistence/Configurations/`        |
-|-----------------------------------------------------------|---------------------------------------------------|
+|---------------------------------------------------------------|---------------------------------------------------|
+| Đã có code                                                    | Chỉ folder / skeleton                             |
+|---------------------------------------------------------------|---------------------------------------------------|
+| `BaseEntity`, `IDomainEvent`, `DomainException`               | `Entities/`, `Enums/`, `ValueObjects/`            |
+| `IGenericRepository`, `IUnitOfWork`                           | `Interfaces/Services/` (chưa có IService cụ thể)  |
+| `GenericRepository`, `UnitOfWork`, `AppDbContext`             | `Implementations/Services/`                       |
+| `EnvLoader`, `ExceptionMiddleware`                            |                                                   |
+| (`ValidationProblemDetails` + `traceId`), `HealthController`  | `Filters/`, `Features/`, `DTOs/`, `Validators/`   |
+| Outbox (`OutboxMessages`, `OutboxProcessorHostedService`),    |                                                   |
+| DI scan + manual                                              | `Interfaces/Services/` (chưa có IService cụ thể)  |
+| Migration `InitialCreate`, `AddOutboxMessages`                | `External/`, entity nghiệp vụ                     |
+|---------------------------------------------------------------|---------------------------------------------------|
 
 ---
 
@@ -358,7 +364,8 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 - **Chỉ interface** hướng ra ngoài persistence: `IRepository` trong `Interfaces/Repositories/`, `IService` trong `Interfaces/Services/` — **không** chứa class `DbContext`, không gọi SQL/EF trực tiếp.
 - **DTO** request/response API nằm `DTOs/{Module}/` — **không** trả `Entity` ra contract API.
 - **Một module** gom theo tên: ví dụ Order → `DTOs/Orders/`, `IOrderService`, `IOrderRepository` cùng prefix/module cho dễ tìm.
-- **CQRS (MediatR)** nếu dùng: Commands/Queries/Handlers trong `Features/{Module}/` — handler có thể gọi `IService`; không để logic nặng rải rác ngoài use case.
+- **Service-first (mặc định)**: Controller → `IService` → `IRepository`. MediatR dùng cho **domain event handlers** (sau Outbox), không gọi từ controller mặc định.
+- **CQRS (tuỳ chọn)**: chỉ khi team chốt case cụ thể; không thay thế Service-first làm luồng chính.
 - Validation (FluentValidation), `Behaviors/`, exception application (`Common/Exceptions/`) dùng thống nhất; không duplicate validate mâu thuẫn ở mọi tầng.
 
 ---
@@ -369,12 +376,14 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 - **EF Core**: `AppDbContext`, `DesignTimeDbContextFactory` trong `Persistence/`; Fluent mapping trong `Persistence/Configurations/`.
 - **Migration** tạo bằng `dotnet ef`; không sửa lung tung history đã dùng production (trừ quy trình team cho phép).
 - **Tích hợp ngoài** (Redis, cache, client HTTP bên thứ ba): ưu tiên `External/` hoặc subfolder rõ tên nhà cung cấp — không trộn với Entity Domain.
+- **Outbox**: domain event ghi vào bảng `OutboxMessages` trong cùng transaction với `SaveChanges`; `OutboxProcessorHostedService` publish qua MediatR.
+- **DI**: `Infrastructure/Extensions/ServiceRegistrationExtensions` — manual (`IGenericRepository<>`) + scan (`Infrastructure.Implementations` → `Application.Interfaces`).
 
 ---
 
 ### Tầng API — `API/`
 
-- **Controller mỏng**: bind HTTP ↔ DTO, gọi `IService` (hoặc `IMediator` nếu case đó dùng CQRS) — **không** inject `DbContext`, **không** inject class Repository cụ thể.
+- **Controller mỏng**: bind HTTP ↔ DTO, gọi **`IService`** — **không** inject `DbContext`, **không** inject class Repository cụ thể, **không** gọi `IMediator` mặc định.
 - **Luồng chuẩn**: `Controller` → `IService` → `IRepository` → persistence. Không bỏ qua Service để gọi Repo từ Controller.
 - **Middleware / Filters**: xử lý cross-cutting HTTP (lỗi, auth sau này, v.v.) — không nhét business ERP vào middleware trừ khi thực sự là concern HTTP.
 
@@ -385,7 +394,9 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 **Cấu hình và bảo mật**
 
 - Secret và connection string: **`API/.env`** (hoặc biến môi trường do hạ tầng inject). **Không** commit `.env`.
+- Runtime DB: chỉ đọc **`ConnectionStrings:DefaultConnection`** (`EnvLoader` map từ `CONNECTION_STRING`).
 - `appsettings*.json`: chỉ giá trị **không nhạy cảm** (logging, allowed hosts, …).
+- Lỗi API: `ValidationProblemDetails` (errors theo field) + `extensions.traceId` trong `ExceptionMiddleware`.
 
 **Chất lượng và I/O**
 
@@ -398,13 +409,14 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 
 - Xem diff trước push; không đẩy secret nhầm vào repo.
 - Commit theo quy trình team / khi được yêu cầu; message rõ ràng.
-- Đổi cấu trúc thư mục quan trọng → cập nhật `CAU-TRUC-THU-MUC.md` (ít nhất mục **Cấu trúc thư mục (ALL)** và phần quy tắc liên quan).
+- Đổi cấu trúc thư mục quan trọng → cập nhật `CAU-TRUC-THU-MUC.md` (ít nhất mục **Cấu trúc thư mục (ALL)** và phần quy tắc liên quan) **trong cùng PR**.
+- Checklist PR: xem **`CHECKLIST-PR.md`**.
 
 **Trước khi merge / release (gợi ý)**
 
 - `dotnet build` không lỗi.
 - Migration chạy được trên DB dev nếu đổi schema.
-- Smoke test endpoint chính (Swagger / file HTTP).
+- Smoke test endpoint chính (Swagger / `API.http`).
 
 ---
 

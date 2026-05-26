@@ -1,5 +1,7 @@
 ﻿using Application.Interfaces.Repositories;
+using Infrastructure.Extensions;
 using Infrastructure.Implementations.Repositories;
+using Infrastructure.Outbox;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,21 +15,23 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString =
-            configuration.GetConnectionString("DefaultConnection")
-            ?? configuration["CONNECTION_STRING"]
-            ?? Environment.GetEnvironmentVariable("CONNECTION_STRING");
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new InvalidOperationException(
-                "Database connection is not configured. Set CONNECTION_STRING in API/.env.");
+                "ConnectionStrings:DefaultConnection is not configured. Set CONNECTION_STRING in API/.env (mapped by EnvLoader).");
         }
 
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(connectionString));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddManualInfrastructureRegistrations();
+        services.AddScannedInfrastructureImplementations(typeof(DependencyInjection).Assembly);
+
+        services.AddHostedService<OutboxProcessorHostedService>();
 
         return services;
     }

@@ -2,55 +2,71 @@ namespace API.Configuration;
 
 public static class EnvLoader
 {
-    private static readonly (string EnvKey, string ConfigKey)[] Mappings =
-    [
-        // Database
-        ("CONNECTION_STRING", "ConnectionStrings:DefaultConnection"),
-        ("SQL_SERVER_FOR_DAPPER_CONNECTION", "ConnectionStrings:Dapper"),
+    private static readonly IReadOnlyDictionary<string, string> ExplicitKeyMap =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            // Database
+            ["CONNECTION_STRING"] = "ConnectionStrings:DefaultConnection",
+            ["SQL_SERVER_FOR_DAPPER_CONNECTION"] = "ConnectionStrings:Dapper",
 
-        // Redis
-        ("REDIS_CONNECTION", "Redis:ConnectionString"),
+            // Redis
+            ["REDIS_CONNECTION"] = "Redis:ConnectionString",
 
-        // Azure Blob
-        ("AZURE_BLOB_STORAGE", "AzureBlob:ConnectionString"),
+            // Azure Blob
+            ["AZURE_BLOB_STORAGE"] = "AzureBlob:ConnectionString",
+        };
 
-        // JWT
-        ("JWT_KEY", "Jwt:SecretKey"),
-        ("JWT_ISSUER", "Jwt:Issuer"),
-        ("JWT_AUDIENCE", "Jwt:Audience"),
-        ("JWT_ACCESS_TOKEN_EXPIRATION", "Jwt:AccessTokenExpirationMinutes"),
-        ("JWT_REFRESH_TOKEN_EXPIRATION", "Jwt:RefreshTokenExpirationDays"),
+    private static readonly IReadOnlyDictionary<string, string> JwtKeyAliases =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["KEY"] = "SecretKey",
+            ["ISSUER"] = "Issuer",
+            ["AUDIENCE"] = "Audience",
+            ["ACCESS_TOKEN_EXPIRATION"] = "AccessTokenExpirationMinutes",
+            ["REFRESH_TOKEN_EXPIRATION"] = "RefreshTokenExpirationDays",
+        };
 
-        // Mail (SMTP)
-        ("MAIL_SETTINGS_MAIL", "MailSettings:Mail"),
-        ("MAIL_SETTINGS_DISPLAY_NAME", "MailSettings:DisplayName"),
-        ("MAIL_SETTINGS_PASSWORD", "MailSettings:Password"),
-        ("MAIL_SETTINGS_HOST", "MailSettings:Host"),
-        ("MAIL_SETTINGS_PORT", "MailSettings:Port"),
+    private static readonly IReadOnlyDictionary<string, string> MailKeyAliases =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["MAIL"] = "Mail",
+            ["DISPLAY_NAME"] = "DisplayName",
+            ["PASSWORD"] = "Password",
+            ["HOST"] = "Host",
+            ["PORT"] = "Port",
+        };
 
-        // MISA (hóa đơn điện tử)
-        ("MISA_SETTINGS_APP_ID", "MisaSettings:AppId"),
-        ("MISA_SETTINGS_TAX_CODE", "MisaSettings:TaxCode"),
-        ("MISA_SETTINGS_USERNAME", "MisaSettings:Username"),
-        ("MISA_SETTINGS_PASSWORD", "MisaSettings:Password"),
-        ("MISA_SETTINGS_INV_SERIES", "MisaSettings:InvSeries"),
-        ("MISA_SETTINGS_VAT_RATE", "MisaSettings:VatRate"),
-        ("MISA_SETTINGS_BASE_URL", "MisaSettings:BaseUrl"),
-        ("MISA_SETTINGS_AUTH_ENDPOINT", "MisaSettings:AuthEndpoint"),
-        ("MISA_SETTINGS_INVOICE_ENDPOINT", "MisaSettings:InvoiceEndpoint"),
+    private static readonly IReadOnlyDictionary<string, string> MisaKeyAliases =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["APP_ID"] = "AppId",
+            ["TAX_CODE"] = "TaxCode",
+            ["USERNAME"] = "Username",
+            ["PASSWORD"] = "Password",
+            ["INV_SERIES"] = "InvSeries",
+            ["VAT_RATE"] = "VatRate",
+            ["BASE_URL"] = "BaseUrl",
+            ["AUTH_ENDPOINT"] = "AuthEndpoint",
+            ["INVOICE_ENDPOINT"] = "InvoiceEndpoint",
+        };
 
-        // Zalo
-        ("ZALO_APP_SECRET", "ZaloSettings:AppSecret"),
-        ("ZALO_APP_ID", "ZaloSettings:AppId"),
+    private static readonly IReadOnlyDictionary<string, string> ZaloKeyAliases =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["APP_SECRET"] = "AppSecret",
+            ["APP_ID"] = "AppId",
+        };
 
-        // MPOS
-        ("MPOS_MERCHANT_ID", "MposSettings:MerchantId"),
-        ("MPOS_SECRET_KEY", "MposSettings:SecretKey"),
-        ("MPOS_MUID", "MposSettings:Muid"),
-        ("MPOS_PASS_POS", "MposSettings:PassPos"),
-        ("MPOS_POSID", "MposSettings:PosId"),
-        ("MPOS_BASE_URL", "MposSettings:BaseUrl"),
-    ];
+    private static readonly IReadOnlyDictionary<string, string> MposKeyAliases =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["MERCHANT_ID"] = "MerchantId",
+            ["SECRET_KEY"] = "SecretKey",
+            ["MUID"] = "Muid",
+            ["PASS_POS"] = "PassPos",
+            ["POSID"] = "PosId",
+            ["BASE_URL"] = "BaseUrl",
+        };
 
     public static void Load(WebApplicationBuilder builder)
     {
@@ -58,8 +74,7 @@ public static class EnvLoader
         if (envFile is not null)
             DotNetEnv.Env.Load(envFile);
 
-        foreach (var (envKey, configKey) in Mappings)
-            MapIfPresent(builder.Configuration, envKey, configKey);
+        MapByConvention(builder.Configuration);
     }
 
     private static string? ResolveEnvFilePath(string contentRoot)
@@ -72,6 +87,77 @@ public static class EnvLoader
         };
 
         return candidates.FirstOrDefault(File.Exists);
+    }
+
+    private static void MapByConvention(Microsoft.Extensions.Configuration.ConfigurationManager configuration)
+    {
+        var envVars = Environment.GetEnvironmentVariables();
+        foreach (var keyObj in envVars.Keys)
+        {
+            if (keyObj is not string envKey || string.IsNullOrWhiteSpace(envKey))
+                continue;
+
+            var configKey = ResolveConfigKey(envKey);
+            if (configKey is null)
+                continue;
+
+            MapIfPresent(configuration, envKey, configKey);
+        }
+    }
+
+    private static string? ResolveConfigKey(string envKey)
+    {
+        if (ExplicitKeyMap.TryGetValue(envKey, out var explicitKey))
+            return explicitKey;
+
+        if (TryResolvePrefixedKey(envKey, "JWT_", "Jwt", JwtKeyAliases, out var jwtKey))
+            return jwtKey;
+
+        if (TryResolvePrefixedKey(envKey, "MAIL_SETTINGS_", "MailSettings", MailKeyAliases, out var mailKey))
+            return mailKey;
+
+        if (TryResolvePrefixedKey(envKey, "MISA_SETTINGS_", "MisaSettings", MisaKeyAliases, out var misaKey))
+            return misaKey;
+
+        if (TryResolvePrefixedKey(envKey, "ZALO_", "ZaloSettings", ZaloKeyAliases, out var zaloKey))
+            return zaloKey;
+
+        if (TryResolvePrefixedKey(envKey, "MPOS_", "MposSettings", MposKeyAliases, out var mposKey))
+            return mposKey;
+
+        return null;
+    }
+
+    private static bool TryResolvePrefixedKey(
+        string envKey,
+        string prefix,
+        string section,
+        IReadOnlyDictionary<string, string> aliases,
+        out string? configKey)
+    {
+        configKey = null;
+        if (!envKey.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        var suffix = envKey[prefix.Length..];
+        if (string.IsNullOrWhiteSpace(suffix))
+            return false;
+
+        if (!aliases.TryGetValue(suffix, out var property))
+            property = ToPascalCase(suffix);
+
+        configKey = $"{section}:{property}";
+        return true;
+    }
+
+    private static string ToPascalCase(string value)
+    {
+        // VALUE_LIKE_THIS -> ValueLikeThis
+        var parts = value.Split('_', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length == 0)
+            return value;
+
+        return string.Concat(parts.Select(p => p.Length == 0 ? "" : char.ToUpperInvariant(p[0]) + p[1..].ToLowerInvariant()));
     }
 
     private static void MapIfPresent(

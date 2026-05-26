@@ -31,19 +31,40 @@ public class ExceptionMiddleware
 
     private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
+        var traceId = context.TraceIdentifier;
+
+        if (exception is ValidationException validation)
+        {
+            var errors = validation.Errors
+                .GroupBy(e => string.IsNullOrEmpty(e.PropertyName) ? string.Empty : e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray());
+
+            var problem = new ValidationProblemDetails(errors)
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation failed",
+                Instance = context.Request.Path
+            };
+
+            problem.Extensions["traceId"] = traceId;
+
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/problem+json";
+            await context.Response.WriteAsJsonAsync(problem);
+            return;
+        }
+
         var (statusCode, title, detail) = exception switch
         {
-            ValidationException validation => (
-                StatusCodes.Status400BadRequest,
-                "Validation failed",
-                string.Join("; ", validation.Errors.Select(e => e.ErrorMessage))),
             NotFoundException notFound => (StatusCodes.Status404NotFound, "Not found", notFound.Message),
             ConflictException conflict => (StatusCodes.Status409Conflict, "Conflict", conflict.Message),
             DomainException domain => (StatusCodes.Status400BadRequest, "Domain error", domain.Message),
             _ => (StatusCodes.Status500InternalServerError, "Server error", "An unexpected error occurred.")
         };
 
-        var problem = new ProblemDetails
+        var problemDetails = new ProblemDetails
         {
             Status = statusCode,
             Title = title,
@@ -51,8 +72,10 @@ public class ExceptionMiddleware
             Instance = context.Request.Path
         };
 
+        problemDetails.Extensions["traceId"] = traceId;
+
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/problem+json";
-        await context.Response.WriteAsJsonAsync(problem);
+        await context.Response.WriteAsJsonAsync(problemDetails);
     }
 }

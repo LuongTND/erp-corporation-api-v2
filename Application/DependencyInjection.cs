@@ -7,6 +7,10 @@ namespace Application;
 
 public static class DependencyInjection
 {
+    /// <summary>
+    /// MediatR + FluentValidation: dùng cho pipeline validation (handlers) và xử lý domain events từ Outbox.
+    /// API layer Service-first — controller không gọi IMediator mặc định.
+    /// </summary>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         var assembly = typeof(DependencyInjection).Assembly;

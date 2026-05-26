@@ -1,4 +1,3 @@
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -18,7 +17,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
             .UseSqlServer(connectionString)
             .Options;
 
-        return new AppDbContext(options, new DesignTimeMediator());
+        return new AppDbContext(options);
     }
 
     private static void LoadEnvFile()
@@ -33,39 +32,5 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
         var envFile = candidates.Select(Path.GetFullPath).FirstOrDefault(File.Exists);
         if (envFile is not null)
             DotNetEnv.Env.Load(envFile);
-    }
-
-    private sealed class DesignTimeMediator : IMediator
-    {
-        public Task Publish(object notification, CancellationToken cancellationToken = default) =>
-            Task.CompletedTask;
-
-        public Task Publish<TNotification>(
-            TNotification notification,
-            CancellationToken cancellationToken = default)
-            where TNotification : INotification =>
-            Task.CompletedTask;
-
-        public Task<TResponse> Send<TResponse>(
-            IRequest<TResponse> request,
-            CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException("Design-time only.");
-
-        public Task Send<TRequest>(TRequest request, CancellationToken cancellationToken = default)
-            where TRequest : IRequest =>
-            throw new NotSupportedException("Design-time only.");
-
-        public Task<object?> Send(object request, CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException("Design-time only.");
-
-        public IAsyncEnumerable<TResponse> CreateStream<TResponse>(
-            IStreamRequest<TResponse> request,
-            CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException("Design-time only.");
-
-        public IAsyncEnumerable<object?> CreateStream(
-            object request,
-            CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException("Design-time only.");
     }
 }

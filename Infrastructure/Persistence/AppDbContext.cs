@@ -1,17 +1,18 @@
 ﻿using Domain.Base;
-using MediatR;
+using Domain.Events;
+using Infrastructure.Outbox;
+using Infrastructure.Persistence.Outbox;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence;
 
 public class AppDbContext : DbContext
 {
-    private readonly IMediator _mediator;
-
-    public AppDbContext(DbContextOptions<AppDbContext> options, IMediator mediator) : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        _mediator = mediator;
     }
+
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -33,12 +34,20 @@ public class AppDbContext : DbContext
 
         domainEvents.ForEach(e => e.ClearDomainEvents());
 
-        var result = await base.SaveChangesAsync(cancellationToken);
-
         foreach (var domainEvent in events)
-            await _mediator.Publish(domainEvent, cancellationToken);
+        {
+            var (type, payload) = OutboxSerializer.Serialize(domainEvent);
+            OutboxMessages.Add(new OutboxMessage
+            {
+                Id = Guid.NewGuid(),
+                Type = type,
+                Payload = payload,
+                OccurredOn = domainEvent.OccurredOn,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
 
-        return result;
+        return await base.SaveChangesAsync(cancellationToken);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
