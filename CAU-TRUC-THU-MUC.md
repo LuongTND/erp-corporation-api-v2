@@ -2,7 +2,7 @@
 
 ## Cấu trúc thư mục (ALL)
 
-> Chỉ liệt kê **thư mục** (không liệt kê từng file `.cs`, `.json`, `.env`, `.sln`, `.md`…). Bỏ qua `bin/`, `obj/`, `.git/`, `.vs/`. File project (`.csproj`) nằm trong thư mục project tương ứng. Ở root repo còn các **file** solution / tài liệu (không hiện trong cây): `erp-corporation-api-v2.sln`, `README.md`, `.gitignore`, `Cấu trúc dự án.txt`, `CAU-TRUC-THU-MUC.md`, `CHECKLIST-PR.md`.
+> Chỉ liệt kê **thư mục** (không liệt kê từng file `.cs`, `.json`, `.env`, `.sln`, `.md`…). Bỏ qua `bin/`, `obj/`, `.git/`, `.vs/`. File project (`.csproj`) nằm trong thư mục project tương ứng. Ở root repo còn các **file** solution / tài liệu (không hiện trong cây): `erp-corporation-api-v2.sln`, `README.md`, `.gitignore`, `Cấu trúc dự án.txt`, `CAU-TRUC-THU-MUC.md`, `CHECKLIST-PR.md`, `HUONG-DAN-MIGRATION.md`.
 
 ```
 erp-corporation-api-v2/
