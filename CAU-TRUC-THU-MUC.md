@@ -12,6 +12,7 @@ erp-corporation-api-v2/
 │   │   ├── Base/
 │   │   ├── Configuration/
 │   │   ├── Controllers/
+│   │   │   └── {Module}/                           # Gom controller theo module
 │   │   ├── Filters/
 │   │   ├── Middlewares/
 │   │   └── Properties/
@@ -19,7 +20,9 @@ erp-corporation-api-v2/
 │   ├── Application/                                # [10] Use case, contract, DTO
 │   │   ├── Interfaces/
 │   │   │   ├── Repositories/                       # [10] IRepo
+│   │   │   │   └── {Module}/                       # Gom IRepo theo module
 │   │   │   └── Services/                           # [10] IService
+│   │   │       └── {Module}/                       # Gom IService theo module
 │   │   ├── Features/
 │   │   │   └── {Module}/                           # [8]  CQRS theo module (tuỳ chọn)
 │   │   │       ├── Commands/
@@ -46,10 +49,13 @@ erp-corporation-api-v2/
 │       ├── Extensions/                             # [8]  DI manual + scan
 │       ├── Implementations/
 │       │   ├── Repositories/                       # [10] Repo
+│       │   │   └── {Module}/                       # Đối xứng Application
 │       │   └── Services/                           # [10] Service
+│       │       └── {Module}/                       # Đối xứng Application
 │       ├── Outbox/                                 # [8]  Outbox processor + serializer
 │       ├── Persistence/
 │       │   ├── Configurations/
+│       │   ├── Interceptors/                       # [9]  EF Core Interceptor (Audit tự động)
 │       │   └── Outbox/
 │       ├── Migrations/
 │       └── External/
@@ -140,8 +146,8 @@ Controller → IService → IRepository → Database
 | Thư mục                           | Mục đích                              | Chứa gì                                                       | Quan trọng    |
 |-----------------------------------|---------------------------------------|---------------------------------------------------------------|:-------------:|
 | **`src/Application/`** (root)     | Đăng ký DI Application                | `DependencyInjection.cs` — MediatR, FluentValidation          | **10**        |
-| **`Interfaces/Repositories/`**    | **IRepo** — contract truy cập dữ liệu | `IGenericRepository<T>`, `IUnitOfWork`, `IOrderRepository`…   | **10**        |
-| **`Interfaces/Services/`**        | **IService** — contract nghiệp vụ     | `IOrderService`, `IEmailService`… Controller gọi đây          | **10**        |
+| **`Interfaces/Repositories/{Module}/`** | **IRepo** — contract truy cập dữ liệu, gom theo module | `IGenericRepository<T>`, `IUnitOfWork` ở root; `{Module}/IOrderRepository`… | **10** |
+| **`Interfaces/Services/{Module}/`** | **IService** — contract nghiệp vụ, gom theo module | `{Module}/IOrderService`, `{Module}/ILeaveService`… Controller gọi đây | **10** |
 | **`Features/`**                   | CQRS theo module (vertical slice)     | `{Module}/Commands/`, `Queries/`, `EventHandlers/`            | **8**         |
 | **`DTOs/`**                       | Data transfer — API contract          | `{Module}/CreateXRequest`, `XDto` — không expose Entity       | **9**         |
 | **`Validators/`**                 | FluentValidation                      | `CreateXValidator.cs` — validate trước handler/service        | **8**         |
@@ -155,8 +161,15 @@ Controller → IService → IRepository → Database
 
 ```
 Interfaces/
-├── Repositories/   ← mọi I*Repository, IUnitOfWork
-└── Services/       ← mọi I*Service
+├── Repositories/
+│   ├── IGenericRepository.cs        ← generic dùng chung (root)
+│   ├── IUnitOfWork.cs               ← dùng chung (root)
+│   └── {Module}/                    ← gom theo module
+│       └── IOrderRepository.cs
+└── Services/
+    └── {Module}/                    ← gom theo module
+        ├── IOrderService.cs
+        └── IOrderPaymentService.cs
 ```
 
 |-----------------------|-------------------------------------------|
@@ -174,26 +187,26 @@ Interfaces/
 
 **Vai trò layer:** Khái niệm nghiệp vụ thuần — entity, rule, event. **Không** phụ thuộc API, EF, HTTP.
 
-|-----------------------|---------------------------------------|-----------------------------------------------------------|:-------------:|
-| Thư mục               | Mục đích                              | Chứa gì                                                   | Quan trọng    |
-|-----------------------|---------------------------------------|-----------------------------------------------------------|:-------------:|
-| **`src/Domain/`** (root) | Lõi domain                            | `.csproj` — chỉ `MediatR.Contracts` cho `IDomainEvent`    | **10**        |
-| **`Base/`**           | Type làm “cha” cho entity             | `BaseEntity` (`Id`, audit, domain events)                 | **10**        |
-| **`Entities/`**       | Entity có danh tính (identity)        | `Order`, `Product`… kế thừa `BaseEntity`                  | **10**        |
-| **`ValueObjects/`**   | Giá trị không identity, immutable     | `Email`, `Money`, `Address`                               | **8**         |
-| **`Enums/`**          | Tập giá trị cố định                   | `OrderStatus`, `UserRole`…                                | **8**         |
-| **`Events/`**         | Domain event — **định nghĩa** sự kiện | `IDomainEvent`, `OrderPlacedEvent`                        | **7**         |
-| **`Common/`**         | Exception / helper domain             | `DomainException`                                         | **7**         |
-|-----------------------|---------------------------------------|-----------------------------------------------------------|:-------------:|
+|---------------------------|---------------------------------------|-----------------------------------------------------------------------------------------|:-------------:|
+| Thư mục                   | Mục đích                              | Chứa gì                                                                                 | Quan trọng    |
+|---------------------------|---------------------------------------|-----------------------------------------------------------------------------------------|:-------------:|
+| **`src/Domain/`** (root)  | Lõi domain                            | `.csproj` — chỉ `MediatR.Contracts` cho `IDomainEvent`                                  | **10**        |
+| **`Base/`**               | Nền tảng entity + Marker Interfaces   | `BaseEntity` (`Id`, DomainEvents); `IAuditable`, `ITracked` (interface đánh dấu audit)  | **10**        |
+| **`Entities/`**           | Entity có danh tính (identity)        | `Order`, `Product`… kế thừa `BaseEntity`, implement Interface audit cần thiết           | **10**        |
+| **`ValueObjects/`**       | Giá trị không identity, immutable     | `Email`, `Money`, `Address`                                                             | **8**         |
+| **`Enums/`**              | Tập giá trị cố định                   | `OrderStatus`, `UserRole`…                                                              | **8**         |
+| **`Events/`**             | Domain event — **định nghĩa** sự kiện | `IDomainEvent`, `OrderPlacedEvent`                                                      | **7**         |
+| **`Common/`**             | Exception / helper domain             | `DomainException`                                                                       | **7**         |
+|---------------------------|---------------------------------------|-----------------------------------------------------------------------------------------|:-------------:|
 
 **Phân biệt event:**
 
-|-------------------------------------------|---------------------------------------|
-| Vị trí                                    | Vai trò                               |
-|-------------------------------------------|---------------------------------------|
-| `src/Domain/Events/`                      | Event **đã xảy ra** (record/class)    |
-| `src/Application/Features/.../EventHandlers/` | **Xử lý** event (gửi mail, log…)  |
-|-------------------------------------------|---------------------------------------|
+|-----------------------------------------------|---------------------------------------|
+| Vị trí                                        | Vai trò                               |
+|-----------------------------------------------|---------------------------------------|
+| `src/Domain/Events/`                          | Event **đã xảy ra** (record/class)    |
+| `src/Application/Features/.../EventHandlers/` | **Xử lý** event (gửi mail, log…)      |
+|-----------------------------------------------|---------------------------------------|
 
 **Không đặt ở src/Domain:** DTO API, repository, service implement, `DbContext`.
 
@@ -203,35 +216,43 @@ Interfaces/
 
 **Vai trò layer:** Triển khai kỹ thuật — DB, repo, service, Redis, email, hóa đơn điện tử… **Không** được để layer khác reference trực tiếp (chỉ qua interface Application).
 
-|---------------------------------------|-----------------------------------|-----------------------------------------------------------|:-------------:|
-| Thư mục                               | Mục đích                          | Chứa gì                                                   | Quan trọng    |
-|---------------------------------------|-----------------------------------|-----------------------------------------------------------|:-------------:|
-| **`src/Infrastructure/`** (root)      | DI Infrastructure                 | `DependencyInjection.cs` — DbContext, UoW                 | **10**        |
-| **`Implementations/Repositories/`**   | **Repo** — implement IRepo        | `GenericRepository<T>`, `UnitOfWork`, `OrderRepository`   | **10**        |
-| **`Implementations/Services/`**       | **Service** — implement IService  | `OrderService`, `JwtService`, `EmailService`              | **10**        |
-| **`Persistence/`**                    | EF Core & DbContext               | `AppDbContext`, `DesignTimeDbContextFactory`              | **10**        |
-| **`Persistence/Configurations/`**     | Fluent API mapping entity → bảng  | `OrderConfiguration.cs`                                   | **9**         |
-| **`Migrations/`**                     | EF migrations                     | `*_InitialCreate.cs`, snapshot                            | **9**         |
-| **`External/Redis/`**                 | Client / adapter Redis            | Connection wrapper (khi dùng cache)                       | **6**         |
-| **`External/MemoryCache/`**           | In-memory cache adapter           | Wrapper `IMemoryCache` (khi dùng)                         | **5**         |
-|---------------------------------------|-----------------------------------|-----------------------------------------------------------|:-------------:|
+|---------------------------------------|-----------------------------------|-----------------------------------------------------------------------|:-------------:|
+| Thư mục                               | Mục đích                          | Chứa gì                                                               | Quan trọng    |
+|---------------------------------------|-----------------------------------|-----------------------------------------------------------------------|:-------------:|
+| **`src/Infrastructure/`** (root)      | DI Infrastructure                 | `DependencyInjection.cs` — DbContext, UoW                             | **10**        |
+| **`Implementations/Repositories/{Module}/`** | **Repo** — implement IRepo, gom theo module | `GenericRepository<T>`, `UnitOfWork` ở root; `{Module}/OrderRepository` | **10** |
+| **`Implementations/Services/{Module}/`** | **Service** — implement IService, gom theo module | `{Module}/OrderService`, `{Module}/LeaveService`… | **10** |
+| **`Persistence/`**                    | EF Core & DbContext               | `AppDbContext`, `DesignTimeDbContextFactory`                          | **10**        |
+| **`Persistence/Configurations/`**     | Fluent API mapping entity → bảng  | `OrderConfiguration.cs`                                               | **9**         |
+| **`Persistence/Interceptors/`**       | EF Core Interceptor tự động Audit | `AuditSaveChangesInterceptor` — tự gán `CreatedAt/By`, `UpdatedAt/By` | **9**         |
+| **`Migrations/`**                     | EF migrations                     | `*_InitialCreate.cs`, snapshot                                        | **9**         |
+| **`External/Redis/`**                 | Client / adapter Redis            | Connection wrapper (khi dùng cache)                                   | **6**         |
+| **`External/MemoryCache/`**           | In-memory cache adapter           | Wrapper `IMemoryCache` (khi dùng)                                     | **5**         |
+|---------------------------------------|-----------------------------------|-----------------------------------------------------------------------|:-------------:|
 
 ### Quy ước `Implementations/`
 
 ```
 Implementations/
-├── Repositories/   ← class implement Application.Interfaces.Repositories.*
-└── Services/       ← class implement Application.Interfaces.Services.*
+├── Repositories/
+│   ├── GenericRepository.cs         ← generic dùng chung (root)
+│   ├── UnitOfWork.cs                ← dùng chung (root)
+│   └── {Module}/                    ← gom theo module, đối xứng Application
+│       └── OrderRepository.cs
+└── Services/
+    └── {Module}/                    ← gom theo module, đối xứng Application
+        ├── OrderService.cs
+        └── OrderPaymentService.cs
 ```
 
-**Đối xứng với Application:**
+**Đối xứng với Application (gom theo module):**
 
-|-----------------------------------------------|---------------------------------------------------|
-| Application                                   | Infrastructure                                    |
-|-----------------------------------------------|---------------------------------------------------|
-| `Interfaces/Repositories/IOrderRepository`    | `Implementations/Repositories/OrderRepository`    |
-| `Interfaces/Services/IOrderService`           | `Implementations/Services/OrderService`           |
-|-----------------------------------------------|---------------------------------------------------|
+|-------------------------------------------------------|--------------------------------------------------------|
+| Application                                           | Infrastructure                                         |
+|-------------------------------------------------------|--------------------------------------------------------|
+| `Interfaces/Repositories/{Module}/IOrderRepository`   | `Implementations/Repositories/{Module}/OrderRepository`|
+| `Interfaces/Services/{Module}/IOrderService`          | `Implementations/Services/{Module}/OrderService`       |
+|-------------------------------------------------------|--------------------------------------------------------|
 
 **Không đặt ở src/Infrastructure:** Controller, DTO request/response API (trừ binding config).
 
@@ -259,15 +280,17 @@ Implementations/
 | Enum trạng thái       | `src/Domain/Enums/`                               |
 | Value object          | `src/Domain/ValueObjects/`                        |
 | Domain event          | `src/Domain/Events/`                              |
-| `IOrderRepository`    | `src/Application/Interfaces/Repositories/`        |
-| `IOrderService`       | `src/Application/Interfaces/Services/`            |
-| Request/Response API  | `src/Application/DTOs/{Module}/`                  |
-| Validator input       | `src/Application/Validators/` hoặc cạnh feature   |
-| Command/Query (CQRS)  | `src/Application/Features/{Module}/`              |
-| `OrderRepository`     | `src/Infrastructure/Implementations/Repositories/`|
-| `OrderService`        | `src/Infrastructure/Implementations/Services/`    |
-| EF mapping            | `src/Infrastructure/Persistence/Configurations/`  |
-| Controller            | `src/API/Controllers/`                            |
+| `IOrderRepository`    | `src/Application/Interfaces/Repositories/{Module}/`   |
+| `IOrderService`       | `src/Application/Interfaces/Services/{Module}/`       |
+| Request/Response API  | `src/Application/DTOs/{Module}/`                      |
+| Validator input       | `src/Application/Validators/` hoặc cạnh feature       |
+| Command/Query (CQRS)  | `src/Application/Features/{Module}/`                  |
+| `OrderRepository`     | `src/Infrastructure/Implementations/Repositories/{Module}/` |
+| `OrderService`        | `src/Infrastructure/Implementations/Services/{Module}/`     |
+| EF mapping            | `src/Infrastructure/Persistence/Configurations/`      |
+| EF Core Interceptor   | `src/Infrastructure/Persistence/Interceptors/`        |
+| Marker Interface audit| `src/Domain/Base/` (`IAuditable`, `ITracked`)         |
+| Controller            | `src/API/Controllers/{Module}/`                       |
 | Middleware HTTP       | `src/API/Middlewares/`                            |
 | Đọc `.env`            | `src/API/Configuration/` (EnvLoader auto-map )    |
 |-----------------------|---------------------------------------------------|
@@ -294,8 +317,8 @@ Implementations/
 | `src/Infrastructure/Implementations/Services/`    | **10**                                        |
 | `src/Infrastructure/Implementations/Repositories/`| **10**                                        |
 | `src/API/Controllers/`                            | **10**                                        |
-| `src/Application/DTOs/`                               | **9**                                         |
-| `src/Application/Features/`                           | **8** (nếu dùng MediatR song song Service)    |
+| `src/Application/DTOs/`                           | **9**                                         |
+| `src/Application/Features/`                       | **8** (nếu dùng MediatR song song Service)    |
 |---------------------------------------------------|:---------------------------------------------:|
 
 |-----------------------------------|-----------------------|
@@ -317,6 +340,9 @@ Implementations/
 4. **Entity** expose ra API (luôn qua DTO).
 5. **Business rule phức tạp** trong Repository (để ở Service hoặc Domain method).
 6. **Secret** trong `appsettings.json` thay vì `.env`.
+7. **Tự gán `CreatedAt`/`UpdatedAt` thủ công** trong code nghiệp vụ — để `AuditSaveChangesInterceptor` xử lý tự động.
+8. **Dùng `DateTime.UtcNow` trực tiếp** trong Entity/Service — dùng `TimeProvider` (inject qua DI) để dễ test.
+9. **Tạo chuỗi kế thừa lớp sâu** cho Entity (`BaseEntity → AuditableEntity → TrackedEntity`) — dùng **Marker Interfaces** (`IAuditable`, `ITracked`) để giữ tính linh hoạt kế thừa.
 
 ---
 
@@ -355,10 +381,16 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 
 ### Tầng Domain — `src/Domain/`
 
-- Entity kế thừa `BaseEntity` (`src/Domain/Base/`); khi có rule nghiệp vụ, ưu tiên đổi state qua **method** có tên rõ nghĩa thay vì setter public lung tung.
+- `BaseEntity` (`src/Domain/Base/`) chỉ chứa **`Id` (Guid) và `DomainEvents`** — không nhét logic audit vào đây.
+- Tính năng audit được khai báo qua **Marker Interfaces** tại `src/Domain/Base/`:
+  - `IAuditable` → cột `IsActive`
+  - `ICreationTracked` → cột `CreatedAt`, `CreatedBy`
+  - `IModificationTracked` → cột `UpdatedAt`, `UpdatedBy`
+- Entity **tự do lựa chọn** implement các interface cần thiết, không bị ép kế thừa chuỗi lớp cứng nhắc (tránh xung đột khi cần kế thừa lớp của thư viện bên ngoài như `IdentityUser`).
+- Entity kế thừa `BaseEntity`; khi có rule nghiệp vụ, ưu tiên đổi state qua **method** có tên rõ nghĩa thay vì setter public lung tung.
 - Value object, enum đặt đúng `ValueObjects/`, `Enums/`; immutable, validate tại chỗ tạo khi cần.
 - **Domain event** chỉ **định nghĩa** tại `src/Domain/Events/` — không nhét logic side-effect nặng vào đây.
-- `DomainException` và exception nghiệp vụ thuần domain dùng `src/Domain/Common/` (hoặc pattern team đã chốt).
+- `DomainException` và exception nghiệp vụ thuần domain dùng `src/Domain/Common/`.
 
 ---
 
@@ -377,6 +409,8 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 
 - **Implement** repository tại `Implementations/Repositories/`; **implement** service tại `Implementations/Services/` — khớp namespace với interface Application.
 - **EF Core**: `AppDbContext`, `DesignTimeDbContextFactory` trong `Persistence/`; Fluent mapping trong `Persistence/Configurations/`.
+- **Audit tự động (bắt buộc)**: Đăng ký `AuditSaveChangesInterceptor` trong `Persistence/Interceptors/`. Interceptor này kiểm tra entity có implement `ICreationTracked` / `IModificationTracked` hay không và tự động điền `CreatedAt/By`, `UpdatedAt/By` — **không gán thủ công** trong code nghiệp vụ.
+- **Thời gian (bắt buộc)**: Dùng `.NET 8 TimeProvider` (đăng ký `services.AddSingleton(TimeProvider.System)`) thay cho `DateTime.UtcNow` trực tiếp. Interceptor và Service đều inject `TimeProvider` qua DI để dễ viết Unit Test.
 - **Migration** tạo bằng `dotnet ef`; không sửa lung tung history đã dùng production (trừ quy trình team cho phép).
 - **Tích hợp ngoài** (Redis, cache, client HTTP bên thứ ba): ưu tiên `External/` hoặc subfolder rõ tên nhà cung cấp — không trộn với Entity Domain.
 - **Outbox**: domain event ghi vào bảng `OutboxMessages` trong cùng transaction với `SaveChanges`; `OutboxProcessorHostedService` publish qua MediatR.

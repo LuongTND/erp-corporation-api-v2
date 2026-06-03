@@ -28,4 +28,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     public virtual void Update(T entity) => DbSet.Update(entity);
 
     public virtual void Delete(T entity) => DbSet.Remove(entity);
+
+    public virtual IQueryable<T> GetQueryable() => DbSet;
 }

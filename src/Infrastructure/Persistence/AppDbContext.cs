@@ -1,4 +1,5 @@
-﻿using Domain.Base;
+using Domain.Base;
+using Domain.Entities;
 using Domain.Events;
 using Infrastructure.Outbox;
 using Infrastructure.Persistence.Outbox;
@@ -13,15 +14,18 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<JobLevel> JobLevels => Set<JobLevel>();
+    public DbSet<Department> Departments => Set<Department>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<UserAccount> UserAccounts => Set<UserAccount>();
+    public DbSet<UserDepartment> UserDepartments => Set<UserDepartment>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
-        {
-            if (entry.State == EntityState.Modified)
-                entry.Property(nameof(BaseEntity.UpdatedAt)).CurrentValue = DateTime.UtcNow;
-        }
-
         var domainEvents = ChangeTracker
             .Entries<BaseEntity>()
             .Where(e => e.Entity.DomainEvents.Count > 0)

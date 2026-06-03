@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.Repositories;
+using Application.Interfaces.Repositories;
 using Infrastructure.Extensions;
 using Infrastructure.Implementations.Repositories;
 using Infrastructure.Outbox;
@@ -23,8 +23,15 @@ public static class DependencyInjection
                 "ConnectionStrings:DefaultConnection is not configured. Set CONNECTION_STRING in API/.env (mapped by EnvLoader).");
         }
 
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(connectionString));
+        services.AddSingleton(TimeProvider.System);
+        services.AddScoped<Infrastructure.Persistence.Interceptors.AuditSaveChangesInterceptor>();
+
+        services.AddDbContext<AppDbContext>((sp, options) =>
+        {
+            var interceptor = sp.GetRequiredService<Infrastructure.Persistence.Interceptors.AuditSaveChangesInterceptor>();
+            options.UseSqlServer(connectionString)
+                   .AddInterceptors(interceptor);
+        });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

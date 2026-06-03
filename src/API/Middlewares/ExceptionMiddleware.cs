@@ -60,6 +60,7 @@ public class ExceptionMiddleware
         {
             NotFoundException notFound => (StatusCodes.Status404NotFound, "Not found", notFound.Message),
             ConflictException conflict => (StatusCodes.Status409Conflict, "Conflict", conflict.Message),
+            ForbiddenException forbidden => (StatusCodes.Status403Forbidden, "Forbidden", forbidden.Message),
             DomainException domain => (StatusCodes.Status400BadRequest, "Domain error", domain.Message),
             _ => (StatusCodes.Status500InternalServerError, "Server error", "An unexpected error occurred.")
         };

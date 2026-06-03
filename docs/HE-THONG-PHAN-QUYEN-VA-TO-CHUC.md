@@ -393,18 +393,20 @@ Ví dụ: `hrm.employee.read`, `lms.course.create`, `system.role.update`.
 
 **Ý nghĩa bảng:** Thông tin **đăng nhập** (Identity), tách khỏi HR.
 
-|-----------------------|---------------|:---------:|---------------------------------|
-| Trường                | Kiểu          | Bắt buộc  | Ý nghĩa                         |
-|-----------------------|---------------|:---------:|---------------------------------|
-| Id                    | GUID          | v         | PK (AccountId)                  |
-| UserId                | GUID          | v         | FK → Users, unique (1:1)        |
-| LoginEmail            | nvarchar(256) | v         | Email đăng nhập, unique         |
-| PasswordHash          | nvarchar(max) |           | Hash (null nếu chỉ SSO sau này) |
-| IsLocked              | bit           | v         | Khóa tài khoản                  |
-| LastLoginAt           | datetime2     |           | Đăng nhập cuối                  |
-| FailedLoginCount      | int           |           | Chống brute force (tuỳ chọn)    |
-| CreatedAt, UpdatedAt  | datetime2     | v         |                                 |
-|-----------------------|---------------|:---------:|---------------------------------|
+|-----------------------|---------------|:---------:|-------------------------------------------|
+| Trường                | Kiểu          | Bắt buộc  | Ý nghĩa                                   |
+|-----------------------|---------------|:---------:|-------------------------------------------|
+| Id                    | GUID          | v         | PK (AccountId)                            |
+| UserId                | GUID          | v         | FK → Users, unique (1:1)                  |
+| LoginEmail            | nvarchar(256) | v         | Email đăng nhập, unique                   |
+| PasswordHash          | nvarchar(max) |           | Hash (null nếu chỉ SSO sau này)           |
+| IsLocked              | bit           | v         | Khóa tài khoản                            |
+| LastLoginAt           | datetime2     |           | Đăng nhập cuối                            |
+| FailedLoginCount      | int           |           | Chống brute force (tuỳ chọn)              |
+| RefreshToken          | nvarchar(max) |           | Refresh token hiện tại (opaque string)    |
+| RefreshTokenExpiresAt | datetime2     |           | Thời điểm hết hạn refresh token           |
+| CreatedAt, UpdatedAt  | datetime2     | v         |                                           |
+|-----------------------|---------------|:---------:|-------------------------------------------|
 
 **Logic:**
 
@@ -608,11 +610,26 @@ return await query.ToListAsync();
 3. `UserAccounts.IsLocked` = true.
 4. Revoke các `UserRoles` (RevokedAt, IsActive = false).
 
-### 10.3. Đăng nhập
+### 10.3. Đăng nhập & Refresh Token
+
+**Đăng nhập (`POST /auth/login`):**
 
 1. Xác thực `UserAccounts` (email + password).
-2. Phát JWT (`AccountId`, claims).
-3. Middleware map → `ICurrentUserService`.
+2. Sinh Access Token (JWT) + Refresh Token (chuỗi ngẫu nhiên, lưu trên `UserAccounts`).
+3. Trả về cả hai token cho client.
+
+**Làm mới token (`POST /auth/refresh`):**
+
+1. Client gửi refresh token.
+2. Tìm `UserAccount` theo `RefreshToken`, kiểm tra `RefreshTokenExpiresAt`.
+3. Sinh cặp Access Token + Refresh Token mới, ghi đè refresh token cũ.
+
+**Thu hồi token (`POST /auth/revoke`):**
+
+1. Xóa `RefreshToken` và `RefreshTokenExpiresAt` trên `UserAccounts`.
+2. Dùng khi user logout.
+
+**Middleware:** JWT → map `ICurrentUserService`.
 
 ---
 
@@ -730,7 +747,7 @@ MediatR: dùng cho **domain event handlers** (Outbox), **không** gọi từ con
 ### Phase 2
 
 - Bảng `AuditLogs` + ghi khi đổi Role/Permission/UserRoles.
-- SSO / refresh token nâng cao trên `UserAccounts`.
+- SSO nâng cao trên `UserAccounts`.
 - Multi-tenant (nếu có).
 
 ### Cần chốt với BA / team
