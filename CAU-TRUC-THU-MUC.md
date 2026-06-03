@@ -2,58 +2,61 @@
 
 ## Cấu trúc thư mục (ALL)
 
-> Chỉ liệt kê **thư mục** (không liệt kê từng file `.cs`, `.json`, `.env`, `.sln`, `.md`…). Bỏ qua `bin/`, `obj/`, `.git/`, `.vs/`. File project (`.csproj`) nằm trong thư mục project tương ứng. Ở root repo còn các **file** solution / tài liệu (không hiện trong cây): `erp-corporation-api-v2.sln`, `README.md`, `.gitignore`, `Cấu trúc dự án.txt`, `CAU-TRUC-THU-MUC.md`, `CHECKLIST-PR.md`, `HUONG-DAN-MIGRATION.md`.
+> Chỉ liệt kê **thư mục** (không liệt kê từng file `.cs`, `.json`, `.env`, `.sln`, `.md`…). Bỏ qua `bin/`, `obj/`, `.git/`, `.vs/`. File project (`.csproj`) nằm trong thư mục project tương ứng. Ở root repo còn các **file** solution / tài liệu (không hiện trong cây): `erp-corporation-api-v2.sln`, `README.md`, `.gitignore`, `Cấu trúc dự án.txt`, `CAU-TRUC-THU-MUC.md`, `CHECKLIST-PR.md`, `docs/HE-THONG-PHAN-QUYEN-VA-TO-CHUC.md` (đặc tả RBAC/org/user).
 
 ```
 erp-corporation-api-v2/
 │
-├── API/                                            # [10] Tầng HTTP — Web API host
-│   ├── Base/
-│   ├── Configuration/
-│   ├── Controllers/
-│   ├── Filters/
-│   ├── Middlewares/
-│   └── Properties/
+├── src/                                            # Thư mục chứa mã nguồn chính
+│   ├── API/                                        # [10] Tầng HTTP — Web API host
+│   │   ├── Base/
+│   │   ├── Configuration/
+│   │   ├── Controllers/
+│   │   ├── Filters/
+│   │   ├── Middlewares/
+│   │   └── Properties/
+│   │
+│   ├── Application/                                # [10] Use case, contract, DTO
+│   │   ├── Interfaces/
+│   │   │   ├── Repositories/                       # [10] IRepo
+│   │   │   └── Services/                           # [10] IService
+│   │   ├── Features/
+│   │   │   └── {Module}/                           # [8]  CQRS theo module (tuỳ chọn)
+│   │   │       ├── Commands/
+│   │   │       ├── Queries/
+│   │   │       └── EventHandlers/
+│   │   ├── DTOs/
+│   │   │   └── {Module}/
+│   │   ├── Validators/
+│   │   ├── Mappings/
+│   │   ├── Behaviors/
+│   │   └── Common/
+│   │       ├── Exceptions/
+│   │       └── Models/
+│   │
+│   ├── Domain/                                     # [10] Lõi nghiệp vụ
+│   │   ├── Base/
+│   │   ├── Entities/
+│   │   ├── ValueObjects/
+│   │   ├── Enums/
+│   │   ├── Events/
+│   │   └── Common/
+│   │
+│   └── Infrastructure/                             # [10] Triển khai kỹ thuật
+│       ├── Extensions/                             # [8]  DI manual + scan
+│       ├── Implementations/
+│       │   ├── Repositories/                       # [10] Repo
+│       │   └── Services/                           # [10] Service
+│       ├── Outbox/                                 # [8]  Outbox processor + serializer
+│       ├── Persistence/
+│       │   ├── Configurations/
+│       │   └── Outbox/
+│       ├── Migrations/
+│       └── External/
+│           ├── Redis/
+│           └── MemoryCache/
 │
-├── Application/                                    # [10] Use case, contract, DTO
-│   ├── Interfaces/
-│   │   ├── Repositories/                           # [10] IRepo
-│   │   └── Services/                               # [10] IService
-│   ├── Features/
-│   │   └── {Module}/                               # [8]  CQRS theo module (tuỳ chọn)
-│   │       ├── Commands/
-│   │       ├── Queries/
-│   │       └── EventHandlers/
-│   ├── DTOs/
-│   │   └── {Module}/
-│   ├── Validators/
-│   ├── Mappings/
-│   ├── Behaviors/
-│   └── Common/
-│       ├── Exceptions/
-│       └── Models/
-│
-├── Domain/                                         # [10] Lõi nghiệp vụ
-│   ├── Base/
-│   ├── Entities/
-│   ├── ValueObjects/
-│   ├── Enums/
-│   ├── Events/
-│   └── Common/
-│
-├── Infrastructure/                                 # [10] Triển khai kỹ thuật
-│   ├── Extensions/                                 # [8]  DI manual + scan
-│   ├── Implementations/
-│   │   ├── Repositories/                           # [10] Repo
-│   │   └── Services/                               # [10] Service
-│   ├── Outbox/                                     # [8]  Outbox processor + serializer
-│   ├── Persistence/
-│   │   ├── Configurations/
-│   │   └── Outbox/
-│   ├── Migrations/
-│   └── External/
-│       ├── Redis/
-│       └── MemoryCache/
+├── tests/                                          # Thư mục chứa các project kiểm thử (Unit, Integration Tests)
 │
 ├── .github/
 │   └── workflows/
@@ -62,15 +65,15 @@ erp-corporation-api-v2/
 **Luồng thư mục khi thêm module (ví dụ Order):**
 
 ```
-API/Controllers/
-  → Application/Interfaces/Services/
-  → Infrastructure/Implementations/Services/
-  → Application/Interfaces/Repositories/
-  → Infrastructure/Implementations/Repositories/
-  → Infrastructure/Persistence/
+src/API/Controllers/
+  → src/Application/Interfaces/Services/
+  → src/Infrastructure/Implementations/Services/
+  → src/Application/Interfaces/Repositories/
+  → src/Infrastructure/Implementations/Repositories/
+  → src/Infrastructure/Persistence/
 
-Domain/Entities/
-Application/DTOs/{TênModule}/
+src/Domain/Entities/
+src/Application/DTOs/{TênModule}/
 ```
 
 ---
@@ -106,14 +109,14 @@ Controller → IService → IRepository → Database
 
 ---
 
-## 1. API — `API/`
+## 1. API — `src/API/`
 
 **Vai trò layer:** Nhận HTTP, trả response, cấu hình host, middleware. **Không** chứa business logic, **không** truy cập DB trực tiếp.
 
 |---------------------------|-------------------------------------------|-----------------------------------------------------------------------|:-------------:|
 | Thư mục / file            | Mục đích                                  | Chứa gì                                                               | Quan trọng    |
 |---------------------------|-------------------------------------------|-----------------------------------------------------------------------|:-------------:|
-| **`API/`** (root project) | Host Web API, `Program.cs`                | `Program.cs`, `appsettings*.json`, `.env`                             | **10**        |
+| **`src/API/`** (root proj)| Host Web API, `Program.cs`                | `Program.cs`, `appsettings*.json`, `.env`                             | **10**        |
 | **`Base/`**               | Class controller dùng chung               | `BaseApiController` — **Service-first**, inject `I*Service`           | **8**         |
 | **`Controllers/`**        | Endpoint theo resource / module           | `*Controller.cs` — gọi `IService` hoặc `IMediator`                    | **10**        |
 | **`Configuration/`**      | Cấu hình app, load biến môi trường        | `EnvLoader.cs` (đọc `.env` → map vào `IConfiguration` theo quy ước)   | **9**         |
@@ -125,18 +128,18 @@ Controller → IService → IRepository → Database
 | **`API.http`**            | Gọi thử API trong IDE                     | Request mẫu                                                           | **2**         |
 |---------------------------|-------------------------------------------|-----------------------------------------------------------------------|:-------------:|
 
-**Không đặt ở API:** Entity, DbContext, `IRepository` implement, rule nghiệp vụ phức tạp.
+**Không đặt ở src/API:** Entity, DbContext, `IRepository` implement, rule nghiệp vụ phức tạp.
 
 ---
 
-## 2. Application — `Application/`
+## 2. Application — `src/Application/`
 
 **Vai trò layer:** Định nghĩa use case (contract), DTO, validation, MediatR pipeline. **Không** biết HTTP, **không** biết EF/SQL cụ thể.
 
 |-----------------------------------|---------------------------------------|---------------------------------------------------------------|:-------------:|
 | Thư mục                           | Mục đích                              | Chứa gì                                                       | Quan trọng    |
 |-----------------------------------|---------------------------------------|---------------------------------------------------------------|:-------------:|
-| **`Application/`** (root)         | Đăng ký DI Application                | `DependencyInjection.cs` — MediatR, FluentValidation          | **10**        |
+| **`src/Application/`** (root)     | Đăng ký DI Application                | `DependencyInjection.cs` — MediatR, FluentValidation          | **10**        |
 | **`Interfaces/Repositories/`**    | **IRepo** — contract truy cập dữ liệu | `IGenericRepository<T>`, `IUnitOfWork`, `IOrderRepository`…   | **10**        |
 | **`Interfaces/Services/`**        | **IService** — contract nghiệp vụ     | `IOrderService`, `IEmailService`… Controller gọi đây          | **10**        |
 | **`Features/`**                   | CQRS theo module (vertical slice)     | `{Module}/Commands/`, `Queries/`, `EventHandlers/`            | **8**         |
@@ -163,18 +166,18 @@ Interfaces/
 | Nghiệp vụ phức tạp    | Method trên `IService` (orchestration)    |
 |-----------------------|-------------------------------------------|
 
-**Không đặt ở Application:** `DbContext`, class implement repo/service, reference EF Core.
+**Không đặt ở src/Application:** `DbContext`, class implement repo/service, reference EF Core.
 
 ---
 
-## 3. Domain — `Domain/`
+## 3. Domain — `src/Domain/`
 
 **Vai trò layer:** Khái niệm nghiệp vụ thuần — entity, rule, event. **Không** phụ thuộc API, EF, HTTP.
 
 |-----------------------|---------------------------------------|-----------------------------------------------------------|:-------------:|
 | Thư mục               | Mục đích                              | Chứa gì                                                   | Quan trọng    |
 |-----------------------|---------------------------------------|-----------------------------------------------------------|:-------------:|
-| **`Domain/`** (root)  | Lõi domain                            | `.csproj` — chỉ `MediatR.Contracts` cho `IDomainEvent`    | **10**        |
+| **`src/Domain/`** (root) | Lõi domain                            | `.csproj` — chỉ `MediatR.Contracts` cho `IDomainEvent`    | **10**        |
 | **`Base/`**           | Type làm “cha” cho entity             | `BaseEntity` (`Id`, audit, domain events)                 | **10**        |
 | **`Entities/`**       | Entity có danh tính (identity)        | `Order`, `Product`… kế thừa `BaseEntity`                  | **10**        |
 | **`ValueObjects/`**   | Giá trị không identity, immutable     | `Email`, `Money`, `Address`                               | **8**         |
@@ -188,22 +191,22 @@ Interfaces/
 |-------------------------------------------|---------------------------------------|
 | Vị trí                                    | Vai trò                               |
 |-------------------------------------------|---------------------------------------|
-| `Domain/Events/`                          | Event **đã xảy ra** (record/class)    |
-| `Application/Features/.../EventHandlers/` | **Xử lý** event (gửi mail, log…)      |
+| `src/Domain/Events/`                      | Event **đã xảy ra** (record/class)    |
+| `src/Application/Features/.../EventHandlers/` | **Xử lý** event (gửi mail, log…)  |
 |-------------------------------------------|---------------------------------------|
 
-**Không đặt ở Domain:** DTO API, repository, service implement, `DbContext`.
+**Không đặt ở src/Domain:** DTO API, repository, service implement, `DbContext`.
 
 ---
 
-## 4. Infrastructure — `Infrastructure/`
+## 4. Infrastructure — `src/Infrastructure/`
 
 **Vai trò layer:** Triển khai kỹ thuật — DB, repo, service, Redis, email, hóa đơn điện tử… **Không** được để layer khác reference trực tiếp (chỉ qua interface Application).
 
 |---------------------------------------|-----------------------------------|-----------------------------------------------------------|:-------------:|
 | Thư mục                               | Mục đích                          | Chứa gì                                                   | Quan trọng    |
 |---------------------------------------|-----------------------------------|-----------------------------------------------------------|:-------------:|
-| **`Infrastructure/`** (root)          | DI Infrastructure                 | `DependencyInjection.cs` — DbContext, UoW                 | **10**        |
+| **`src/Infrastructure/`** (root)      | DI Infrastructure                 | `DependencyInjection.cs` — DbContext, UoW                 | **10**        |
 | **`Implementations/Repositories/`**   | **Repo** — implement IRepo        | `GenericRepository<T>`, `UnitOfWork`, `OrderRepository`   | **10**        |
 | **`Implementations/Services/`**       | **Service** — implement IService  | `OrderService`, `JwtService`, `EmailService`              | **10**        |
 | **`Persistence/`**                    | EF Core & DbContext               | `AppDbContext`, `DesignTimeDbContextFactory`              | **10**        |
@@ -230,16 +233,16 @@ Implementations/
 | `Interfaces/Services/IOrderService`           | `Implementations/Services/OrderService`           |
 |-----------------------------------------------|---------------------------------------------------|
 
-**Không đặt ở Infrastructure:** Controller, DTO request/response API (trừ binding config).
+**Không đặt ở src/Infrastructure:** Controller, DTO request/response API (trừ binding config).
 
 ---
 
-## 5. File & thư mục solution (ngoài 4 project)
+## 5. File & thư mục solution (ngoài các project)
 
 |-------------------------------|---------------------------------------|:-------------:|
 | Mục                           | Mục đích                              | Quan trọng    |
 |-------------------------------|---------------------------------------|:-------------:|
-| `erp-corporation-api-v2.sln`  | Solution 4 project                    | **9**         |
+| `erp-corporation-api-v2.sln`  | Solution quản lý các project          | **9**         |
 | `Cấu trúc dự án.txt`          | Spec kiến trúc / blueprint ban đầu    | **6**         |
 | `.gitignore`                  | Bỏ qua `bin/`, `obj/`, `.env`         | **8**         |
 | Folder ảo `src` trong `.sln`  | Nhóm project trên VS                  | **3**         |
@@ -252,21 +255,21 @@ Implementations/
 |-----------------------|---------------------------------------------------|
 | Bạn tạo               | Đặt trong                                         |
 |-----------------------|---------------------------------------------------|
-| Entity ERP            | `Domain/Entities/`                                |
-| Enum trạng thái       | `Domain/Enums/`                                   |
-| Value object          | `Domain/ValueObjects/`                            |
-| Domain event          | `Domain/Events/`                                  |
-| `IOrderRepository`    | `Application/Interfaces/Repositories/`            |
-| `IOrderService`       | `Application/Interfaces/Services/`                |
-| Request/Response API  | `Application/DTOs/{Module}/`                      |
-| Validator input       | `Application/Validators/` hoặc cạnh feature       |
-| Command/Query (CQRS)  | `Application/Features/{Module}/`                  |
-| `OrderRepository`     | `Infrastructure/Implementations/Repositories/`    |
-| `OrderService`        | `Infrastructure/Implementations/Services/`        |
-| EF mapping            | `Infrastructure/Persistence/Configurations/`      |
-| Controller            | `API/Controllers/`                                |
-| Middleware HTTP       | `API/Middlewares/`                                |
-| Đọc `.env`            | `API/Configuration/` (EnvLoader auto-map )        |
+| Entity ERP            | `src/Domain/Entities/`                            |
+| Enum trạng thái       | `src/Domain/Enums/`                               |
+| Value object          | `src/Domain/ValueObjects/`                        |
+| Domain event          | `src/Domain/Events/`                              |
+| `IOrderRepository`    | `src/Application/Interfaces/Repositories/`        |
+| `IOrderService`       | `src/Application/Interfaces/Services/`            |
+| Request/Response API  | `src/Application/DTOs/{Module}/`                  |
+| Validator input       | `src/Application/Validators/` hoặc cạnh feature   |
+| Command/Query (CQRS)  | `src/Application/Features/{Module}/`              |
+| `OrderRepository`     | `src/Infrastructure/Implementations/Repositories/`|
+| `OrderService`        | `src/Infrastructure/Implementations/Services/`    |
+| EF mapping            | `src/Infrastructure/Persistence/Configurations/`  |
+| Controller            | `src/API/Controllers/`                            |
+| Middleware HTTP       | `src/API/Middlewares/`                            |
+| Đọc `.env`            | `src/API/Configuration/` (EnvLoader auto-map )    |
 |-----------------------|---------------------------------------------------|
 
 ---
@@ -285,23 +288,23 @@ Implementations/
 |---------------------------------------------------|:---------------------------------------------:|
 | Folder “sẽ đầy” khi code ERP                      | Quan trọng                                    |
 |---------------------------------------------------|:---------------------------------------------:|
-| `Domain/Entities/`                                | **10**                                        |
-| `Application/Interfaces/Services/`                | **10**                                        |
-| `Application/Interfaces/Repositories/`            | **10**                                        |
-| `Infrastructure/Implementations/Services/`        | **10**                                        |
-| `Infrastructure/Implementations/Repositories/`    | **10**                                        |
-| `API/Controllers/`                                | **10**                                        |
-| `Application/DTOs/`                               | **9**                                         |
-| `Application/Features/`                           | **8** (nếu dùng MediatR song song Service)    |
+| `src/Domain/Entities/`                            | **10**                                        |
+| `src/Application/Interfaces/Services/`            | **10**                                        |
+| `src/Application/Interfaces/Repositories/`        | **10**                                        |
+| `src/Infrastructure/Implementations/Services/`    | **10**                                        |
+| `src/Infrastructure/Implementations/Repositories/`| **10**                                        |
+| `src/API/Controllers/`                            | **10**                                        |
+| `src/Application/DTOs/`                               | **9**                                         |
+| `src/Application/Features/`                           | **8** (nếu dùng MediatR song song Service)    |
 |---------------------------------------------------|:---------------------------------------------:|
 
 |-----------------------------------|-----------------------|
 | Folder skeleton (trống, chờ dùng) | Quan trọng hiện tại   |
 |-----------------------------------|-----------------------|
-| `API/Filters/`                    | **5**                 |
-| `Application/Mappings/`           | **6**                 |
-| `Infrastructure/External/`        | **5–6**               |
-| `Domain/ValueObjects/`, `Enums/`  | **8** khi có module   |
+| `src/API/Filters/`                | **5**                 |
+| `src/Application/Mappings/`       | **6**                 |
+| `src/Infrastructure/External/`    | **5–6**               |
+| `src/Domain/ValueObjects/`, `Enums/` | **8** khi có module|
 |-----------------------------------|-----------------------|
 
 ---
@@ -309,8 +312,8 @@ Implementations/
 ## 8. Những điều không nên (tránh rối code)
 
 1. **Controller** gọi thẳng `DbContext` hoặc `OrderRepository` (bỏ qua `IService`).
-2. **IService / IRepository** đặt ngoài `Application/Interfaces/`.
-3. **Implement** repo/service đặt ngoài `Infrastructure/Implementations/`.
+2. **IService / IRepository** đặt ngoài `src/Application/Interfaces/`.
+3. **Implement** repo/service đặt ngoài `src/Infrastructure/Implementations/`.
 4. **Entity** expose ra API (luôn qua DTO).
 5. **Business rule phức tạp** trong Repository (để ở Service hoặc Domain method).
 6. **Secret** trong `appsettings.json` thay vì `.env`.
@@ -350,16 +353,16 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 
 ---
 
-### Tầng Domain — `Domain/`
+### Tầng Domain — `src/Domain/`
 
-- Entity kế thừa `BaseEntity` (`Domain/Base/`); khi có rule nghiệp vụ, ưu tiên đổi state qua **method** có tên rõ nghĩa thay vì setter public lung tung.
+- Entity kế thừa `BaseEntity` (`src/Domain/Base/`); khi có rule nghiệp vụ, ưu tiên đổi state qua **method** có tên rõ nghĩa thay vì setter public lung tung.
 - Value object, enum đặt đúng `ValueObjects/`, `Enums/`; immutable, validate tại chỗ tạo khi cần.
-- **Domain event** chỉ **định nghĩa** tại `Domain/Events/` — không nhét logic side-effect nặng vào đây.
-- `DomainException` và exception nghiệp vụ thuần domain dùng `Domain/Common/` (hoặc pattern team đã chốt).
+- **Domain event** chỉ **định nghĩa** tại `src/Domain/Events/` — không nhét logic side-effect nặng vào đây.
+- `DomainException` và exception nghiệp vụ thuần domain dùng `src/Domain/Common/` (hoặc pattern team đã chốt).
 
 ---
 
-### Tầng Application — `Application/`
+### Tầng Application — `src/Application/`
 
 - **Chỉ interface** hướng ra ngoài persistence: `IRepository` trong `Interfaces/Repositories/`, `IService` trong `Interfaces/Services/` — **không** chứa class `DbContext`, không gọi SQL/EF trực tiếp.
 - **DTO** request/response API nằm `DTOs/{Module}/` — **không** trả `Entity` ra contract API.
@@ -370,7 +373,7 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 
 ---
 
-### Tầng Infrastructure — `Infrastructure/`
+### Tầng Infrastructure — `src/Infrastructure/`
 
 - **Implement** repository tại `Implementations/Repositories/`; **implement** service tại `Implementations/Services/` — khớp namespace với interface Application.
 - **EF Core**: `AppDbContext`, `DesignTimeDbContextFactory` trong `Persistence/`; Fluent mapping trong `Persistence/Configurations/`.
@@ -381,7 +384,7 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 
 ---
 
-### Tầng API — `API/`
+### Tầng API — `src/API/`
 
 - **Controller mỏng**: bind HTTP ↔ DTO, gọi **`IService`** — **không** inject `DbContext`, **không** inject class Repository cụ thể, **không** gọi `IMediator` mặc định.
 - **Luồng chuẩn**: `Controller` → `IService` → `IRepository` → persistence. Không bỏ qua Service để gọi Repo từ Controller.
@@ -393,7 +396,7 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 
 **Cấu hình và bảo mật**
 
-- Secret và connection string: **`API/.env`** (hoặc biến môi trường do hạ tầng inject). **Không** commit `.env`.
+- Secret và connection string: **`src/API/.env`** (hoặc biến môi trường do hạ tầng inject). **Không** commit `.env`.
 - Runtime DB: chỉ đọc **`ConnectionStrings:DefaultConnection`** (`EnvLoader` map từ `CONNECTION_STRING`).
 - `appsettings*.json`: chỉ giá trị **không nhạy cảm** (logging, allowed hosts, …).
 - Lỗi API: `ValidationProblemDetails` (errors theo field) + `extensions.traceId` trong `ExceptionMiddleware`.
@@ -411,12 +414,6 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 - Commit theo quy trình team / khi được yêu cầu; message rõ ràng.
 - Đổi cấu trúc thư mục quan trọng → cập nhật `CAU-TRUC-THU-MUC.md` (ít nhất mục **Cấu trúc thư mục (ALL)** và phần quy tắc liên quan) **trong cùng PR**.
 - Checklist PR: xem **`CHECKLIST-PR.md`**.
-
-**Trước khi merge / release (gợi ý)**
-
-- `dotnet build` không lỗi.
-- Migration chạy được trên DB dev nếu đổi schema.
-- Smoke test endpoint chính (Swagger / `API.http`).
 
 ---
 
