@@ -21,20 +21,20 @@
 
 ### 👤 Users — Quản lý người dùng (`/api/users`)
 
-|-----|---------------------------|-----------|-----------------------------------|-------------------------------------------------|
-| #   | Tên API                   | Method    | URL                               | Chức năng                                       |
-|-----|---------------------------|-----------|-----------------------------------|-------------------------------------------------|
-| 5   | DS người dùng             | `GET`     | `/api/users`                      | Lấy danh sách tất cả người dùng                 |
-| 6   | Chi tiết người dùng       | `GET`     | `/api/users/{id}`                 | Lấy thông tin người dùng theo ID                |
-| 7   | Tạo người dùng            | `POST`    | `/api/users`                      | Tạo người dùng mới                              |
-| 8   | Cập nhật người dùng       | `PUT`     | `/api/users/{id}`                 | Cập nhật thông tin người dùng                   |
-| 9   | Xóa người dùng            | `DELETE`  | `/api/users/{id}`                 | Xóa (vô hiệu hóa) người dùng                    |
-| 10  | Gán vai trò               | `POST`    | `/api/users/{id}/roles`                       | Gán danh sách vai trò cho người dùng            |
-| 11  | Đặt lại mật khẩu          | `POST`    | `/api/users/{id}/reset-password`              | Đặt lại mật khẩu cho người dùng                 |
-| 12  | DS phòng ban kiêm nhiệm   | `GET`     | `/api/users/{id}/departments`                 | Lấy danh sách phòng ban kiêm nhiệm              |
-| 13  | Gán phòng ban kiêm nhiệm  | `POST`    | `/api/users/{id}/departments`                 | Gán phòng ban kiêm nhiệm mới                    |
-| 14  | Gỡ phòng ban kiêm nhiệm   | `DELETE`  | `/api/users/{id}/departments/{departmentId}`  | Gỡ bỏ phòng ban kiêm nhiệm                     |
-|-----|---------------------------|-----------|-----------------------------------|-------------------------------------------------|
+|-----|---------------------------|-----------|-----------------------------------------------|---------------------------------------|
+| #   | Tên API                   | Method    | URL                                           | Chức năng                             |
+|-----|---------------------------|-----------|-----------------------------------------------|---------------------------------------|
+| 5   | DS người dùng             | `GET`     | `/api/users`                                  | Lấy danh sách tất cả người dùng       |
+| 6   | Chi tiết người dùng       | `GET`     | `/api/users/{id}`                             | Lấy thông tin người dùng theo ID      |
+| 7   | Tạo người dùng            | `POST`    | `/api/users`                                  | Tạo người dùng mới                    |
+| 8   | Cập nhật người dùng       | `PUT`     | `/api/users/{id}`                             | Cập nhật thông tin người dùng         |
+| 9   | Xóa người dùng            | `DELETE`  | `/api/users/{id}`                             | Xóa (vô hiệu hóa) người dùng          |
+| 10  | Gán vai trò               | `POST`    | `/api/users/{id}/roles`                       | Gán danh sách vai trò cho người dùng  |
+| 11  | Đặt lại mật khẩu          | `POST`    | `/api/users/{id}/reset-password`              | Đặt lại mật khẩu cho người dùng       |
+| 12  | DS phòng ban kiêm nhiệm   | `GET`     | `/api/users/{id}/departments`                 | Lấy danh sách phòng ban kiêm nhiệm    |
+| 13  | Gán phòng ban kiêm nhiệm  | `POST`    | `/api/users/{id}/departments`                 | Gán phòng ban kiêm nhiệm mới          |
+| 14  | Gỡ phòng ban kiêm nhiệm   | `DELETE`  | `/api/users/{id}/departments/{departmentId}`  | Gỡ bỏ phòng ban kiêm nhiệm            |
+|-----|---------------------------|-----------|-----------------------------------------------|---------------------------------------|
 
 ### 🏢 Departments — Quản lý phòng ban (`/api/departments`)
 
