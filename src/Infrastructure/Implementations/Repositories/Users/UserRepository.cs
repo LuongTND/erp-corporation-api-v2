@@ -17,6 +17,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await DbSet
             .Include(u => u.Department)
             .Include(u => u.JobLevel)
+            .Include(u => u.Manager)
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(u => u.Id == id, ct);
@@ -27,6 +28,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         var query = DbSet
             .Include(u => u.Department)
             .Include(u => u.JobLevel)
+            .Include(u => u.Manager)
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
             .Where(u => u.Id == id);
@@ -48,6 +50,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         var query = DbSet
             .Include(u => u.Department)
             .Include(u => u.JobLevel)
+            .Include(u => u.Manager)
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
             .AsNoTracking();
@@ -91,5 +94,35 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await DbSet
             .Include(u => u.JobLevel)
             .FirstOrDefaultAsync(u => u.Id == id, ct);
+    }
+
+    public async Task<bool> HasActiveUsersWithJobLevelAsync(Guid jobLevelId, CancellationToken ct = default)
+    {
+        return await DbSet.AnyAsync(u => u.JobLevelId == jobLevelId && u.IsActive, ct);
+    }
+
+    public async Task<bool> HasActiveUsersInDepartmentAsync(Guid departmentId, CancellationToken ct = default)
+    {
+        return await DbSet.AnyAsync(u => u.DepartmentId == departmentId && u.IsActive, ct);
+    }
+
+    public async Task<User?> GetByIdWithAccountAsync(Guid id, CancellationToken ct = default)
+    {
+        return await DbSet
+            .Include(u => u.UserAccount)
+            .FirstOrDefaultAsync(u => u.Id == id, ct);
+    }
+
+    public async Task<User?> GetByIdWithAccountAndRolesAsync(Guid id, CancellationToken ct = default)
+    {
+        return await DbSet
+            .Include(u => u.UserAccount)
+            .Include(u => u.UserRoles)
+            .FirstOrDefaultAsync(u => u.Id == id, ct);
+    }
+
+    public async Task AddUserRoleAsync(UserRole userRole, CancellationToken ct = default)
+    {
+        await Context.UserRoles.AddAsync(userRole, ct);
     }
 }

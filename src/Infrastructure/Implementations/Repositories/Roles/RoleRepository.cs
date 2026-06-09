@@ -79,4 +79,22 @@ public class RoleRepository : GenericRepository<Role>, IRoleRepository
             await Context.RolePermissions.AddAsync(rp, ct);
         }
     }
+
+    public async Task<bool> HasActiveUsersInRoleAsync(Guid roleId, CancellationToken ct = default)
+    {
+        return await Context.UserRoles
+            .AnyAsync(ur => ur.RoleId == roleId && ur.IsActive && ur.User.IsActive, ct);
+    }
+
+    public async Task<Role?> GetByNameAsync(string name, CancellationToken ct = default)
+    {
+        return await DbSet.FirstOrDefaultAsync(r => r.RoleName == name, ct);
+    }
+
+    public async Task<List<Role>> GetActiveRolesByIdsAsync(List<Guid> roleIds, CancellationToken ct = default)
+    {
+        return await DbSet
+            .Where(r => roleIds.Contains(r.Id) && r.IsActive)
+            .ToListAsync(ct);
+    }
 }

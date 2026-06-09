@@ -8,5 +8,7 @@ public interface IRoleService
     Task<IReadOnlyList<RoleDto>> GetAllAsync(CancellationToken ct = default);
     Task<IReadOnlyList<PermissionDto>> GetAllPermissionsAsync(CancellationToken ct = default);
     Task<RoleDto> CreateAsync(CreateRoleRequest request, CancellationToken ct = default);
+    Task<RoleDto> UpdateAsync(Guid id, UpdateRoleRequest request, CancellationToken ct = default);
     Task UpdatePermissionsAsync(Guid id, UpdateRolePermissionsRequest request, CancellationToken ct = default);
+    Task DeleteAsync(Guid id, CancellationToken ct = default);
 }

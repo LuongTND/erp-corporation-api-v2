@@ -13,4 +13,9 @@ public interface IUserRepository : IGenericRepository<User>
     Task<bool> ExistsByEmailExcludeIdAsync(string email, Guid excludeId, CancellationToken ct = default);
     Task<User?> GetByIdWithRolesAsync(Guid id, CancellationToken ct = default);
     Task<User?> GetJobLevelScopeInfoAsync(Guid id, CancellationToken ct = default);
+    Task<bool> HasActiveUsersWithJobLevelAsync(Guid jobLevelId, CancellationToken ct = default);
+    Task<bool> HasActiveUsersInDepartmentAsync(Guid departmentId, CancellationToken ct = default);
+    Task<User?> GetByIdWithAccountAsync(Guid id, CancellationToken ct = default);
+    Task<User?> GetByIdWithAccountAndRolesAsync(Guid id, CancellationToken ct = default);
+    Task AddUserRoleAsync(UserRole userRole, CancellationToken ct = default);
 }

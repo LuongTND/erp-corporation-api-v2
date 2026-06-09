@@ -1,6 +1,6 @@
 using Domain.Entities;
 using Domain.Enums;
-using Infrastructure.Implementations.Services.Auth;
+using Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence;
@@ -63,6 +63,13 @@ public static class DbInitializer
             ("hrm.department.read", "Xem danh sách phòng ban", PermissionModule.Hrm, PermissionAction.Read, "department"),
             ("hrm.department.create", "Thêm mới phòng ban", PermissionModule.Hrm, PermissionAction.Create, "department"),
             ("hrm.department.update", "Sửa thông tin phòng ban", PermissionModule.Hrm, PermissionAction.Update, "department"),
+            ("hrm.department.delete", "Xóa phòng ban", PermissionModule.Hrm, PermissionAction.Delete, "department"),
+            
+            // Job Levels
+            ("hrm.joblevel.read", "Xem danh sách cấp bậc chức danh", PermissionModule.Hrm, PermissionAction.Read, "joblevel"),
+            ("hrm.joblevel.create", "Thêm mới cấp bậc chức danh", PermissionModule.Hrm, PermissionAction.Create, "joblevel"),
+            ("hrm.joblevel.update", "Sửa thông tin cấp bậc chức danh", PermissionModule.Hrm, PermissionAction.Update, "joblevel"),
+            ("hrm.joblevel.delete", "Xóa/Vô hiệu hóa cấp bậc chức danh", PermissionModule.Hrm, PermissionAction.Delete, "joblevel"),
             
             // Roles & System
             ("system.role.read", "Xem danh sách vai trò", PermissionModule.System, PermissionAction.Read, "role"),
@@ -109,27 +116,30 @@ public static class DbInitializer
         await context.SaveChangesAsync();
 
         // 5. Seed RolePermissions (Map all permissions to Super Admin & HR Admin)
-        if (!await context.RolePermissions.AnyAsync(rp => rp.RoleId == superAdminRole.Id))
+        foreach (var p in allDbPermissions)
         {
-            foreach (var p in allDbPermissions)
+            var exists = await context.RolePermissions.AnyAsync(rp => rp.RoleId == superAdminRole.Id && rp.PermissionId == p.Id);
+            if (!exists)
             {
                 await context.RolePermissions.AddAsync(RolePermission.Create(superAdminRole.Id, p.Id));
             }
         }
 
-        if (!await context.RolePermissions.AnyAsync(rp => rp.RoleId == hrAdminRole.Id))
+        // HR Admin gets employee, department, joblevel, role assignment, and reset password permissions
+        foreach (var p in allDbPermissions.Where(per => per.PermissionCode.StartsWith("hrm.") || per.PermissionCode == "system.role.assign" || per.PermissionCode == "system.user.resetpassword"))
         {
-            // HR Admin gets employee, department, and role assignment permissions
-            foreach (var p in allDbPermissions.Where(per => per.PermissionCode.StartsWith("hrm.") || per.PermissionCode == "system.role.assign" || per.PermissionCode == "system.user.resetpassword"))
+            var exists = await context.RolePermissions.AnyAsync(rp => rp.RoleId == hrAdminRole.Id && rp.PermissionId == p.Id);
+            if (!exists)
             {
                 await context.RolePermissions.AddAsync(RolePermission.Create(hrAdminRole.Id, p.Id));
             }
         }
 
-        if (!await context.RolePermissions.AnyAsync(rp => rp.RoleId == employeeRole.Id))
+        // Employee gets only read permissions for employees, departments, and joblevels
+        foreach (var p in allDbPermissions.Where(per => per.PermissionCode == "hrm.employee.read" || per.PermissionCode == "hrm.department.read" || per.PermissionCode == "hrm.joblevel.read"))
         {
-            // Employee gets only read permissions
-            foreach (var p in allDbPermissions.Where(per => per.PermissionCode == "hrm.employee.read" || per.PermissionCode == "hrm.department.read"))
+            var exists = await context.RolePermissions.AnyAsync(rp => rp.RoleId == employeeRole.Id && rp.PermissionId == p.Id);
+            if (!exists)
             {
                 await context.RolePermissions.AddAsync(RolePermission.Create(employeeRole.Id, p.Id));
             }

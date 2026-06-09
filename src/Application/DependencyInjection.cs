@@ -8,7 +8,7 @@ namespace Application;
 public static class DependencyInjection
 {
     /// <summary>
-    /// MediatR + FluentValidation: dùng cho pipeline validation (handlers) và xử lý domain events từ Outbox.
+    /// MediatR + AutoMapper + FluentValidation: map DTO trong Service qua IMapper; validation handlers / Outbox.
     /// API layer Service-first — controller không gọi IMediator mặc định.
     /// </summary>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
@@ -16,6 +16,7 @@ public static class DependencyInjection
         var assembly = typeof(DependencyInjection).Assembly;
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
+        services.AddAutoMapper(assembly);
         services.AddValidatorsFromAssembly(assembly);
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

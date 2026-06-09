@@ -7,8 +7,10 @@ using Application.DTOs.Users;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Users;
 using Application.Interfaces.Services.Auth;
+using AutoMapper;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
+using Infrastructure.Security;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Implementations.Services.Auth;
@@ -20,19 +22,25 @@ public class AuthService : IAuthService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IConfiguration _configuration;
     private readonly TimeProvider _timeProvider;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly IMapper _mapper;
 
     public AuthService(
         IUserAccountRepository userAccountRepository,
         IUserRepository userRepository,
         IUnitOfWork unitOfWork,
         IConfiguration configuration,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        ICurrentUserService currentUserService,
+        IMapper mapper)
     {
         _userAccountRepository = userAccountRepository;
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _configuration = configuration;
         _timeProvider = timeProvider;
+        _currentUserService = currentUserService;
+        _mapper = mapper;
     }
 
     public async Task<TokenResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
@@ -106,6 +114,14 @@ public class AuthService : IAuthService
         }
     }
 
+    public async Task<UserDto> GetCurrentUserAsync(CancellationToken ct = default)
+    {
+        var userId = _currentUserService.UserId
+            ?? throw new ForbiddenException("Không xác định được người dùng hiện tại.");
+
+        return await GetMeAsync(userId, ct);
+    }
+
     public async Task<UserDto> GetMeAsync(Guid userId, CancellationToken ct = default)
     {
         var user = await _userRepository.GetByIdWithDetailsAsync(userId, ct);
@@ -115,33 +131,7 @@ public class AuthService : IAuthService
             throw new NotFoundException("Không tìm thấy thông tin nhân sự.");
         }
 
-        var rolesList = user.UserRoles
-            .Where(ur => ur.IsActive && ur.RevokedAt == null && ur.Role.IsActive)
-            .Select(ur => ur.Role.RoleName)
-            .ToList();
-
-        var managerName = user.ManagerId.HasValue
-            ? (await _userRepository.GetByIdAsync(user.ManagerId.Value, ct))?.FullName
-            : null;
-
-        return new UserDto
-        {
-            Id = user.Id,
-            EmployeeCode = user.EmployeeCode,
-            FullName = user.FullName,
-            Email = user.Email,
-            AvatarUrl = user.AvatarUrl,
-            DepartmentId = user.DepartmentId,
-            DepartmentName = user.Department.DepartmentName,
-            JobLevelId = user.JobLevelId,
-            JobLevelName = user.JobLevel.LevelName,
-            ManagerId = user.ManagerId,
-            ManagerName = managerName,
-            DateOfJoin = user.DateOfJoin,
-            Status = user.Status,
-            IsActive = user.IsActive,
-            Roles = rolesList
-        };
+        return _mapper.Map<UserDto>(user);
     }
 
     private (string tokenString, DateTime expiry) GenerateAccessToken(UserAccount account)

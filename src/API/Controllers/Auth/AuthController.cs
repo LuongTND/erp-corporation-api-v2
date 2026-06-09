@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using API.Base;
 using Application.DTOs.Auth;
 using Application.DTOs.Users;
@@ -17,7 +16,6 @@ public class AuthController : BaseApiController
         _authService = authService;
     }
 
-    // API đăng nhập, dùng để đăng nhập vào hệ thống, sau khi đăng nhập sẽ trả về token 
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<TokenResponse>> Login([FromBody] LoginRequest request, CancellationToken ct)
@@ -26,7 +24,6 @@ public class AuthController : BaseApiController
         return Ok(response);
     }
 
-    // API refresh token, dùng để lấy token mới khi token cũ hết hạn
     [HttpPost("refresh")]
     [AllowAnonymous]
     public async Task<ActionResult<TokenResponse>> Refresh([FromBody] RefreshTokenRequest request, CancellationToken ct)
@@ -35,7 +32,6 @@ public class AuthController : BaseApiController
         return Ok(response);
     }
 
-    // API revoke token, dùng để thu hồi token, sau khi thu hồi token sẽ không thể sử dụng được nữa
     [HttpPost("revoke")]
     [Authorize]
     public async Task<ActionResult> Revoke([FromBody] RefreshTokenRequest request, CancellationToken ct)
@@ -44,18 +40,11 @@ public class AuthController : BaseApiController
         return NoContent();
     }
 
-    // API lấy thông tin người dùng hiện tại, dùng để hiển thị thông tin người dùng trên giao diện
     [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult<UserDto>> GetMe(CancellationToken ct)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!Guid.TryParse(userIdClaim, out var userId))
-        {
-            return Unauthorized();
-        }
-
-        var user = await _authService.GetMeAsync(userId, ct);
+        var user = await _authService.GetCurrentUserAsync(ct);
         return Ok(user);
     }
 }

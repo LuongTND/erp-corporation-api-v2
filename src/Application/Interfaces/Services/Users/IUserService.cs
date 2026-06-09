@@ -11,4 +11,7 @@ public interface IUserService
     Task DeleteAsync(Guid id, CancellationToken ct = default); // Soft delete or deactivate
     Task AssignRolesAsync(Guid id, List<Guid> roleIds, CancellationToken ct = default);
     Task ResetPasswordAsync(Guid id, string newPassword, CancellationToken ct = default);
+    Task<IReadOnlyList<UserDepartmentDto>> GetSecondaryDepartmentsAsync(Guid userId, CancellationToken ct = default);
+    Task<UserDepartmentDto> AddSecondaryDepartmentAsync(Guid userId, AddUserDepartmentRequest request, CancellationToken ct = default);
+    Task RemoveSecondaryDepartmentAsync(Guid userId, Guid departmentId, CancellationToken ct = default);
 }

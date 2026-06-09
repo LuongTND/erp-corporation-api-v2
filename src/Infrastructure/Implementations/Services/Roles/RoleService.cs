@@ -3,7 +3,9 @@ using Application.DTOs.Roles;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Roles;
 using Application.Interfaces.Services.Roles;
+using AutoMapper;
 using Domain.Entities;
+using FluentValidation;
 
 namespace Infrastructure.Implementations.Services.Roles;
 
@@ -11,11 +13,19 @@ public class RoleService : IRoleService
 {
     private readonly IRoleRepository _roleRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IValidator<UpdateRoleRequest> _updateValidator;
+    private readonly IMapper _mapper;
 
-    public RoleService(IRoleRepository roleRepository, IUnitOfWork unitOfWork)
+    public RoleService(
+        IRoleRepository roleRepository,
+        IUnitOfWork unitOfWork,
+        IValidator<UpdateRoleRequest> updateValidator,
+        IMapper mapper)
     {
         _roleRepository = roleRepository;
         _unitOfWork = unitOfWork;
+        _updateValidator = updateValidator;
+        _mapper = mapper;
     }
 
     public async Task<RoleDto> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -25,21 +35,21 @@ public class RoleService : IRoleService
         if (role == null)
             throw new NotFoundException("Không tìm thấy vai trò.");
 
-        return MapToDto(role);
+        return _mapper.Map<RoleDto>(role);
     }
 
     public async Task<IReadOnlyList<RoleDto>> GetAllAsync(CancellationToken ct = default)
     {
         var roles = await _roleRepository.GetAllWithPermissionsAsync(ct);
 
-        return roles.Select(MapToDto).ToList();
+        return _mapper.Map<List<RoleDto>>(roles);
     }
 
     public async Task<IReadOnlyList<PermissionDto>> GetAllPermissionsAsync(CancellationToken ct = default)
     {
         var permissions = await _roleRepository.GetAllPermissionsAsync(ct);
 
-        return permissions.Select(MapPermissionToDto).ToList();
+        return _mapper.Map<List<PermissionDto>>(permissions);
     }
 
     public async Task<RoleDto> CreateAsync(CreateRoleRequest request, CancellationToken ct = default)
@@ -82,35 +92,39 @@ public class RoleService : IRoleService
         await _unitOfWork.SaveChangesAsync(ct);
     }
 
-    private static RoleDto MapToDto(Role role)
+    public async Task<RoleDto> UpdateAsync(Guid id, UpdateRoleRequest request, CancellationToken ct = default)
     {
-        return new RoleDto
-        {
-            Id = role.Id,
-            RoleName = role.RoleName,
-            DisplayName = role.DisplayName,
-            Description = role.Description,
-            IsSystemRole = role.IsSystemRole,
-            BypassDataScope = role.BypassDataScope,
-            IsActive = role.IsActive,
-            Permissions = role.RolePermissions
-                .Select(rp => MapPermissionToDto(rp.Permission))
-                .ToList()
-        };
+        await _updateValidator.ValidateAndThrowAsync(request, ct);
+
+        var role = await _roleRepository.GetByIdAsync(id, ct);
+        if (role == null)
+            throw new NotFoundException("Không tìm thấy vai trò cần cập nhật.");
+
+        if (role.IsSystemRole && !request.IsActive)
+            throw new ConflictException("Không thể vô hiệu hóa vai trò hệ thống.");
+
+        role.Update(request.DisplayName, request.Description, request.BypassDataScope);
+        role.IsActive = request.IsActive;
+
+        await _unitOfWork.SaveChangesAsync(ct);
+        return await GetByIdAsync(id, ct);
     }
 
-    private static PermissionDto MapPermissionToDto(Permission p)
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
-        return new PermissionDto
-        {
-            Id = p.Id,
-            PermissionCode = p.PermissionCode,
-            PermissionName = p.PermissionName,
-            Module = p.Module,
-            Action = p.Action,
-            Resource = p.Resource,
-            Description = p.Description,
-            IsActive = p.IsActive
-        };
+        var role = await _roleRepository.GetByIdAsync(id, ct);
+        if (role == null)
+            throw new NotFoundException("Không tìm thấy vai trò.");
+
+        if (role.IsSystemRole)
+            throw new ConflictException("Không thể xóa vai trò hệ thống.");
+
+        // Check if role is currently assigned to any active user
+        var isUsed = await _roleRepository.HasActiveUsersInRoleAsync(id, ct);
+        if (isUsed)
+            throw new ConflictException("Không thể xóa vai trò đang được gán cho nhân sự hoạt động.");
+
+        role.IsActive = false;
+        await _unitOfWork.SaveChangesAsync(ct);
     }
 }

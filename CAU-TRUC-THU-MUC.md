@@ -9,7 +9,7 @@ erp-corporation-api-v2/
 │
 ├── src/                                            # Thư mục chứa mã nguồn chính
 │   ├── API/                                        # [10] Tầng HTTP — Web API host
-│   │   ├── Base/
+│   │   ├── Base/                                   # BaseApiController, CrudApiController
 │   │   ├── Configuration/
 │   │   ├── Controllers/
 │   │   │   └── {Module}/                           # Gom controller theo module
@@ -22,6 +22,7 @@ erp-corporation-api-v2/
 │   │   │   ├── Repositories/                       # [10] IRepo
 │   │   │   │   └── {Module}/                       # Gom IRepo theo module
 │   │   │   └── Services/                           # [10] IService
+│   │   │       ├── Common/                         # ICrudService (contract CRUD dùng chung)
 │   │   │       └── {Module}/                       # Gom IService theo module
 │   │   ├── Features/
 │   │   │   └── {Module}/                           # [8]  CQRS theo module (tuỳ chọn)
@@ -31,7 +32,8 @@ erp-corporation-api-v2/
 │   │   ├── DTOs/
 │   │   │   └── {Module}/
 │   │   ├── Validators/
-│   │   ├── Mappings/
+│   │   ├── Mappings/                               # AutoMapper Profile theo module
+│   │   │   └── {Module}/
 │   │   ├── Behaviors/
 │   │   └── Common/
 │   │       ├── Exceptions/
@@ -47,6 +49,7 @@ erp-corporation-api-v2/
 │   │
 │   └── Infrastructure/                             # [10] Triển khai kỹ thuật
 │       ├── Extensions/                             # [8]  DI manual + scan
+│       ├── Security/                               # [7]  Helper bảo mật (static, không DI)
 │       ├── Implementations/
 │       │   ├── Repositories/                       # [10] Repo
 │       │   │   └── {Module}/                       # Đối xứng Application
@@ -123,7 +126,7 @@ Controller → IService → IRepository → Database
 | Thư mục / file            | Mục đích                                  | Chứa gì                                                               | Quan trọng    |
 |---------------------------|-------------------------------------------|-----------------------------------------------------------------------|:-------------:|
 | **`src/API/`** (root proj)| Host Web API, `Program.cs`                | `Program.cs`, `appsettings*.json`, `.env`                             | **10**        |
-| **`Base/`**               | Class controller dùng chung               | `BaseApiController` — **Service-first**, inject `I*Service`           | **8**         |
+| **`Base/`**               | Class controller dùng chung               | `BaseApiController` — **Service-first**, inject `I*Service`; `CrudApiController` — CRUD mỏng + permission | **8** |
 | **`Controllers/`**        | Endpoint theo resource / module           | `*Controller.cs` — gọi `IService` hoặc `IMediator`                    | **10**        |
 | **`Configuration/`**      | Cấu hình app, load biến môi trường        | `EnvLoader.cs` (đọc `.env` → map vào `IConfiguration` theo quy ước)   | **9**         |
 | **`Middlewares/`**        | Xử lý cross-cutting trên pipeline HTTP    | `ExceptionMiddleware` (ProblemDetails), sau này: logging, rate limit  | **8**         |
@@ -147,11 +150,12 @@ Controller → IService → IRepository → Database
 |-----------------------------------|---------------------------------------|---------------------------------------------------------------|:-------------:|
 | **`src/Application/`** (root)     | Đăng ký DI Application                | `DependencyInjection.cs` — MediatR, FluentValidation          | **10**        |
 | **`Interfaces/Repositories/{Module}/`** | **IRepo** — contract truy cập dữ liệu, gom theo module | `IGenericRepository<T>`, `IUnitOfWork` ở root; `{Module}/IOrderRepository`… | **10** |
+| **`Interfaces/Services/Common/`** | Contract dùng chung | `ICrudService<TDto, TCreate, TUpdate>` — module CRUD đơn giản kế thừa | **8** |
 | **`Interfaces/Services/{Module}/`** | **IService** — contract nghiệp vụ, gom theo module | `{Module}/IOrderService`, `{Module}/ILeaveService`… Controller gọi đây | **10** |
 | **`Features/`**                   | CQRS theo module (vertical slice)     | `{Module}/Commands/`, `Queries/`, `EventHandlers/`            | **8**         |
 | **`DTOs/`**                       | Data transfer — API contract          | `{Module}/CreateXRequest`, `XDto` — không expose Entity       | **9**         |
 | **`Validators/`**                 | FluentValidation                      | `CreateXValidator.cs` — validate trước handler/service        | **8**         |
-| **`Mappings/`**                   | Map Entity ↔ DTO                      | Profile AutoMapper hoặc static mapper                         | **7**         |
+| **`Mappings/{Module}/`**          | Map Entity ↔ DTO (AutoMapper)         | `*MappingProfile.cs` — Service inject `IMapper`, không map thủ công trong Service | **7** |
 | **`Behaviors/`**                  | MediatR pipeline                      | `ValidationBehavior`                                          | **7**         |
 | **`Common/Exceptions/`**          | Exception application                 | `NotFoundException`, `ConflictException`                      | **8**         |
 | **`Common/Models/`**              | Model dùng chung                      | `PaginatedResult<T>`                                          | **7**         |
@@ -166,16 +170,19 @@ Interfaces/
 │   ├── IUnitOfWork.cs               ← dùng chung (root)
 │   └── {Module}/                    ← gom theo module
 │       └── IOrderRepository.cs
-└── Services/
-    └── {Module}/                    ← gom theo module
-        ├── IOrderService.cs
-        └── IOrderPaymentService.cs
+├── Services/
+│   ├── Common/
+│   │   └── ICrudService.cs          ← contract CRUD dùng chung
+│   └── {Module}/                    ← gom theo module
+│       ├── IOrderService.cs
+│       └── IOrderPaymentService.cs
 ```
 
 |-----------------------|-------------------------------------------|
 | Loại chức năng        | Đặt ở                                     |
 |-----------------------|-------------------------------------------|
-| CRUD                  | `IService` gọi `IRepository`              |
+| CRUD đơn giản         | `I*Service : ICrudService<…>` + `CrudApiController` |
+| CRUD + logic phụ      | `IService` riêng + `BaseApiController` tùy chỉnh |
 | Nghiệp vụ phức tạp    | Method trên `IService` (orchestration)    |
 |-----------------------|-------------------------------------------|
 
@@ -222,6 +229,7 @@ Interfaces/
 | **`src/Infrastructure/`** (root)      | DI Infrastructure                 | `DependencyInjection.cs` — DbContext, UoW                             | **10**        |
 | **`Implementations/Repositories/{Module}/`** | **Repo** — implement IRepo, gom theo module | `GenericRepository<T>`, `UnitOfWork` ở root; `{Module}/OrderRepository` | **10** |
 | **`Implementations/Services/{Module}/`** | **Service** — implement IService, gom theo module | `{Module}/OrderService`, `{Module}/LeaveService`… | **10** |
+| **`Security/`**                         | Helper bảo mật (static, không DI) | `PasswordHasher` — hash/verify mật khẩu; **không** đặt trong `Services/` | **7** |
 | **`Persistence/`**                    | EF Core & DbContext               | `AppDbContext`, `DesignTimeDbContextFactory`                          | **10**        |
 | **`Persistence/Configurations/`**     | Fluent API mapping entity → bảng  | `OrderConfiguration.cs`                                               | **9**         |
 | **`Persistence/Interceptors/`**       | EF Core Interceptor tự động Audit | `AuditSaveChangesInterceptor` — tự gán `CreatedAt/By`, `UpdatedAt/By` | **9**         |
@@ -244,6 +252,8 @@ Implementations/
         ├── OrderService.cs
         └── OrderPaymentService.cs
 ```
+
+**Helper static (không có `I*` interface, không đăng ký DI):** đặt `src/Infrastructure/Security/` — ví dụ `PasswordHasher`. Không đặt trong `Implementations/Services/`.
 
 **Đối xứng với Application (gom theo module):**
 
@@ -400,6 +410,7 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 - **DTO** request/response API nằm `DTOs/{Module}/` — **không** trả `Entity` ra contract API.
 - **Một module** gom theo tên: ví dụ Order → `DTOs/Orders/`, `IOrderService`, `IOrderRepository` cùng prefix/module cho dễ tìm.
 - **Service-first (mặc định)**: Controller → `IService` → `IRepository`. MediatR dùng cho **domain event handlers** (sau Outbox), không gọi từ controller mặc định.
+- **AutoMapper**: Profile trong `Mappings/{Module}/`; đăng ký `AddAutoMapper` trong `DependencyInjection.cs`; Service inject `IMapper` — không map thủ công inline.
 - **CQRS (tuỳ chọn)**: chỉ khi team chốt case cụ thể; không thay thế Service-first làm luồng chính.
 - Validation (FluentValidation), `Behaviors/`, exception application (`Common/Exceptions/`) dùng thống nhất; không duplicate validate mâu thuẫn ở mọi tầng.
 
@@ -408,6 +419,7 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 ### Tầng Infrastructure — `src/Infrastructure/`
 
 - **Implement** repository tại `Implementations/Repositories/`; **implement** service tại `Implementations/Services/` — khớp namespace với interface Application.
+- **Helper bảo mật static** (hash mật khẩu, v.v.): `Security/` — không đặt trong `Services/` vì không phải class implement `I*Service`.
 - **EF Core**: `AppDbContext`, `DesignTimeDbContextFactory` trong `Persistence/`; Fluent mapping trong `Persistence/Configurations/`.
 - **Audit tự động (bắt buộc)**: Đăng ký `AuditSaveChangesInterceptor` trong `Persistence/Interceptors/`. Interceptor này kiểm tra entity có implement `ICreationTracked` / `IModificationTracked` hay không và tự động điền `CreatedAt/By`, `UpdatedAt/By` — **không gán thủ công** trong code nghiệp vụ.
 - **Thời gian (bắt buộc)**: Dùng `.NET 8 TimeProvider` (đăng ký `services.AddSingleton(TimeProvider.System)`) thay cho `DateTime.UtcNow` trực tiếp. Interceptor và Service đều inject `TimeProvider` qua DI để dễ viết Unit Test.
@@ -421,6 +433,8 @@ Phần này là **quy ước bắt buộc** (bổ sung mục 8). Cấu trúc the
 ### Tầng API — `src/API/`
 
 - **Controller mỏng**: bind HTTP ↔ DTO, gọi **`IService`** — **không** inject `DbContext`, **không** inject class Repository cụ thể, **không** gọi `IMediator` mặc định.
+- **CRUD đơn giản**: kế thừa `CrudApiController<TService, TDto, TCreate, TUpdate>` với `TService : ICrudService<…>`; permission khai báo trong constructor.
+- **CRUD + endpoint phụ** (roles, permissions, reset password…): kế thừa `BaseApiController`, gọi `IService` tùy chỉnh.
 - **Luồng chuẩn**: `Controller` → `IService` → `IRepository` → persistence. Không bỏ qua Service để gọi Repo từ Controller.
 - **Middleware / Filters**: xử lý cross-cutting HTTP (lỗi, auth sau này, v.v.) — không nhét business ERP vào middleware trừ khi thực sự là concern HTTP.
 

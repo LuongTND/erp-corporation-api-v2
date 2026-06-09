@@ -4,12 +4,15 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Users;
 using Application.Interfaces.Repositories.Departments;
 using Application.Interfaces.Repositories.Roles;
+using Application.Interfaces.Repositories.JobLevels;
 using Application.Interfaces.Services.Users;
 using Application.Interfaces.Services.Auth;
-using Infrastructure.Implementations.Services.Auth;
+using AutoMapper;
+using Infrastructure.Security;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 
 namespace Infrastructure.Implementations.Services.Users;
 
@@ -19,24 +22,26 @@ public class UserService : IUserService
     private readonly IUserAccountRepository _userAccountRepository;
     private readonly IDepartmentRepository _departmentRepository;
     private readonly IRoleRepository _roleRepository;
-    private readonly IGenericRepository<JobLevel> _jobLevelRepository;
-    private readonly IGenericRepository<UserDepartment> _userDeptRepository;
-    private readonly IGenericRepository<UserRole> _userRoleRepository;
+    private readonly IJobLevelRepository _jobLevelRepository;
+    private readonly IUserDepartmentRepository _userDeptRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDataScopeService _dataScopeService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IValidator<AddUserDepartmentRequest> _addDeptValidator;
+    private readonly IMapper _mapper;
 
     public UserService(
         IUserRepository userRepository,
         IUserAccountRepository userAccountRepository,
         IDepartmentRepository departmentRepository,
         IRoleRepository roleRepository,
-        IGenericRepository<JobLevel> jobLevelRepository,
-        IGenericRepository<UserDepartment> userDeptRepository,
-        IGenericRepository<UserRole> userRoleRepository,
+        IJobLevelRepository jobLevelRepository,
+        IUserDepartmentRepository userDeptRepository,
         IUnitOfWork unitOfWork,
         IDataScopeService dataScopeService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IValidator<AddUserDepartmentRequest> addDeptValidator,
+        IMapper mapper)
     {
         _userRepository = userRepository;
         _userAccountRepository = userAccountRepository;
@@ -44,10 +49,11 @@ public class UserService : IUserService
         _roleRepository = roleRepository;
         _jobLevelRepository = jobLevelRepository;
         _userDeptRepository = userDeptRepository;
-        _userRoleRepository = userRoleRepository;
         _unitOfWork = unitOfWork;
         _dataScopeService = dataScopeService;
         _currentUserService = currentUserService;
+        _addDeptValidator = addDeptValidator;
+        _mapper = mapper;
     }
 
     public async Task<UserDto> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -61,7 +67,7 @@ public class UserService : IUserService
         if (user == null)
             throw new NotFoundException("Không tìm thấy nhân sự hoặc bạn không có quyền xem thông tin nhân sự này.");
 
-        return MapToDto(user);
+        return _mapper.Map<UserDto>(user);
     }
 
     public async Task<IReadOnlyList<UserDto>> GetAllAsync(CancellationToken ct = default)
@@ -72,7 +78,7 @@ public class UserService : IUserService
 
         var users = await _userRepository.GetWithDetailsScopedAsync(currentUserId, scope, deptIds, ct);
 
-        return users.Select(MapToDto).ToList();
+        return _mapper.Map<List<UserDto>>(users);
     }
 
     public async Task<UserDto> CreateAsync(CreateUserRequest request, CancellationToken ct = default)
@@ -129,12 +135,11 @@ public class UserService : IUserService
         await _userDeptRepository.AddAsync(userDept, ct);
 
         // 5. Gán vai trò mặc định (ví dụ EMPLOYEE nếu có)
-        var defaultRole = await _roleRepository.GetQueryable()
-            .FirstOrDefaultAsync(r => r.RoleName == "ROLE_EMPLOYEE", ct);
+        var defaultRole = await _roleRepository.GetByNameAsync("ROLE_EMPLOYEE", ct);
         if (defaultRole != null)
         {
             var userRole = UserRole.Create(user.Id, defaultRole.Id);
-            await _userRoleRepository.AddAsync(userRole, ct);
+            await _userRepository.AddUserRoleAsync(userRole, ct);
         }
 
         await _unitOfWork.SaveChangesAsync(ct);
@@ -145,9 +150,7 @@ public class UserService : IUserService
 
     public async Task<UserDto> UpdateAsync(Guid id, UpdateUserRequest request, CancellationToken ct = default)
     {
-        var user = await _userRepository.GetQueryable()
-            .Include(u => u.UserAccount)
-            .FirstOrDefaultAsync(u => u.Id == id, ct);
+        var user = await _userRepository.GetByIdWithAccountAsync(id, ct);
 
         if (user == null)
             throw new NotFoundException("Không tìm thấy nhân sự cần cập nhật.");
@@ -190,8 +193,7 @@ public class UserService : IUserService
         }
 
         // Cập nhật UserDepartment chính nếu thay đổi phòng ban
-        var primaryDept = await _userDeptRepository.GetQueryable()
-            .FirstOrDefaultAsync(ud => ud.UserId == id && ud.IsPrimary && ud.IsActive, ct);
+        var primaryDept = await _userDeptRepository.GetActivePrimaryDepartmentByUserIdAsync(id, ct);
 
         if (primaryDept != null && primaryDept.DepartmentId != request.DepartmentId)
         {
@@ -206,10 +208,7 @@ public class UserService : IUserService
 
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
-        var user = await _userRepository.GetQueryable()
-            .Include(u => u.UserAccount)
-            .Include(u => u.UserRoles)
-            .FirstOrDefaultAsync(u => u.Id == id, ct);
+        var user = await _userRepository.GetByIdWithAccountAndRolesAsync(id, ct);
 
         if (user == null)
             throw new NotFoundException("Không tìm thấy nhân sự.");
@@ -227,9 +226,7 @@ public class UserService : IUserService
         }
 
         // Vô hiệu hóa các phòng ban kiêm nhiệm
-        var userDepts = await _userDeptRepository.GetQueryable()
-            .Where(ud => ud.UserId == id && ud.IsActive)
-            .ToListAsync(ct);
+        var userDepts = await _userDeptRepository.GetActiveDepartmentsByUserIdAsync(id, ct);
 
         foreach (var ud in userDepts)
         {
@@ -241,17 +238,13 @@ public class UserService : IUserService
 
     public async Task AssignRolesAsync(Guid id, List<Guid> roleIds, CancellationToken ct = default)
     {
-        var user = await _userRepository.GetQueryable()
-            .Include(u => u.UserRoles)
-            .FirstOrDefaultAsync(u => u.Id == id, ct);
+        var user = await _userRepository.GetByIdWithRolesAsync(id, ct);
 
         if (user == null)
             throw new NotFoundException("Không tìm thấy nhân sự.");
 
         // Kiểm tra tất cả RoleIds hợp lệ và đang active
-        var validRoles = await _roleRepository.GetQueryable()
-            .Where(r => roleIds.Contains(r.Id) && r.IsActive)
-            .ToListAsync(ct);
+        var validRoles = await _roleRepository.GetActiveRolesByIdsAsync(roleIds, ct);
 
         if (validRoles.Count != roleIds.Count)
             throw new NotFoundException("Một hoặc nhiều vai trò không tồn tại hoặc đã bị vô hiệu hóa.");
@@ -272,7 +265,7 @@ public class UserService : IUserService
             if (!activeRoleIds.Contains(roleId))
             {
                 var newUr = UserRole.Create(id, roleId);
-                await _userRoleRepository.AddAsync(newUr, ct);
+                await _userRepository.AddUserRoleAsync(newUr, ct);
             }
         }
 
@@ -281,6 +274,9 @@ public class UserService : IUserService
 
     public async Task ResetPasswordAsync(Guid id, string newPassword, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+            throw new ConflictException("Mật khẩu mới phải từ 6 ký tự trở lên.");
+
         var account = await _userAccountRepository.GetByUserIdAsync(id, ct);
 
         if (account == null)
@@ -293,28 +289,58 @@ public class UserService : IUserService
         await _unitOfWork.SaveChangesAsync(ct);
     }
 
-    private static UserDto MapToDto(User user)
+    public async Task<IReadOnlyList<UserDepartmentDto>> GetSecondaryDepartmentsAsync(Guid userId, CancellationToken ct = default)
     {
-        return new UserDto
-        {
-            Id = user.Id,
-            EmployeeCode = user.EmployeeCode,
-            FullName = user.FullName,
-            Email = user.Email,
-            AvatarUrl = user.AvatarUrl,
-            DepartmentId = user.DepartmentId,
-            DepartmentName = user.Department?.DepartmentName ?? string.Empty,
-            JobLevelId = user.JobLevelId,
-            JobLevelName = user.JobLevel?.LevelName ?? string.Empty,
-            ManagerId = user.ManagerId,
-            ManagerName = user.Manager?.FullName,
-            DateOfJoin = user.DateOfJoin,
-            Status = user.Status,
-            IsActive = user.IsActive,
-            Roles = user.UserRoles
-                .Where(ur => ur.IsActive && ur.RevokedAt == null && ur.Role.IsActive)
-                .Select(ur => ur.Role.RoleName)
-                .ToList()
-        };
+        var user = await _userRepository.GetByIdAsync(userId, ct);
+        if (user == null)
+            throw new NotFoundException("Không tìm thấy nhân sự.");
+
+        var secondaryDepts = await _userDeptRepository.GetSecondaryDepartmentsByUserIdAsync(userId, ct);
+
+        return _mapper.Map<List<UserDepartmentDto>>(secondaryDepts);
     }
+
+    public async Task<UserDepartmentDto> AddSecondaryDepartmentAsync(Guid userId, AddUserDepartmentRequest request, CancellationToken ct = default)
+    {
+        await _addDeptValidator.ValidateAndThrowAsync(request, ct);
+
+        var user = await _userRepository.GetByIdAsync(userId, ct);
+        if (user == null)
+            throw new NotFoundException("Không tìm thấy nhân sự.");
+
+        var dept = await _departmentRepository.GetByIdAsync(request.DepartmentId, ct);
+        if (dept == null || !dept.IsActive)
+            throw new NotFoundException("Phòng ban không tồn tại hoặc đã bị vô hiệu hóa.");
+
+        if (user.DepartmentId == request.DepartmentId)
+            throw new ConflictException("Phòng ban này đang là phòng ban chính của nhân sự.");
+
+        var exists = await _userDeptRepository.ExistsActiveSecondaryDepartmentAsync(userId, request.DepartmentId, ct);
+        if (exists)
+            throw new ConflictException("Nhân sự đang kiêm nhiệm phòng ban này rồi.");
+
+        var userDept = UserDepartment.Create(userId, request.DepartmentId, isPrimary: false, request.StartDate, request.EndDate);
+        await _userDeptRepository.AddAsync(userDept, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        var dto = _mapper.Map<UserDepartmentDto>(userDept);
+        dto.DepartmentName = dept.DepartmentName;
+        dto.DepartmentCode = dept.DepartmentCode;
+        return dto;
+    }
+
+    public async Task RemoveSecondaryDepartmentAsync(Guid userId, Guid departmentId, CancellationToken ct = default)
+    {
+        var user = await _userRepository.GetByIdAsync(userId, ct);
+        if (user == null)
+            throw new NotFoundException("Không tìm thấy nhân sự.");
+
+        var userDept = await _userDeptRepository.GetActiveSecondaryDepartmentAsync(userId, departmentId, ct);
+        if (userDept == null)
+            throw new NotFoundException("Không tìm thấy phòng ban kiêm nhiệm đang hoạt động của nhân sự này.");
+
+        userDept.Terminate(DateOnly.FromDateTime(DateTime.UtcNow));
+        await _unitOfWork.SaveChangesAsync(ct);
+    }
+
 }

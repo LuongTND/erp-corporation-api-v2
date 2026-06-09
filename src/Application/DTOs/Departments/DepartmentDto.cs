@@ -1,6 +1,8 @@
+using Application.Common.Models;
+
 namespace Application.DTOs.Departments;
 
-public class DepartmentDto
+public class DepartmentDto : IHasGuidId
 {
     public Guid Id { get; set; }
     public string DepartmentName { get; set; } = null!;

@@ -36,4 +36,9 @@ public class DepartmentRepository : GenericRepository<Department>, IDepartmentRe
     {
         return await DbSet.AnyAsync(d => d.DepartmentCode == code && d.Id != excludeId, ct);
     }
+
+    public async Task<bool> HasActiveChildDepartmentsAsync(Guid departmentId, CancellationToken ct = default)
+    {
+        return await DbSet.AnyAsync(d => d.ParentDepartmentId == departmentId && d.IsActive, ct);
+    }
 }

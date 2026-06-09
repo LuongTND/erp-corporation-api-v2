@@ -4,6 +4,7 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Departments;
 using Application.Interfaces.Repositories.Users;
 using Application.Interfaces.Services.Departments;
+using AutoMapper;
 using Domain.Entities;
 
 namespace Infrastructure.Implementations.Services.Departments;
@@ -12,16 +13,22 @@ public class DepartmentService : IDepartmentService
 {
     private readonly IDepartmentRepository _departmentRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IUserDepartmentRepository _userDeptRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
     public DepartmentService(
         IDepartmentRepository departmentRepository,
         IUserRepository userRepository,
-        IUnitOfWork unitOfWork)
+        IUserDepartmentRepository userDeptRepository,
+        IUnitOfWork unitOfWork,
+        IMapper mapper)
     {
         _departmentRepository = departmentRepository;
         _userRepository = userRepository;
+        _userDeptRepository = userDeptRepository;
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     public async Task<DepartmentDto> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -31,14 +38,14 @@ public class DepartmentService : IDepartmentService
         if (dept == null)
             throw new NotFoundException("Không tìm thấy phòng ban.");
 
-        return MapToDto(dept);
+        return _mapper.Map<DepartmentDto>(dept);
     }
 
     public async Task<IReadOnlyList<DepartmentDto>> GetAllAsync(CancellationToken ct = default)
     {
         var depts = await _departmentRepository.GetAllWithDetailsAsync(ct);
 
-        return depts.Select(MapToDto).ToList();
+        return _mapper.Map<List<DepartmentDto>>(depts);
     }
 
     public async Task<DepartmentDto> CreateAsync(CreateDepartmentRequest request, CancellationToken ct = default)
@@ -115,39 +122,41 @@ public class DepartmentService : IDepartmentService
         return await GetByIdAsync(id, ct);
     }
 
-    private async Task EnsureNoDepartmentCycleAsync(Guid departmentId, Guid parentId, CancellationToken ct)
+    private async Task EnsureNoDepartmentCycleAsync(Guid departmentId, Guid newParentId, CancellationToken ct)
     {
-        if (departmentId == parentId)
+        if (departmentId == newParentId)
             throw new ConflictException("Không thể chọn phòng ban cha là chính nó.");
 
-        var currentParentId = (Guid?)parentId;
-        while (currentParentId.HasValue)
+        var currentParentId = newParentId;
+        while (currentParentId != Guid.Empty)
         {
-            var parent = await _departmentRepository.GetByIdAsync(currentParentId.Value, ct);
-
-            if (parent == null)
-                break;
-
-            if (parent.ParentDepartmentId == departmentId)
+            if (currentParentId == departmentId)
                 throw new ConflictException("Tạo chu trình phân cấp: Phòng ban cha được chọn đang là con hoặc cháu của phòng ban hiện tại.");
 
-            currentParentId = parent.ParentDepartmentId;
+            var parent = await _departmentRepository.GetByIdAsync(currentParentId, ct);
+            currentParentId = parent?.ParentDepartmentId ?? Guid.Empty;
         }
     }
 
-    private static DepartmentDto MapToDto(Department dept)
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
-        return new DepartmentDto
-        {
-            Id = dept.Id,
-            DepartmentName = dept.DepartmentName,
-            DepartmentCode = dept.DepartmentCode,
-            ParentDepartmentId = dept.ParentDepartmentId,
-            ParentDepartmentName = dept.ParentDepartment?.DepartmentName,
-            ManagerId = dept.ManagerId,
-            ManagerName = dept.Manager?.FullName,
-            Description = dept.Description,
-            IsActive = dept.IsActive
-        };
+        var dept = await _departmentRepository.GetByIdAsync(id, ct);
+        if (dept == null)
+            throw new NotFoundException("Không tìm thấy phòng ban.");
+
+        var hasActiveUsers = await _userRepository.HasActiveUsersInDepartmentAsync(id, ct);
+        if (hasActiveUsers)
+            throw new ConflictException("Không thể xóa phòng ban đang có nhân sự hoạt động.");
+
+        var hasSecondaryUsers = await _userDeptRepository.HasActiveSecondaryUsersInDepartmentAsync(id, ct);
+        if (hasSecondaryUsers)
+            throw new ConflictException("Không thể xóa phòng ban đang có nhân sự kiêm nhiệm hoạt động.");
+
+        var hasChildDepts = await _departmentRepository.HasActiveChildDepartmentsAsync(id, ct);
+        if (hasChildDepts)
+            throw new ConflictException("Không thể xóa phòng ban đang có phòng ban con hoạt động.");
+
+        dept.IsActive = false;
+        await _unitOfWork.SaveChangesAsync(ct);
     }
 }

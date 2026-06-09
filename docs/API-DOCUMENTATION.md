@@ -21,27 +21,31 @@
 
 ### 👤 Users — Quản lý người dùng (`/api/users`)
 
-|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
-| #   | Tên API                 | Method    | URL                               | Chức năng                                       |
-|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
-| 5   | DS người dùng           | `GET`     | `/api/users`                      | Lấy danh sách tất cả người dùng                 |
-| 6   | Chi tiết người dùng     | `GET`     | `/api/users/{id}`                 | Lấy thông tin người dùng theo ID                |
-| 7   | Tạo người dùng          | `POST`    | `/api/users`                      | Tạo người dùng mới                              |
-| 8   | Cập nhật người dùng     | `PUT`     | `/api/users/{id}`                 | Cập nhật thông tin người dùng                   |
-| 9   | Xóa người dùng          | `DELETE`  | `/api/users/{id}`                 | Xóa (vô hiệu hóa) người dùng                    |
-| 10  | Gán vai trò             | `POST`    | `/api/users/{id}/roles`           | Gán danh sách vai trò cho người dùng            |
-| 11  | Đặt lại mật khẩu        | `POST`    | `/api/users/{id}/reset-password`  | Đặt lại mật khẩu cho người dùng                 |
-|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+|-----|---------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| #   | Tên API                   | Method    | URL                               | Chức năng                                       |
+|-----|---------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| 5   | DS người dùng             | `GET`     | `/api/users`                      | Lấy danh sách tất cả người dùng                 |
+| 6   | Chi tiết người dùng       | `GET`     | `/api/users/{id}`                 | Lấy thông tin người dùng theo ID                |
+| 7   | Tạo người dùng            | `POST`    | `/api/users`                      | Tạo người dùng mới                              |
+| 8   | Cập nhật người dùng       | `PUT`     | `/api/users/{id}`                 | Cập nhật thông tin người dùng                   |
+| 9   | Xóa người dùng            | `DELETE`  | `/api/users/{id}`                 | Xóa (vô hiệu hóa) người dùng                    |
+| 10  | Gán vai trò               | `POST`    | `/api/users/{id}/roles`                       | Gán danh sách vai trò cho người dùng            |
+| 11  | Đặt lại mật khẩu          | `POST`    | `/api/users/{id}/reset-password`              | Đặt lại mật khẩu cho người dùng                 |
+| 12  | DS phòng ban kiêm nhiệm   | `GET`     | `/api/users/{id}/departments`                 | Lấy danh sách phòng ban kiêm nhiệm              |
+| 13  | Gán phòng ban kiêm nhiệm  | `POST`    | `/api/users/{id}/departments`                 | Gán phòng ban kiêm nhiệm mới                    |
+| 14  | Gỡ phòng ban kiêm nhiệm   | `DELETE`  | `/api/users/{id}/departments/{departmentId}`  | Gỡ bỏ phòng ban kiêm nhiệm                     |
+|-----|---------------------------|-----------|-----------------------------------|-------------------------------------------------|
 
 ### 🏢 Departments — Quản lý phòng ban (`/api/departments`)
 
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
 | #   | Tên API                 | Method    | URL                               | Chức năng                                       |
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
-| 12  | DS phòng ban            | `GET`     | `/api/departments`                | Lấy tất cả phòng ban                            |
-| 13  | Chi tiết phòng ban      | `GET`     | `/api/departments/{id}`           | Lấy thông tin phòng ban theo ID                 |
-| 14  | Tạo phòng ban           | `POST`    | `/api/departments`                | Tạo phòng ban mới                               |
-| 15  | Cập nhật phòng ban      | `PUT`     | `/api/departments/{id}`           | Cập nhật thông tin phòng ban                    |
+| 15  | DS phòng ban            | `GET`     | `/api/departments`                | Lấy tất cả phòng ban                            |
+| 16  | Chi tiết phòng ban      | `GET`     | `/api/departments/{id}`           | Lấy thông tin phòng ban theo ID                 |
+| 17  | Tạo phòng ban           | `POST`    | `/api/departments`                | Tạo phòng ban mới                               |
+| 18  | Cập nhật phòng ban      | `PUT`     | `/api/departments/{id}`           | Cập nhật thông tin phòng ban                    |
+| 19  | Xóa phòng ban           | `DELETE`  | `/api/departments/{id}`           | Xóa (vô hiệu hóa) phòng ban                     |
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
 
 ### 🛡️ Roles — Quản lý vai trò (`/api/roles`)
@@ -49,11 +53,25 @@
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
 | #   | Tên API                 | Method    | URL                               | Chức năng                                       |
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
-| 16  | DS vai trò              | `GET`     | `/api/roles`                      | Lấy tất cả vai trò                              |
-| 17  | Chi tiết vai trò        | `GET`     | `/api/roles/{id}`                 | Lấy thông tin vai trò theo ID                   |
-| 18  | DS quyền                | `GET`     | `/api/roles/permissions`          | Lấy danh sách tất cả quyền                      |
-| 19  | Tạo vai trò             | `POST`    | `/api/roles`                      | Tạo vai trò mới                                 |
-| 20  | Cập nhật quyền vai trò  | `PUT`     | `/api/roles/{id}/permissions`     | Cập nhật danh sách quyền cho vai trò            |
+| 20  | DS vai trò              | `GET`     | `/api/roles`                      | Lấy tất cả vai trò                              |
+| 21  | Chi tiết vai trò        | `GET`     | `/api/roles/{id}`                 | Lấy thông tin vai trò theo ID                   |
+| 22  | DS quyền                | `GET`     | `/api/roles/permissions`          | Lấy danh sách tất cả quyền                      |
+| 23  | Tạo vai trò             | `POST`    | `/api/roles`                      | Tạo vai trò mới                                 |
+| 24  | Cập nhật vai trò        | `PUT`     | `/api/roles/{id}`                 | Cập nhật thông tin cơ bản của vai trò           |
+| 25  | Cập nhật quyền vai trò  | `PUT`     | `/api/roles/{id}/permissions`     | Cập nhật danh sách quyền cho vai trò            |
+| 26  | Xóa vai trò             | `DELETE`  | `/api/roles/{id}`                 | Xóa (vô hiệu hóa) vai trò                       |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+
+### 🏷️ JobLevels — Quản lý cấp bậc chức danh (`/api/job-levels`)
+
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| #   | Tên API                 | Method    | URL                               | Chức năng                                       |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| 27  | DS cấp bậc              | `GET`     | `/api/job-levels`                 | Lấy danh sách tất cả cấp bậc                    |
+| 28  | Chi tiết cấp bậc        | `GET`     | `/api/job-levels/{id}`            | Lấy thông tin cấp bậc theo ID                   |
+| 29  | Tạo cấp bậc             | `POST`    | `/api/job-levels`                 | Tạo cấp bậc mới                                 |
+| 30  | Cập nhật cấp bậc        | `PUT`     | `/api/job-levels/{id}`            | Cập nhật cấp bậc chức danh                      |
+| 31  | Xóa cấp bậc             | `DELETE`  | `/api/job-levels/{id}`            | Xóa (vô hiệu hóa) cấp bậc                       |
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
 
 ---
@@ -66,6 +84,7 @@
 2. [Users — Quản lý người dùng](#2-users--quản-lý-người-dùng)
 3. [Departments — Quản lý phòng ban](#3-departments--quản-lý-phòng-ban)
 4. [Roles — Quản lý vai trò](#4-roles--quản-lý-vai-trò)
+5. [JobLevels — Quản lý cấp bậc chức danh](#5-joblevels--quản-lý-cấp-bậc-chức-danh)
 
 ---
 
@@ -384,6 +403,74 @@ Base URL: `/api/users`
 
 ---
 
+### 2.8. Lấy danh sách phòng ban kiêm nhiệm
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/users/{id}/departments`                                 |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `hrm.employee.read`                                           |
+| **Mô tả**       | Lấy danh sách các phòng ban kiêm nhiệm của nhân sự            |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):**
+
+```json
+[
+  {
+    "id": "3fa85f64-...",
+    "userId": "3fa85f64-...",
+    "departmentId": "3fa85f64-...",
+    "departmentName": "Phòng Kế toán",
+    "departmentCode": "ACC",
+    "isPrimary": false,
+    "startDate": "2026-06-01",
+    "endDate": null,
+    "isActive": true
+  }
+]
+```
+
+---
+
+### 2.9. Gán phòng ban kiêm nhiệm mới
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/users/{id}/departments`                                 |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `hrm.employee.update`                                         |
+| **Mô tả**       | Gán phòng ban kiêm nhiệm mới cho nhân sự                      |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "departmentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "startDate": "2026-06-01",
+  "endDate": null
+}
+```
+
+**Response (200):** Giống một phần tử trong danh sách phòng ban kiêm nhiệm.
+
+---
+
+### 2.10. Gỡ bỏ phòng ban kiêm nhiệm
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `DELETE`                                                      |
+| **URL**         | `/api/users/{id}/departments/{departmentId}`                  |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `hrm.employee.update`                                         |
+| **Mô tả**       | Kết thúc/Gỡ bỏ phòng ban kiêm nhiệm của nhân sự              |
+|-----------------|---------------------------------------------------------------|
+
+**Response:** `204 No Content`
+
+---
+
 ## 3. Departments — Quản lý phòng ban
 
 Base URL: `/api/departments`
@@ -490,6 +577,20 @@ Base URL: `/api/departments`
 ```
 
 **Response (200):** Giống response của API 3.2.
+
+---
+
+### 3.5. Xóa phòng ban
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `DELETE`                                                      |
+| **URL**         | `/api/departments/{id}`                                       |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `hrm.department.delete`                                       |
+| **Mô tả**       | Xóa (vô hiệu hóa - IsActive = false) phòng ban                |
+|-----------------|---------------------------------------------------------------|
+
+**Response:** `204 No Content`
 
 ---
 
@@ -643,6 +744,163 @@ Base URL: `/api/roles`
   "message": "Cập nhật danh sách quyền cho vai trò thành công."
 }
 ```
+
+---
+
+### 4.6. Cập nhật thông tin vai trò
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PUT`                                                         |
+| **URL**         | `/api/roles/{id}`                                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.role.update`                                          |
+| **Mô tả**       | Cập nhật thông tin hiển thị cơ bản của vai trò                |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "displayName": "Quản trị Nhân sự (updated)",
+  "description": "Quản lý toàn bộ nhân viên và lương",
+  "bypassDataScope": false,
+  "isActive": true
+}
+```
+
+**Response (200):** Giống response của API 4.2.
+
+---
+
+### 4.7. Xóa vai trò
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `DELETE`                                                      |
+| **URL**         | `/api/roles/{id}`                                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.role.update`                                          |
+| **Mô tả**       | Xóa (vô hiệu hóa - IsActive = false) vai trò                  |
+|-----------------|---------------------------------------------------------------|
+
+**Response:** `204 No Content`
+
+---
+
+## 5. JobLevels — Quản lý cấp bậc chức danh
+
+Base URL: `/api/job-levels`
+
+---
+
+### 5.1. Lấy danh sách cấp bậc chức danh
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/job-levels`                                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `hrm.joblevel.read`                                           |
+| **Mô tả**       | Lấy danh sách tất cả các cấp bậc chức danh                    |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):**
+
+```json
+[
+  {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "levelName": "Manager",
+    "levelOrder": 2,
+    "defaultScopeType": 3,
+    "description": "Manager level with department scope.",
+    "baseSalaryMin": null,
+    "baseSalaryMax": null,
+    "isActive": true
+  }
+]
+```
+
+---
+
+### 5.2. Lấy thông tin cấp bậc theo ID
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/job-levels/{id}`                                        |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `hrm.joblevel.read`                                           |
+| **Mô tả**       | Lấy chi tiết thông tin một cấp bậc chức danh                  |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):** Giống một phần tử trong response của API 5.1.
+
+---
+
+### 5.3. Tạo cấp bậc chức danh mới
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/job-levels`                                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `hrm.joblevel.create`                                         |
+| **Mô tả**       | Tạo cấp bậc chức danh mới                                     |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "levelName": "Senior Manager",
+  "levelOrder": 2,
+  "defaultScopeType": 3,
+  "description": "Senior Manager level",
+  "baseSalaryMin": 20000000,
+  "baseSalaryMax": 40000000
+}
+```
+
+**Response (201):** Giống response của API 5.2.
+
+---
+
+### 5.4. Cập nhật cấp bậc chức danh
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PUT`                                                         |
+| **URL**         | `/api/job-levels/{id}`                                        |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `hrm.joblevel.update`                                         |
+| **Mô tả**       | Cập nhật thông tin cấp bậc chức danh                          |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "levelName": "Senior Manager (updated)",
+  "levelOrder": 2,
+  "defaultScopeType": 3,
+  "description": "Updated Senior Manager level",
+  "baseSalaryMin": 25000000,
+  "baseSalaryMax": 50000000,
+  "isActive": true
+}
+```
+
+**Response (200):** Giống response của API 5.2.
+
+---
+
+### 5.5. Xóa cấp bậc chức danh
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `DELETE`                                                      |
+| **URL**         | `/api/job-levels/{id}`                                        |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `hrm.joblevel.delete`                                         |
+| **Mô tả**       | Xóa (vô hiệu hóa - IsActive = false) cấp bậc chức danh        |
+|-----------------|---------------------------------------------------------------|
+
+**Response:** `204 No Content`
 
 ---
 

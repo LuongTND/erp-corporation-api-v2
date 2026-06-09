@@ -74,12 +74,34 @@ public class UsersController : BaseApiController
     [AuthorizePermission("system.user.resetpassword")]
     public async Task<IActionResult> ResetPassword(Guid id, [FromBody] string newPassword, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
-        {
-            return BadRequest("Mật khẩu mới phải từ 6 ký tự trở lên.");
-        }
-
         await _userService.ResetPasswordAsync(id, newPassword, ct);
         return Ok(new { Message = "Đặt lại mật khẩu thành công." });
+    }
+
+    // API lấy danh sách phòng ban kiêm nhiệm của người dùng
+    [HttpGet("{id:guid}/departments")]
+    [AuthorizePermission("hrm.employee.read")]
+    public async Task<ActionResult<IReadOnlyList<UserDepartmentDto>>> GetSecondaryDepartments(Guid id, CancellationToken ct)
+    {
+        var list = await _userService.GetSecondaryDepartmentsAsync(id, ct);
+        return Ok(list);
+    }
+
+    // API gán phòng ban kiêm nhiệm cho người dùng
+    [HttpPost("{id:guid}/departments")]
+    [AuthorizePermission("hrm.employee.update")]
+    public async Task<ActionResult<UserDepartmentDto>> AddSecondaryDepartment(Guid id, [FromBody] AddUserDepartmentRequest request, CancellationToken ct)
+    {
+        var userDept = await _userService.AddSecondaryDepartmentAsync(id, request, ct);
+        return Ok(userDept);
+    }
+
+    // API gỡ bỏ phòng ban kiêm nhiệm của người dùng
+    [HttpDelete("{id:guid}/departments/{departmentId:guid}")]
+    [AuthorizePermission("hrm.employee.update")]
+    public async Task<IActionResult> RemoveSecondaryDepartment(Guid id, Guid departmentId, CancellationToken ct)
+    {
+        await _userService.RemoveSecondaryDepartmentAsync(id, departmentId, ct);
+        return NoContent();
     }
 }

@@ -59,4 +59,22 @@ public class RolesController : BaseApiController
         await _roleService.UpdatePermissionsAsync(id, request, ct);
         return Ok(new { Message = "Cập nhật danh sách quyền cho vai trò thành công." });
     }
+
+    // API cập nhật thông tin vai trò
+    [HttpPut("{id:guid}")]
+    [AuthorizePermission("system.role.update")]
+    public async Task<ActionResult<RoleDto>> Update(Guid id, [FromBody] UpdateRoleRequest request, CancellationToken ct)
+    {
+        var role = await _roleService.UpdateAsync(id, request, ct);
+        return Ok(role);
+    }
+
+    // API xóa/vô hiệu hóa vai trò
+    [HttpDelete("{id:guid}")]
+    [AuthorizePermission("system.role.update")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        await _roleService.DeleteAsync(id, ct);
+        return NoContent();
+    }
 }
