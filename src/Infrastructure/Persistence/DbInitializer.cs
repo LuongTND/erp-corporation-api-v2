@@ -1,5 +1,5 @@
 using Domain.Entities;
-using Domain.Enums;
+using Infrastructure.Persistence.Seed;
 using Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,172 +9,208 @@ public static class DbInitializer
 {
     public static async Task SeedAsync(AppDbContext context)
     {
-        // 1. Seed JobLevels
-        JobLevel? directorLevel = null;
-        JobLevel? managerLevel = null;
-        JobLevel? staffLevel = null;
+        await SeedJobLevelsAsync(context);
+        await SeedDepartmentsAsync(context);
+        var permissions = await SeedPermissionsAsync(context);
+        var roles = await SeedRolesAsync(context);
+        await SeedRolePermissionsAsync(context, permissions, roles);
+        await SeedUsersAsync(context, roles);
+    }
 
-        if (!await context.JobLevels.AnyAsync())
+    private static async Task<Dictionary<string, JobLevel>> SeedJobLevelsAsync(AppDbContext context)
+    {
+        var map = new Dictionary<string, JobLevel>();
+
+        foreach (var seed in InitialData.JobLevels)
         {
-            directorLevel = JobLevel.Create("Director", 1, ScopeType.All, "Director level with access to all data.");
-            managerLevel = JobLevel.Create("Manager", 2, ScopeType.Department, "Manager level with department scope.");
-            staffLevel = JobLevel.Create("Staff", 3, ScopeType.Own, "Staff level with own scope.");
-
-            await context.JobLevels.AddRangeAsync(directorLevel, managerLevel, staffLevel);
-            await context.SaveChangesAsync();
-        }
-        else
-        {
-            directorLevel = await context.JobLevels.FirstAsync(j => j.LevelName == "Director");
-            managerLevel = await context.JobLevels.FirstAsync(j => j.LevelName == "Manager");
-            staffLevel = await context.JobLevels.FirstAsync(j => j.LevelName == "Staff");
-        }
-
-        // 2. Seed Departments
-        Department? rootDept = null;
-        Department? hrDept = null;
-
-        if (!await context.Departments.AnyAsync())
-        {
-            rootDept = Department.Create("Ban Giám Đốc", "BGĐ", null, null, "Hội đồng quản trị và Ban giám đốc");
-            await context.Departments.AddAsync(rootDept);
-            await context.SaveChangesAsync();
-
-            hrDept = Department.Create("Phòng Nhân Sự", "HR", rootDept.Id, null, "Quản lý nhân sự và tiền lương");
-            await context.Departments.AddAsync(hrDept);
-            await context.SaveChangesAsync();
-        }
-        else
-        {
-            rootDept = await context.Departments.FirstAsync(d => d.DepartmentCode == "BGĐ");
-            hrDept = await context.Departments.FirstAsync(d => d.DepartmentCode == "HR");
-        }
-
-        // 3. Seed Permissions
-        var permissionsToSeed = new List<(string Code, string Name, PermissionModule Module, PermissionAction Action, string Resource)>
-        {
-            // Employees
-            ("hrm.employee.read", "Xem danh sách nhân viên", PermissionModule.Hrm, PermissionAction.Read, "employee"),
-            ("hrm.employee.create", "Thêm mới nhân viên", PermissionModule.Hrm, PermissionAction.Create, "employee"),
-            ("hrm.employee.update", "Sửa thông tin nhân viên", PermissionModule.Hrm, PermissionAction.Update, "employee"),
-            ("hrm.employee.delete", "Xóa/Vô hiệu hóa nhân viên", PermissionModule.Hrm, PermissionAction.Delete, "employee"),
-            
-            // Departments
-            ("hrm.department.read", "Xem danh sách phòng ban", PermissionModule.Hrm, PermissionAction.Read, "department"),
-            ("hrm.department.create", "Thêm mới phòng ban", PermissionModule.Hrm, PermissionAction.Create, "department"),
-            ("hrm.department.update", "Sửa thông tin phòng ban", PermissionModule.Hrm, PermissionAction.Update, "department"),
-            ("hrm.department.delete", "Xóa phòng ban", PermissionModule.Hrm, PermissionAction.Delete, "department"),
-            
-            // Job Levels
-            ("hrm.joblevel.read", "Xem danh sách cấp bậc chức danh", PermissionModule.Hrm, PermissionAction.Read, "joblevel"),
-            ("hrm.joblevel.create", "Thêm mới cấp bậc chức danh", PermissionModule.Hrm, PermissionAction.Create, "joblevel"),
-            ("hrm.joblevel.update", "Sửa thông tin cấp bậc chức danh", PermissionModule.Hrm, PermissionAction.Update, "joblevel"),
-            ("hrm.joblevel.delete", "Xóa/Vô hiệu hóa cấp bậc chức danh", PermissionModule.Hrm, PermissionAction.Delete, "joblevel"),
-            
-            // Roles & System
-            ("system.role.read", "Xem danh sách vai trò", PermissionModule.System, PermissionAction.Read, "role"),
-            ("system.role.create", "Thêm mới vai trò", PermissionModule.System, PermissionAction.Create, "role"),
-            ("system.role.update", "Cập nhật quyền vai trò", PermissionModule.System, PermissionAction.Update, "role"),
-            ("system.role.assign", "Gán vai trò cho nhân viên", PermissionModule.System, PermissionAction.Assign, "role"),
-            ("system.user.resetpassword", "Đặt lại mật khẩu nhân viên", PermissionModule.System, PermissionAction.Update, "user"),
-        };
-
-        var allDbPermissions = new List<Permission>();
-        foreach (var pInfo in permissionsToSeed)
-        {
-            var p = await context.Permissions.FirstOrDefaultAsync(per => per.PermissionCode == pInfo.Code);
-            if (p == null)
+            var level = await context.JobLevels.FirstOrDefaultAsync(j => j.LevelName == seed.LevelName);
+            if (level == null)
             {
-                p = Permission.Create(pInfo.Code, pInfo.Name, pInfo.Module, pInfo.Action, pInfo.Resource);
-                await context.Permissions.AddAsync(p);
+                level = JobLevel.Create(
+                    seed.LevelName,
+                    seed.LevelOrder,
+                    seed.DefaultScopeType,
+                    seed.Description,
+                    seed.BaseSalaryMin,
+                    seed.BaseSalaryMax);
+                await context.JobLevels.AddAsync(level);
             }
-            allDbPermissions.Add(p);
+
+            map[seed.LevelName] = level;
         }
+
         await context.SaveChangesAsync();
+        return map;
+    }
 
-        // 4. Seed Roles
-        Role? superAdminRole = await context.Roles.FirstOrDefaultAsync(r => r.RoleName == "ROLE_SUPER_ADMIN");
-        if (superAdminRole == null)
+    private static async Task<Dictionary<string, Department>> SeedDepartmentsAsync(AppDbContext context)
+    {
+        var map = new Dictionary<string, Department>();
+
+        foreach (var seed in InitialData.Departments)
         {
-            superAdminRole = Role.Create("ROLE_SUPER_ADMIN", "Super Administrator", "Full system control with bypass data scope.", isSystemRole: true, bypassDataScope: true);
-            await context.Roles.AddAsync(superAdminRole);
+            var dept = await context.Departments.FirstOrDefaultAsync(d => d.DepartmentCode == seed.DepartmentCode);
+            if (dept != null)
+            {
+                map[seed.DepartmentCode] = dept;
+                continue;
+            }
+
+            Guid? parentId = null;
+            if (seed.ParentDepartmentCode != null)
+            {
+                parentId = map[seed.ParentDepartmentCode].Id;
+            }
+
+            dept = Department.Create(
+                seed.DepartmentName,
+                seed.DepartmentCode,
+                parentId,
+                null,
+                seed.Description);
+            await context.Departments.AddAsync(dept);
+            map[seed.DepartmentCode] = dept;
         }
 
-        Role? hrAdminRole = await context.Roles.FirstOrDefaultAsync(r => r.RoleName == "ROLE_HR_ADMIN");
-        if (hrAdminRole == null)
-        {
-            hrAdminRole = Role.Create("ROLE_HR_ADMIN", "HR Administrator", "Human resource management role.", isSystemRole: true, bypassDataScope: false);
-            await context.Roles.AddAsync(hrAdminRole);
-        }
-
-        Role? employeeRole = await context.Roles.FirstOrDefaultAsync(r => r.RoleName == "ROLE_EMPLOYEE");
-        if (employeeRole == null)
-        {
-            employeeRole = Role.Create("ROLE_EMPLOYEE", "Employee", "Standard employee role.", isSystemRole: true, bypassDataScope: false);
-            await context.Roles.AddAsync(employeeRole);
-        }
         await context.SaveChangesAsync();
+        return map;
+    }
 
-        // 5. Seed RolePermissions (Map all permissions to Super Admin & HR Admin)
-        foreach (var p in allDbPermissions)
+    private static async Task<Dictionary<string, Permission>> SeedPermissionsAsync(AppDbContext context)
+    {
+        var map = new Dictionary<string, Permission>();
+
+        foreach (var seed in InitialData.Permissions)
         {
-            var exists = await context.RolePermissions.AnyAsync(rp => rp.RoleId == superAdminRole.Id && rp.PermissionId == p.Id);
+            var permission = await context.Permissions.FirstOrDefaultAsync(p => p.PermissionCode == seed.PermissionCode);
+            if (permission == null)
+            {
+                permission = Permission.Create(
+                    seed.PermissionCode,
+                    seed.PermissionName,
+                    seed.Module,
+                    seed.Action,
+                    seed.Resource);
+                await context.Permissions.AddAsync(permission);
+            }
+
+            map[seed.PermissionCode] = permission;
+        }
+
+        await context.SaveChangesAsync();
+        return map;
+    }
+
+    private static async Task<Dictionary<string, Role>> SeedRolesAsync(AppDbContext context)
+    {
+        var map = new Dictionary<string, Role>();
+
+        foreach (var seed in InitialData.Roles)
+        {
+            var role = await context.Roles.FirstOrDefaultAsync(r => r.RoleName == seed.RoleName);
+            if (role == null)
+            {
+                role = Role.Create(
+                    seed.RoleName,
+                    seed.DisplayName,
+                    seed.Description,
+                    seed.IsSystemRole,
+                    seed.BypassDataScope);
+                await context.Roles.AddAsync(role);
+            }
+
+            map[seed.RoleName] = role;
+        }
+
+        await context.SaveChangesAsync();
+        return map;
+    }
+
+    private static async Task SeedRolePermissionsAsync(
+        AppDbContext context,
+        Dictionary<string, Permission> permissions,
+        Dictionary<string, Role> roles)
+    {
+        var superAdmin = roles[InitialData.Keys.RoleSuperAdmin];
+        foreach (var permission in permissions.Values)
+        {
+            var exists = await context.RolePermissions.AnyAsync(rp =>
+                rp.RoleId == superAdmin.Id && rp.PermissionId == permission.Id);
             if (!exists)
             {
-                await context.RolePermissions.AddAsync(RolePermission.Create(superAdminRole.Id, p.Id));
+                await context.RolePermissions.AddAsync(RolePermission.Create(superAdmin.Id, permission.Id));
             }
         }
 
-        // HR Admin gets employee, department, joblevel, role assignment, and reset password permissions
-        foreach (var p in allDbPermissions.Where(per => per.PermissionCode.StartsWith("hrm.") || per.PermissionCode == "system.role.assign" || per.PermissionCode == "system.user.resetpassword"))
+        foreach (var (roleName, codes) in InitialData.RolePermissionCodes)
         {
-            var exists = await context.RolePermissions.AnyAsync(rp => rp.RoleId == hrAdminRole.Id && rp.PermissionId == p.Id);
-            if (!exists)
+            var role = roles[roleName];
+            foreach (var code in codes)
             {
-                await context.RolePermissions.AddAsync(RolePermission.Create(hrAdminRole.Id, p.Id));
+                var permission = permissions[code];
+                var exists = await context.RolePermissions.AnyAsync(rp =>
+                    rp.RoleId == role.Id && rp.PermissionId == permission.Id);
+                if (!exists)
+                {
+                    await context.RolePermissions.AddAsync(RolePermission.Create(role.Id, permission.Id));
+                }
             }
         }
 
-        // Employee gets only read permissions for employees, departments, and joblevels
-        foreach (var p in allDbPermissions.Where(per => per.PermissionCode == "hrm.employee.read" || per.PermissionCode == "hrm.department.read" || per.PermissionCode == "hrm.joblevel.read"))
-        {
-            var exists = await context.RolePermissions.AnyAsync(rp => rp.RoleId == employeeRole.Id && rp.PermissionId == p.Id);
-            if (!exists)
-            {
-                await context.RolePermissions.AddAsync(RolePermission.Create(employeeRole.Id, p.Id));
-            }
-        }
         await context.SaveChangesAsync();
+    }
 
-        // 6. Seed a Default Admin User & Account
-        if (!await context.Users.AnyAsync(u => u.EmployeeCode == "ADMIN001"))
+    private static async Task SeedUsersAsync(AppDbContext context, Dictionary<string, Role> roles)
+    {
+        var departments = await context.Departments.ToDictionaryAsync(d => d.DepartmentCode);
+        var jobLevels = await context.JobLevels.ToDictionaryAsync(j => j.LevelName);
+
+        foreach (var seed in InitialData.Users)
         {
-            var adminUser = User.Create(
-                "ADMIN001",
-                "System Administrator",
-                "admin@company.com",
-                rootDept.Id,
-                directorLevel.Id,
-                new DateOnly(2026, 1, 1),
-                UserStatus.Active
-            );
-            await context.Users.AddAsync(adminUser);
+            var loginEmail = seed.Email.ToLowerInvariant();
+            var existingAccount = await context.UserAccounts
+                .FirstOrDefaultAsync(a => a.LoginEmail == loginEmail);
+
+            if (existingAccount != null)
+            {
+                existingAccount.UpdatePassword(PasswordHasher.Hash(seed.Password));
+                existingAccount.Unlock();
+                await context.SaveChangesAsync();
+                continue;
+            }
+
+            if (await context.Users.AnyAsync(u => u.EmployeeCode == seed.EmployeeCode))
+            {
+                continue;
+            }
+
+            var user = User.Create(
+                seed.EmployeeCode,
+                seed.FullName,
+                seed.Email,
+                departments[seed.DepartmentCode].Id,
+                jobLevels[seed.JobLevelName].Id,
+                seed.DateOfJoin,
+                seed.Status);
+            await context.Users.AddAsync(user);
             await context.SaveChangesAsync();
 
-            // PasswordHash for "AdminPassword123!"
-            var pwdHash = PasswordHasher.Hash("AdminPassword123!");
-            var adminAccount = UserAccount.Create(adminUser.Id, "admin@company.com", pwdHash);
-            await context.UserAccounts.AddAsync(adminAccount);
+            var pwdHash = PasswordHasher.Hash(seed.Password);
+            await context.UserAccounts.AddAsync(UserAccount.Create(user.Id, seed.Email, pwdHash));
+            await context.UserDepartments.AddAsync(
+                UserDepartment.Create(user.Id, departments[seed.DepartmentCode].Id, isPrimary: true, seed.DateOfJoin));
 
-            var adminDept = UserDepartment.Create(adminUser.Id, rootDept.Id, isPrimary: true, new DateOnly(2026, 1, 1));
-            await context.UserDepartments.AddAsync(adminDept);
+            foreach (var roleName in seed.RoleNames)
+            {
+                await context.UserRoles.AddAsync(UserRole.Create(user.Id, roles[roleName].Id));
+            }
 
-            var adminRole = UserRole.Create(adminUser.Id, superAdminRole.Id);
-            await context.UserRoles.AddAsync(adminRole);
-
-            // Set manager on root department
-            rootDept.SetManager(adminUser.Id);
-            context.Departments.Update(rootDept);
+            if (seed.ManageDepartmentCode != null)
+            {
+                var dept = departments[seed.ManageDepartmentCode];
+                dept.SetManager(user.Id);
+                context.Departments.Update(dept);
+            }
 
             await context.SaveChangesAsync();
         }

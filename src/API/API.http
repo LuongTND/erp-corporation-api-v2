@@ -1,4 +1,4 @@
-@API_HostAddress = http://localhost:7000
+@API_HostAddress = https://localhost:7001
 
 ### Health check via Swagger
 GET {{API_HostAddress}}/swagger/index.html
