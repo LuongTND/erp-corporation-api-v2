@@ -1,6 +1,9 @@
 using API.Configuration;
+using API.Hubs;
 using API.Middlewares;
+using API.Services;
 using Application;
+using Application.Interfaces.Services.Notifications;
 using Infrastructure;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,6 +18,11 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
+
+// SignalR realtime notifications
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, UserIdHubProvider>();
+builder.Services.AddScoped<INotificationRealtimeSender, SignalRNotificationSender>();
 
 // Cấu hình JWT authentication
 var key = builder.Configuration["Jwt:SecretKey"] ?? builder.Configuration["JWT_KEY"] ?? "SuperSecretKeyMustBeAtLeast32BytesLongForHmacSha256Signing!";
@@ -39,6 +47,21 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
         ClockSkew = TimeSpan.Zero
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddCors(options =>
@@ -46,7 +69,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("DevFrontend", policy =>
         policy.WithOrigins("http://localhost:810", "https://localhost:810")
             .AllowAnyHeader()
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 builder.Services.AddControllers();
@@ -89,6 +113,7 @@ if (app.Environment.IsDevelopment())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await DbInitializer.SeedIfEmptyAsync(db);
+    await DbInitializer.SeedNotificationsIfMissingAsync(db);
 }
 
 app.UseMiddleware<ExceptionMiddleware>();
@@ -104,5 +129,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>(NotificationHub.HubPath);
 
 app.Run();

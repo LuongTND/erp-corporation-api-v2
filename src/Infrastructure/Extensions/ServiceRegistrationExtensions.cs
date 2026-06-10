@@ -13,6 +13,12 @@ internal static class ServiceRegistrationExtensions
         services.AddScoped(typeof(Application.Interfaces.Repositories.IGenericRepository<>),
             typeof(Implementations.Repositories.GenericRepository<>));
 
+        services.AddScoped<Application.Interfaces.Services.Notifications.INotificationRealtimeSender,
+            Implementations.Services.Notifications.NoOpNotificationRealtimeSender>();
+
+        services.AddScoped<Application.Interfaces.Services.Notifications.INotificationActorResolver,
+            Implementations.Services.Notifications.NotificationActorResolver>();
+
         return services;
     }
 

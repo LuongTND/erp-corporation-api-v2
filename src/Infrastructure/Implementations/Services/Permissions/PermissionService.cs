@@ -1,10 +1,12 @@
 using Application.Common.Exceptions;
 using Application.Common.Mapping;
 using Application.Common.Models;
+using Application.Constants;
 using Application.DTOs.Permissions;
 using Application.DTOs.Roles;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Permissions;
+using Application.Interfaces.Services.Notifications;
 using Application.Interfaces.Services.Permissions;
 using AutoMapper;
 using FluentValidation;
@@ -17,6 +19,8 @@ public class PermissionService : IPermissionService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreatePermissionRequest> _createValidator;
     private readonly IValidator<UpdatePermissionRequest> _updateValidator;
+    private readonly INotificationPublisher _notificationPublisher;
+    private readonly INotificationActorResolver _notificationActorResolver;
     private readonly IMapper _mapper;
 
     public PermissionService(
@@ -24,12 +28,16 @@ public class PermissionService : IPermissionService
         IUnitOfWork unitOfWork,
         IValidator<CreatePermissionRequest> createValidator,
         IValidator<UpdatePermissionRequest> updateValidator,
+        INotificationPublisher notificationPublisher,
+        INotificationActorResolver notificationActorResolver,
         IMapper mapper)
     {
         _permissionRepository = permissionRepository;
         _unitOfWork = unitOfWork;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
+        _notificationPublisher = notificationPublisher;
+        _notificationActorResolver = notificationActorResolver;
         _mapper = mapper;
     }
 
@@ -67,6 +75,19 @@ public class PermissionService : IPermissionService
         await _permissionRepository.AddAsync(permission, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.PermissionCreate,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                permissionName = permission.PermissionName,
+                permissionCode = permission.PermissionCode,
+                actorName,
+                permissionId = permission.Id
+            },
+            cancellationToken: ct);
+
         return _mapper.Map<PermissionDto>(permission);
     }
 
@@ -88,6 +109,19 @@ public class PermissionService : IPermissionService
         permission.Update(request.PermissionName.Trim(), request.Description?.Trim(), request.IsActive);
         await _unitOfWork.SaveChangesAsync(ct);
 
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.PermissionUpdate,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                permissionName = permission.PermissionName,
+                permissionCode = permission.PermissionCode,
+                actorName,
+                permissionId = permission.Id
+            },
+            cancellationToken: ct);
+
         return _mapper.Map<PermissionDto>(permission);
     }
 
@@ -103,5 +137,18 @@ public class PermissionService : IPermissionService
 
         permission.IsActive = false;
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.PermissionDelete,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                permissionName = permission.PermissionName,
+                permissionCode = permission.PermissionCode,
+                actorName,
+                permissionId = permission.Id
+            },
+            cancellationToken: ct);
     }
 }

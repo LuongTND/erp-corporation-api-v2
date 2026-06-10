@@ -9,6 +9,8 @@ using Application.Interfaces.Repositories.Roles;
 using Application.Interfaces.Repositories.JobLevels;
 using Application.Interfaces.Services.Users;
 using Application.Interfaces.Services.Auth;
+using Application.Constants;
+using Application.Interfaces.Services.Notifications;
 using AutoMapper;
 using Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +30,8 @@ public class UserService : IUserService
     private readonly IDataScopeService _dataScopeService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IValidator<AddUserDepartmentRequest> _addDeptValidator;
+    private readonly INotificationPublisher _notificationPublisher;
+    private readonly INotificationActorResolver _notificationActorResolver;
     private readonly IMapper _mapper;
 
     public UserService(
@@ -41,6 +45,8 @@ public class UserService : IUserService
         IDataScopeService dataScopeService,
         ICurrentUserService currentUserService,
         IValidator<AddUserDepartmentRequest> addDeptValidator,
+        INotificationPublisher notificationPublisher,
+        INotificationActorResolver notificationActorResolver,
         IMapper mapper)
     {
         _userRepository = userRepository;
@@ -53,6 +59,8 @@ public class UserService : IUserService
         _dataScopeService = dataScopeService;
         _currentUserService = currentUserService;
         _addDeptValidator = addDeptValidator;
+        _notificationPublisher = notificationPublisher;
+        _notificationActorResolver = notificationActorResolver;
         _mapper = mapper;
     }
 
@@ -144,6 +152,20 @@ public class UserService : IUserService
 
         await _unitOfWork.SaveChangesAsync(ct);
 
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.UserCreate,
+            _notificationActorResolver.BuildContext(user.Id),
+            new
+            {
+                fullName = user.FullName,
+                employeeCode = user.EmployeeCode,
+                actorName,
+                userId = user.Id
+            },
+            cancellationToken: ct);
+
         // Tải lại user để có đủ thông tin liên kết phòng ban/cấp bậc cho DTO
         return await GetByIdAsync(user.Id, ct);
     }
@@ -203,6 +225,21 @@ public class UserService : IUserService
         }
 
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.UserUpdate,
+            _notificationActorResolver.BuildContext(user.Id),
+            new
+            {
+                fullName = user.FullName,
+                employeeCode = user.EmployeeCode,
+                actorName,
+                userId = user.Id
+            },
+            cancellationToken: ct);
+
         return await GetByIdAsync(id, ct);
     }
 
@@ -234,6 +271,19 @@ public class UserService : IUserService
         }
 
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.UserDelete,
+            _notificationActorResolver.BuildContext(user.Id),
+            new
+            {
+                fullName = user.FullName,
+                employeeCode = user.EmployeeCode,
+                actorName,
+                userId = user.Id
+            },
+            cancellationToken: ct);
     }
 
     public async Task AssignRolesAsync(Guid id, List<Guid> roleIds, CancellationToken ct = default)
@@ -270,6 +320,19 @@ public class UserService : IUserService
         }
 
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.UserAssignRoles,
+            _notificationActorResolver.BuildContext(user.Id),
+            new
+            {
+                fullName = user.FullName,
+                employeeCode = user.EmployeeCode,
+                actorName,
+                userId = user.Id
+            },
+            cancellationToken: ct);
     }
 
     public async Task ResetPasswordAsync(Guid id, string newPassword, CancellationToken ct = default)
@@ -284,9 +347,26 @@ public class UserService : IUserService
 
         var passwordHash = PasswordHasher.Hash(newPassword);
         account.UpdatePassword(passwordHash);
-        account.Unlock(); // Mở khóa nếu bị khóa do nhập sai nhiều lần
+        account.Unlock();
 
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var user = await _userRepository.GetByIdAsync(id, ct);
+        if (user != null)
+        {
+            var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+            await _notificationPublisher.PublishAsync(
+                NotificationTriggers.UserResetPassword,
+                _notificationActorResolver.BuildContext(id),
+                new
+                {
+                    fullName = user.FullName,
+                    employeeCode = user.EmployeeCode,
+                    actorName,
+                    userId = id
+                },
+                cancellationToken: ct);
+        }
     }
 
     public async Task<IReadOnlyList<UserDepartmentDto>> GetSecondaryDepartmentsAsync(Guid userId, CancellationToken ct = default)
@@ -323,6 +403,20 @@ public class UserService : IUserService
         await _userDeptRepository.AddAsync(userDept, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.UserSecondaryDeptAdd,
+            _notificationActorResolver.BuildContext(userId),
+            new
+            {
+                fullName = user.FullName,
+                departmentName = dept.DepartmentName,
+                actorName,
+                userId,
+                departmentId = dept.Id
+            },
+            cancellationToken: ct);
+
         var dto = _mapper.Map<UserDepartmentDto>(userDept);
         dto.DepartmentName = dept.DepartmentName;
         dto.DepartmentCode = dept.DepartmentCode;
@@ -339,8 +433,24 @@ public class UserService : IUserService
         if (userDept == null)
             throw new NotFoundException("Không tìm thấy phòng ban kiêm nhiệm đang hoạt động của nhân sự này.");
 
+        var dept = await _departmentRepository.GetByIdAsync(departmentId, ct);
+
         userDept.Terminate(DateOnly.FromDateTime(DateTime.UtcNow));
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.UserSecondaryDeptRemove,
+            _notificationActorResolver.BuildContext(userId),
+            new
+            {
+                fullName = user.FullName,
+                departmentName = dept?.DepartmentName ?? departmentId.ToString(),
+                actorName,
+                userId,
+                departmentId
+            },
+            cancellationToken: ct);
     }
 
 }

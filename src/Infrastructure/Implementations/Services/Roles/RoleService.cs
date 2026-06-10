@@ -1,9 +1,11 @@
 using Application.Common.Exceptions;
 using Application.Common.Mapping;
 using Application.Common.Models;
+using Application.Constants;
 using Application.DTOs.Roles;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Roles;
+using Application.Interfaces.Services.Notifications;
 using Application.Interfaces.Services.Roles;
 using AutoMapper;
 using FluentValidation;
@@ -15,17 +17,23 @@ public class RoleService : IRoleService
     private readonly IRoleRepository _roleRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<UpdateRoleRequest> _updateValidator;
+    private readonly INotificationPublisher _notificationPublisher;
+    private readonly INotificationActorResolver _notificationActorResolver;
     private readonly IMapper _mapper;
 
     public RoleService(
         IRoleRepository roleRepository,
         IUnitOfWork unitOfWork,
         IValidator<UpdateRoleRequest> updateValidator,
+        INotificationPublisher notificationPublisher,
+        INotificationActorResolver notificationActorResolver,
         IMapper mapper)
     {
         _roleRepository = roleRepository;
         _unitOfWork = unitOfWork;
         _updateValidator = updateValidator;
+        _notificationPublisher = notificationPublisher;
+        _notificationActorResolver = notificationActorResolver;
         _mapper = mapper;
     }
 
@@ -69,6 +77,19 @@ public class RoleService : IRoleService
         await _roleRepository.AddAsync(role, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.RoleCreate,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                displayName = role.DisplayName,
+                roleName = role.RoleName,
+                actorName,
+                roleId = role.Id
+            },
+            cancellationToken: ct);
+
         return await GetByIdAsync(role.Id, ct);
     }
 
@@ -89,6 +110,19 @@ public class RoleService : IRoleService
         await _roleRepository.UpdateRolePermissionsAsync(role, request.PermissionIds, ct);
 
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.RolePermissionsUpdate,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                displayName = role.DisplayName,
+                roleName = role.RoleName,
+                actorName,
+                roleId = role.Id
+            },
+            cancellationToken: ct);
     }
 
     public async Task<RoleDto> UpdateAsync(Guid id, UpdateRoleRequest request, CancellationToken ct = default)
@@ -106,6 +140,20 @@ public class RoleService : IRoleService
         role.IsActive = request.IsActive;
 
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.RoleUpdate,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                displayName = role.DisplayName,
+                roleName = role.RoleName,
+                actorName,
+                roleId = role.Id
+            },
+            cancellationToken: ct);
+
         return await GetByIdAsync(id, ct);
     }
 
@@ -125,5 +173,18 @@ public class RoleService : IRoleService
 
         role.IsActive = false;
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.RoleDelete,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                displayName = role.DisplayName,
+                roleName = role.RoleName,
+                actorName,
+                roleId = role.Id
+            },
+            cancellationToken: ct);
     }
 }

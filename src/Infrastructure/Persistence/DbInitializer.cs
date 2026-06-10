@@ -1,3 +1,4 @@
+using Application.Common.Notifications;
 using Infrastructure.Persistence.Seed;
 using Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,97 @@ public static class DbInitializer
         var roles = await SeedRolesAsync(context);
         await SeedRolePermissionsAsync(context, permissions, roles);
         await SeedUsersAsync(context, roles);
+        await SeedNotificationsAsync(context);
+    }
+
+    /// <summary>
+    /// Seed thông báo + quyền notification cho DB đã tồn tại (idempotent).
+    /// </summary>
+    public static async Task SeedNotificationsIfMissingAsync(AppDbContext context)
+    {
+        await SeedMissingNotificationPermissionsAsync(context);
+        await SeedNotificationsAsync(context);
+    }
+
+    private static async Task SeedMissingNotificationPermissionsAsync(AppDbContext context)
+    {
+        var superAdmin = await context.Roles.FirstOrDefaultAsync(r => r.RoleName == InitialData.Keys.RoleSuperAdmin);
+        if (superAdmin == null)
+            return;
+
+        foreach (var seed in NotificationInitialData.NotificationPermissions)
+        {
+            var permission = await context.Permissions.FirstOrDefaultAsync(p => p.PermissionCode == seed.PermissionCode);
+            if (permission == null)
+            {
+                permission = Permission.Create(
+                    seed.PermissionCode,
+                    seed.PermissionName,
+                    seed.Module,
+                    seed.Action,
+                    seed.Resource);
+                await context.Permissions.AddAsync(permission);
+                await context.SaveChangesAsync();
+            }
+
+            var assigned = await context.RolePermissions.AnyAsync(rp =>
+                rp.RoleId == superAdmin.Id && rp.PermissionId == permission.Id);
+            if (!assigned)
+            {
+                await context.RolePermissions.AddAsync(RolePermission.Create(superAdmin.Id, permission.Id));
+            }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedNotificationsAsync(AppDbContext context)
+    {
+        foreach (var seed in NotificationInitialData.EventTypes)
+        {
+            var entity = await context.NotificationEventTypes.FirstOrDefaultAsync(x => x.EventCode == seed.EventCode);
+            if (entity == null)
+            {
+                entity = NotificationEventType.Create(
+                    seed.Id,
+                    seed.EventCode,
+                    seed.Name,
+                    seed.Module,
+                    seed.DefaultTitleTemplate,
+                    seed.DefaultBodyTemplate,
+                    seed.Description);
+                await context.NotificationEventTypes.AddAsync(entity);
+            }
+        }
+
+        await context.SaveChangesAsync();
+
+        foreach (var seed in NotificationInitialData.Triggers)
+        {
+            var entity = await context.NotificationTriggerBindings.FirstOrDefaultAsync(x => x.TriggerKey == seed.TriggerKey);
+            if (entity == null)
+            {
+                entity = NotificationTriggerBinding.Create(
+                    seed.Id,
+                    seed.TriggerKey,
+                    seed.Name,
+                    seed.Module,
+                    seed.EventTypeId,
+                    seed.LinkUrlTemplate,
+                    seed.Description,
+                    seed.RecipientRulesJson ?? NotificationInitialData.DefaultAdminEventRecipientRulesJson);
+                await context.NotificationTriggerBindings.AddAsync(entity);
+            }
+        }
+
+        var triggersNeedingRules = await context.NotificationTriggerBindings
+            .Where(x => x.RecipientRulesJson == "{}" || x.RecipientRulesJson == "")
+            .ToListAsync();
+
+        foreach (var trigger in triggersNeedingRules)
+            trigger.SetRecipientRulesJson(NotificationInitialData.DefaultUserEventRecipientRulesJson);
+
+        await context.SaveChangesAsync();
     }
 
     private static async Task<Dictionary<string, JobLevel>> SeedJobLevelsAsync(AppDbContext context)

@@ -114,6 +114,14 @@ public static class InitialData
         new("system.permission.create", "Thêm quyền mới", PermissionModule.System, PermissionAction.Create, "permission"),
         new("system.permission.update", "Cập nhật quyền", PermissionModule.System, PermissionAction.Update, "permission"),
         new("system.permission.delete", "Vô hiệu hóa quyền", PermissionModule.System, PermissionAction.Delete, "permission"),
+
+        // Thông báo
+        new("system.notification.event.read", "Xem loại thông báo", PermissionModule.System, PermissionAction.Read, "notification-event"),
+        new("system.notification.event.create", "Tạo loại thông báo", PermissionModule.System, PermissionAction.Create, "notification-event"),
+        new("system.notification.event.update", "Cập nhật loại thông báo", PermissionModule.System, PermissionAction.Update, "notification-event"),
+        new("system.notification.event.delete", "Vô hiệu hóa loại thông báo", PermissionModule.System, PermissionAction.Delete, "notification-event"),
+        new("system.notification.trigger.read", "Xem gán thông báo chức năng", PermissionModule.System, PermissionAction.Read, "notification-trigger"),
+        new("system.notification.trigger.update", "Gán thông báo cho chức năng", PermissionModule.System, PermissionAction.Update, "notification-trigger"),
     ];
 
     public static readonly RoleSeed[] Roles =

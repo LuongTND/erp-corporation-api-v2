@@ -1,11 +1,13 @@
 using Application.Common.Exceptions;
 using Application.Common.Mapping;
 using Application.Common.Models;
+using Application.Constants;
 using Application.DTOs.Departments;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Departments;
 using Application.Interfaces.Repositories.Users;
 using Application.Interfaces.Services.Departments;
+using Application.Interfaces.Services.Notifications;
 using AutoMapper;
 
 namespace Infrastructure.Implementations.Services.Departments;
@@ -16,6 +18,8 @@ public class DepartmentService : IDepartmentService
     private readonly IUserRepository _userRepository;
     private readonly IUserDepartmentRepository _userDeptRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationPublisher _notificationPublisher;
+    private readonly INotificationActorResolver _notificationActorResolver;
     private readonly IMapper _mapper;
 
     public DepartmentService(
@@ -23,12 +27,16 @@ public class DepartmentService : IDepartmentService
         IUserRepository userRepository,
         IUserDepartmentRepository userDeptRepository,
         IUnitOfWork unitOfWork,
+        INotificationPublisher notificationPublisher,
+        INotificationActorResolver notificationActorResolver,
         IMapper mapper)
     {
         _departmentRepository = departmentRepository;
         _userRepository = userRepository;
         _userDeptRepository = userDeptRepository;
         _unitOfWork = unitOfWork;
+        _notificationPublisher = notificationPublisher;
+        _notificationActorResolver = notificationActorResolver;
         _mapper = mapper;
     }
 
@@ -80,6 +88,19 @@ public class DepartmentService : IDepartmentService
         await _departmentRepository.AddAsync(dept, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.DepartmentCreate,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                departmentName = dept.DepartmentName,
+                departmentCode = dept.DepartmentCode,
+                actorName,
+                departmentId = dept.Id
+            },
+            cancellationToken: ct);
+
         return await GetByIdAsync(dept.Id, ct);
     }
 
@@ -119,6 +140,20 @@ public class DepartmentService : IDepartmentService
         dept.IsActive = request.IsActive;
 
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.DepartmentUpdate,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                departmentName = dept.DepartmentName,
+                departmentCode = dept.DepartmentCode,
+                actorName,
+                departmentId = dept.Id
+            },
+            cancellationToken: ct);
+
         return await GetByIdAsync(id, ct);
     }
 
@@ -158,5 +193,18 @@ public class DepartmentService : IDepartmentService
 
         dept.IsActive = false;
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.DepartmentDelete,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                departmentName = dept.DepartmentName,
+                departmentCode = dept.DepartmentCode,
+                actorName,
+                departmentId = dept.Id
+            },
+            cancellationToken: ct);
     }
 }

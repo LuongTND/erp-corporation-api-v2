@@ -22,6 +22,10 @@ public class AppDbContext : DbContext
     public DbSet<UserAccount> UserAccounts => Set<UserAccount>();
     public DbSet<UserDepartment> UserDepartments => Set<UserDepartment>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<NotificationEventType> NotificationEventTypes => Set<NotificationEventType>();
+    public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
+    public DbSet<NotificationTriggerBinding> NotificationTriggerBindings => Set<NotificationTriggerBinding>();
+    public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

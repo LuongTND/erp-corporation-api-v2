@@ -1,11 +1,13 @@
 using Application.Common.Exceptions;
 using Application.Common.Mapping;
 using Application.Common.Models;
+using Application.Constants;
 using Application.DTOs.JobLevels;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.JobLevels;
 using Application.Interfaces.Repositories.Users;
 using Application.Interfaces.Services.JobLevels;
+using Application.Interfaces.Services.Notifications;
 using AutoMapper;
 using FluentValidation;
 using Infrastructure.Extensions;
@@ -20,6 +22,8 @@ public class JobLevelService : IJobLevelService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateJobLevelRequest> _createValidator;
     private readonly IValidator<UpdateJobLevelRequest> _updateValidator;
+    private readonly INotificationPublisher _notificationPublisher;
+    private readonly INotificationActorResolver _notificationActorResolver;
     private readonly IMapper _mapper;
 
     public JobLevelService(
@@ -28,6 +32,8 @@ public class JobLevelService : IJobLevelService
         IUnitOfWork unitOfWork,
         IValidator<CreateJobLevelRequest> createValidator,
         IValidator<UpdateJobLevelRequest> updateValidator,
+        INotificationPublisher notificationPublisher,
+        INotificationActorResolver notificationActorResolver,
         IMapper mapper)
     {
         _jobLevelRepository = jobLevelRepository;
@@ -35,6 +41,8 @@ public class JobLevelService : IJobLevelService
         _unitOfWork = unitOfWork;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
+        _notificationPublisher = notificationPublisher;
+        _notificationActorResolver = notificationActorResolver;
         _mapper = mapper;
     }
 
@@ -80,6 +88,18 @@ public class JobLevelService : IJobLevelService
         await _jobLevelRepository.AddAsync(jobLevel, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.JobLevelCreate,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                levelName = jobLevel.LevelName,
+                actorName,
+                jobLevelId = jobLevel.Id
+            },
+            cancellationToken: ct);
+
         return _mapper.Map<JobLevelDto>(jobLevel);
     }
 
@@ -117,6 +137,18 @@ public class JobLevelService : IJobLevelService
 
         await _unitOfWork.SaveChangesAsync(ct);
 
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.JobLevelUpdate,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                levelName = jobLevel.LevelName,
+                actorName,
+                jobLevelId = jobLevel.Id
+            },
+            cancellationToken: ct);
+
         return _mapper.Map<JobLevelDto>(jobLevel);
     }
 
@@ -134,5 +166,17 @@ public class JobLevelService : IJobLevelService
         jobLevel.IsActive = false;
 
         await _unitOfWork.SaveChangesAsync(ct);
+
+        var actorName = await _notificationActorResolver.GetActorDisplayNameAsync(ct);
+        await _notificationPublisher.PublishAsync(
+            NotificationTriggers.JobLevelDelete,
+            _notificationActorResolver.BuildContext(),
+            new
+            {
+                levelName = jobLevel.LevelName,
+                actorName,
+                jobLevelId = jobLevel.Id
+            },
+            cancellationToken: ct);
     }
 }
