@@ -1,5 +1,6 @@
 using API.Base;
 using API.Filters;
+using Application.Common.Models;
 using Application.DTOs.Roles;
 using Application.Interfaces.Services.Roles;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,10 @@ public class RolesController : BaseApiController
     // API lấy tất cả các vai trò, dùng để hiển thị danh sách vai trò
     [HttpGet]
     [AuthorizePermission("system.role.read")]
-    public async Task<ActionResult<IReadOnlyList<RoleDto>>> GetAll(CancellationToken ct)
+    public async Task<ActionResult<PaginatedResult<RoleDto>>> GetAll([FromQuery] PaginationQuery query, CancellationToken ct)
     {
-        var roles = await _roleService.GetAllAsync(ct);
-        return Ok(roles);
+        var result = await _roleService.GetPagedAsync(query, ct);
+        return Ok(result);
     }
 
     // API lấy thông tin vai trò theo id, dùng để hiển thị thông tin vai trò
@@ -36,10 +37,10 @@ public class RolesController : BaseApiController
     // API lấy tất cả các quyền, dùng để hiển thị danh sách quyền để gán cho vai trò
     [HttpGet("permissions")]
     [AuthorizePermission("system.role.read")]
-    public async Task<ActionResult<IReadOnlyList<PermissionDto>>> GetAllPermissions(CancellationToken ct)
+    public async Task<ActionResult<PaginatedResult<PermissionDto>>> GetAllPermissions([FromQuery] PaginationQuery query, CancellationToken ct)
     {
-        var permissions = await _roleService.GetAllPermissionsAsync(ct);
-        return Ok(permissions);
+        var result = await _roleService.GetPagedPermissionsAsync(query, ct);
+        return Ok(result);
     }   
 
     // API tạo vai trò mới, sau khi tạo thành công sẽ trả về thông tin vai trò vừa tạo

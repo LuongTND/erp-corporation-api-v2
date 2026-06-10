@@ -1,4 +1,6 @@
 using Application.Common.Exceptions;
+using Application.Common.Mapping;
+using Application.Common.Models;
 using Application.DTOs.Users;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Users;
@@ -9,8 +11,6 @@ using Application.Interfaces.Services.Users;
 using Application.Interfaces.Services.Auth;
 using AutoMapper;
 using Infrastructure.Security;
-using Domain.Entities;
-using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 
@@ -59,10 +59,10 @@ public class UserService : IUserService
     public async Task<UserDto> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var currentUserId = _currentUserService.UserId ?? Guid.Empty;
-        var scope = await _dataScopeService.GetEffectiveScopeAsync(currentUserId, ct);
-        var deptIds = await _dataScopeService.GetAccessibleDepartmentIdsAsync(currentUserId, ct);
+        var scopeContext = await _dataScopeService.GetUserScopeContextAsync(currentUserId, ct);
 
-        var user = await _userRepository.GetByIdWithDetailsScopedAsync(id, currentUserId, scope, deptIds, ct);
+        var user = await _userRepository.GetByIdWithDetailsScopedAsync(
+            id, currentUserId, scopeContext.Scope, scopeContext.AccessibleDepartmentIds, ct);
 
         if (user == null)
             throw new NotFoundException("Không tìm thấy nhân sự hoặc bạn không có quyền xem thông tin nhân sự này.");
@@ -70,25 +70,25 @@ public class UserService : IUserService
         return _mapper.Map<UserDto>(user);
     }
 
-    public async Task<IReadOnlyList<UserDto>> GetAllAsync(CancellationToken ct = default)
+    public async Task<PaginatedResult<UserDto>> GetPagedAsync(PaginationQuery query, CancellationToken ct = default)
     {
         var currentUserId = _currentUserService.UserId ?? Guid.Empty;
-        var scope = await _dataScopeService.GetEffectiveScopeAsync(currentUserId, ct);
-        var deptIds = await _dataScopeService.GetAccessibleDepartmentIdsAsync(currentUserId, ct);
+        var scopeContext = await _dataScopeService.GetUserScopeContextAsync(currentUserId, ct);
 
-        var users = await _userRepository.GetWithDetailsScopedAsync(currentUserId, scope, deptIds, ct);
+        var result = await _userRepository.GetPagedWithDetailsScopedAsync(
+            currentUserId, scopeContext.Scope, scopeContext.AccessibleDepartmentIds, query, ct);
 
-        return _mapper.Map<List<UserDto>>(users);
+        return PaginationMapper.Map<User, UserDto>(result, _mapper);
     }
 
     public async Task<UserDto> CreateAsync(CreateUserRequest request, CancellationToken ct = default)
     {
         // 1. Kiểm tra mã nhân viên & Email đã tồn tại chưa
-        var employeeCodeUpper = request.EmployeeCode.ToUpperInvariant();
+        var employeeCode = request.EmployeeCode.Trim();
         var emailLower = request.Email.ToLowerInvariant();
 
-        if (await _userRepository.ExistsByEmployeeCodeAsync(employeeCodeUpper, ct))
-            throw new ConflictException($"Mã nhân viên '{request.EmployeeCode}' đã tồn tại trong hệ thống.");
+        if (await _userRepository.ExistsByEmployeeCodeAsync(employeeCode, ct))
+            throw new ConflictException($"Mã nhân viên '{employeeCode}' đã tồn tại trong hệ thống.");
 
         if (await _userRepository.ExistsByEmailAsync(emailLower, ct))
             throw new ConflictException($"Email '{request.Email}' đã được sử dụng bởi nhân sự khác.");
@@ -111,7 +111,7 @@ public class UserService : IUserService
 
         // 2. Tạo nhân sự mới
         var user = User.Create(
-            employeeCodeUpper,
+            employeeCode,
             request.FullName,
             emailLower,
             request.DepartmentId,

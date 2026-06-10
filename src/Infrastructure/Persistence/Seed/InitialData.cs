@@ -1,10 +1,9 @@
-using Domain.Enums;
 
 namespace Infrastructure.Persistence.Seed;
 
 /// <summary>
 /// Dữ liệu khởi tạo hệ thống — chỉnh sửa tại đây khi cần bổ sung seed mới.
-/// DbInitializer đọc file này và ghi vào database khi chạy lần đầu.
+/// DbInitializer đọc file này và ghi vào database khi setup lần đầu (DB chưa có nhân sự).
 /// </summary>
 public static class InitialData
 {
@@ -109,6 +108,12 @@ public static class InitialData
         new("system.role.update", "Cập nhật quyền vai trò", PermissionModule.System, PermissionAction.Update, "role"),
         new("system.role.assign", "Gán vai trò cho nhân viên", PermissionModule.System, PermissionAction.Assign, "role"),
         new("system.user.resetpassword", "Đặt lại mật khẩu nhân viên", PermissionModule.System, PermissionAction.Update, "user"),
+
+        // Quản lý quyền hệ thống
+        new("system.permission.read", "Xem danh sách quyền", PermissionModule.System, PermissionAction.Read, "permission"),
+        new("system.permission.create", "Thêm quyền mới", PermissionModule.System, PermissionAction.Create, "permission"),
+        new("system.permission.update", "Cập nhật quyền", PermissionModule.System, PermissionAction.Update, "permission"),
+        new("system.permission.delete", "Vô hiệu hóa quyền", PermissionModule.System, PermissionAction.Delete, "permission"),
     ];
 
     public static readonly RoleSeed[] Roles =

@@ -1,5 +1,6 @@
 using API.Base;
 using API.Filters;
+using Application.Common.Models;
 using Application.DTOs.Users;
 using Application.Interfaces.Services.Users;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,10 @@ public class UsersController : BaseApiController
     // API lấy danh sách tất cả người dùng, sau khi lấy về thì dùng filter để lọc các người dùng cần hiển thị
     [HttpGet]
     [AuthorizePermission("hrm.employee.read")]
-    public async Task<ActionResult<IReadOnlyList<UserDto>>> GetAll(CancellationToken ct)
+    public async Task<ActionResult<PaginatedResult<UserDto>>> GetAll([FromQuery] PaginationQuery query, CancellationToken ct)
     {
-        var users = await _userService.GetAllAsync(ct);
-        return Ok(users);
+        var result = await _userService.GetPagedAsync(query, ct);
+        return Ok(result);
     }
 
     // API lấy thông tin người dùng theo id, dùng để hiển thị thông tin người dùng

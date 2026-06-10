@@ -1,5 +1,6 @@
+using Application.Common.Models;
 using Application.Interfaces.Repositories.Departments;
-using Domain.Entities;
+using Infrastructure.Extensions;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,11 +20,22 @@ public class DepartmentRepository : GenericRepository<Department>, IDepartmentRe
             .FirstOrDefaultAsync(d => d.Id == id, ct);
     }
 
-    public async Task<List<Department>> GetAllWithDetailsAsync(CancellationToken ct = default)
+    public async Task<PaginatedResult<Department>> GetPagedWithDetailsAsync(PaginationQuery query, CancellationToken ct = default)
     {
         return await DbSet
+            .AsNoTracking()
             .Include(d => d.ParentDepartment)
             .Include(d => d.Manager)
+            .OrderBy(d => d.DepartmentCode)
+            .ToPaginatedResultAsync(query, ct);
+    }
+
+    public async Task<List<(Guid Id, Guid? ParentDepartmentId)>> GetActiveHierarchyAsync(CancellationToken ct = default)
+    {
+        return await DbSet
+            .AsNoTracking()
+            .Where(d => d.IsActive)
+            .Select(d => new ValueTuple<Guid, Guid?>(d.Id, d.ParentDepartmentId))
             .ToListAsync(ct);
     }
 

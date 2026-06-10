@@ -1,3 +1,5 @@
+using Application.Common.Models;
+
 namespace Application.Interfaces.Services.Common;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace Application.Interfaces.Services.Common;
 /// </summary>
 public interface ICrudService<TDto, in TCreate, in TUpdate>
 {
-    Task<IReadOnlyList<TDto>> GetAllAsync(CancellationToken ct = default);
+    Task<PaginatedResult<TDto>> GetPagedAsync(PaginationQuery query, CancellationToken ct = default);
     Task<TDto> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<TDto> CreateAsync(TCreate request, CancellationToken ct = default);
     Task<TDto> UpdateAsync(Guid id, TUpdate request, CancellationToken ct = default);

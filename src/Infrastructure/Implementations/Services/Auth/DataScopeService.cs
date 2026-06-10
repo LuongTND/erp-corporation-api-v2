@@ -2,8 +2,6 @@ using Application.Interfaces.Repositories.Users;
 using Application.Interfaces.Repositories.Roles;
 using Application.Interfaces.Repositories.Departments;
 using Application.Interfaces.Services.Auth;
-using Domain.Entities;
-using Domain.Enums;
 
 namespace Infrastructure.Implementations.Services.Auth;
 
@@ -12,6 +10,9 @@ public class DataScopeService : IDataScopeService
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly IDepartmentRepository _departmentRepository;
+
+    private UserScopeContext? _cachedContext;
+    private Guid _cachedUserId;
 
     public DataScopeService(
         IUserRepository userRepository,
@@ -23,36 +24,60 @@ public class DataScopeService : IDataScopeService
         _departmentRepository = departmentRepository;
     }
 
+    public async Task<UserScopeContext> GetUserScopeContextAsync(Guid userId, CancellationToken ct = default)
+    {
+        if (_cachedContext != null && _cachedUserId == userId)
+            return _cachedContext;
+
+        var hasBypass = await _roleRepository.HasBypassDataScopeRoleAsync(userId, ct);
+        if (hasBypass)
+        {
+            _cachedContext = new UserScopeContext(ScopeType.All, Array.Empty<Guid>());
+            _cachedUserId = userId;
+            return _cachedContext;
+        }
+
+        var user = await _userRepository.GetJobLevelScopeInfoAsync(userId, ct);
+        var scope = user?.JobLevel?.DefaultScopeType ?? ScopeType.Own;
+
+        IReadOnlyList<Guid> deptIds = scope == ScopeType.Department && user != null
+            ? await BuildAccessibleDepartmentIdsAsync(user.DepartmentId, ct)
+            : Array.Empty<Guid>();
+
+        _cachedContext = new UserScopeContext(scope, deptIds);
+        _cachedUserId = userId;
+        return _cachedContext;
+    }
+
     public async Task<ScopeType> GetEffectiveScopeAsync(Guid userId, CancellationToken ct = default)
     {
-        // 1. Nếu có Role bypass data scope -> All
-        var hasBypass = await _roleRepository.HasBypassDataScopeRoleAsync(userId, ct);
-
-        if (hasBypass)
-            return ScopeType.All;
-
-        // 2. Lấy scope mặc định từ JobLevel của User
-        var user = await _userRepository.GetJobLevelScopeInfoAsync(userId, ct);
-        var userScope = user?.JobLevel?.DefaultScopeType;
-
-        return userScope ?? ScopeType.Own;
+        var context = await GetUserScopeContextAsync(userId, ct);
+        return context.Scope;
     }
 
     public async Task<IReadOnlyList<Guid>> GetAccessibleDepartmentIdsAsync(Guid userId, CancellationToken ct = default)
     {
-        // Lấy phòng ban chính của user
-        var user = await _userRepository.GetByIdAsync(userId, ct);
-        if (user == null)
-            return Array.Empty<Guid>();
+        var context = await GetUserScopeContextAsync(userId, ct);
+        return context.AccessibleDepartmentIds;
+    }
 
-        var primaryDeptId = user.DepartmentId;
+    public async Task<IQueryable<User>> ApplyUserScopeAsync(IQueryable<User> query, Guid userId, CancellationToken ct = default)
+    {
+        var context = await GetUserScopeContextAsync(userId, ct);
 
-        // Tải cây phòng ban đang hoạt động vào bộ nhớ để duyệt đệ quy (phù hợp với quy mô ERP trung bình)
-        var allDepts = await _departmentRepository.GetAllAsync(ct);
-        var activeDepts = allDepts
-            .Where(d => d.IsActive)
-            .Select(d => new { d.Id, d.ParentDepartmentId })
-            .ToList();
+        return context.Scope switch
+        {
+            ScopeType.Own => query.Where(u => u.Id == userId),
+            ScopeType.Team => query.Where(u => u.ManagerId == userId || u.Id == userId),
+            ScopeType.Department => query.Where(u => context.AccessibleDepartmentIds.Contains(u.DepartmentId)),
+            ScopeType.All => query,
+            _ => query.Where(u => u.Id == userId)
+        };
+    }
+
+    private async Task<IReadOnlyList<Guid>> BuildAccessibleDepartmentIdsAsync(Guid primaryDeptId, CancellationToken ct)
+    {
+        var activeDepts = await _departmentRepository.GetActiveHierarchyAsync(ct);
 
         var result = new List<Guid> { primaryDeptId };
         var queue = new Queue<Guid>();
@@ -61,40 +86,16 @@ public class DataScopeService : IDataScopeService
         while (queue.Count > 0)
         {
             var currentId = queue.Dequeue();
-            var children = activeDepts
-                .Where(d => d.ParentDepartmentId == currentId)
-                .Select(d => d.Id);
-
-            foreach (var childId in children)
+            foreach (var child in activeDepts.Where(d => d.ParentDepartmentId == currentId))
             {
-                if (!result.Contains(childId))
-                {
-                    result.Add(childId);
-                    queue.Enqueue(childId);
-                }
+                if (result.Contains(child.Id))
+                    continue;
+
+                result.Add(child.Id);
+                queue.Enqueue(child.Id);
             }
         }
 
         return result;
-    }
-
-    public async Task<IQueryable<User>> ApplyUserScopeAsync(IQueryable<User> query, Guid userId, CancellationToken ct = default)
-    {
-        var scope = await GetEffectiveScopeAsync(userId, ct);
-
-        return scope switch
-        {
-            ScopeType.Own => query.Where(u => u.Id == userId),
-            ScopeType.Team => query.Where(u => u.ManagerId == userId || u.Id == userId),
-            ScopeType.Department => await ApplyDepartmentFilterAsync(query, userId, ct),
-            ScopeType.All => query,
-            _ => query.Where(u => u.Id == userId)
-        };
-    }
-
-    private async Task<IQueryable<User>> ApplyDepartmentFilterAsync(IQueryable<User> query, Guid userId, CancellationToken ct)
-    {
-        var deptIds = await GetAccessibleDepartmentIdsAsync(userId, ct);
-        return query.Where(u => deptIds.Contains(u.DepartmentId));
     }
 }

@@ -1,6 +1,5 @@
 using Application.DTOs.Roles;
 using AutoMapper;
-using Domain.Entities;
 
 namespace Application.Mappings.Roles;
 

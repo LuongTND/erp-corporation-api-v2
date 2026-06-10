@@ -1,4 +1,3 @@
-using Domain.Entities;
 using Infrastructure.Persistence.Seed;
 using Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +6,15 @@ namespace Infrastructure.Persistence;
 
 public static class DbInitializer
 {
-    public static async Task SeedAsync(AppDbContext context)
+    /// <summary>
+    /// Chỉ seed dữ liệu mặc định khi database chưa có nhân sự (lần setup đầu).
+    /// Không cập nhật lại dữ liệu mỗi lần API khởi động.
+    /// </summary>
+    public static async Task SeedIfEmptyAsync(AppDbContext context)
     {
+        if (await context.Users.AnyAsync())
+            return;
+
         await SeedJobLevelsAsync(context);
         await SeedDepartmentsAsync(context);
         var permissions = await SeedPermissionsAsync(context);
@@ -167,22 +173,8 @@ public static class DbInitializer
 
         foreach (var seed in InitialData.Users)
         {
-            var loginEmail = seed.Email.ToLowerInvariant();
-            var existingAccount = await context.UserAccounts
-                .FirstOrDefaultAsync(a => a.LoginEmail == loginEmail);
-
-            if (existingAccount != null)
-            {
-                existingAccount.UpdatePassword(PasswordHasher.Hash(seed.Password));
-                existingAccount.Unlock();
-                await context.SaveChangesAsync();
-                continue;
-            }
-
             if (await context.Users.AnyAsync(u => u.EmployeeCode == seed.EmployeeCode))
-            {
                 continue;
-            }
 
             var user = User.Create(
                 seed.EmployeeCode,

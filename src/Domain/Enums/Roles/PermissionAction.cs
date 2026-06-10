@@ -1,4 +1,4 @@
-namespace Domain.Enums;
+namespace Domain.Enums.Roles;
 
 public enum PermissionAction
 {

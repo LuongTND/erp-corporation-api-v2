@@ -1,6 +1,7 @@
 using Domain.Base;
+using Domain.Entities.Users;
 
-namespace Domain.Entities;
+namespace Domain.Entities.Roles;
 
 public class Role : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
@@ -14,7 +15,6 @@ public class Role : BaseEntity, IAuditable, ICreationTracked, IModificationTrack
     public Guid? CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }
 
-    // Navigation properties
     public virtual ICollection<RolePermission> RolePermissions { get; private set; } = [];
     public virtual ICollection<UserRole> UserRoles { get; private set; } = [];
 

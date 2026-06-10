@@ -1,5 +1,4 @@
 using Domain.Base;
-using Domain.Entities;
 using Domain.Events;
 using Infrastructure.Outbox;
 using Infrastructure.Persistence.Outbox;

@@ -1,4 +1,3 @@
-using Domain.Enums;
 
 namespace Application.DTOs.Users;
 

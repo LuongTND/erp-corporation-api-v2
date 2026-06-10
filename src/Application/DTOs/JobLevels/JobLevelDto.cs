@@ -1,5 +1,4 @@
 using Application.Common.Models;
-using Domain.Enums;
 
 namespace Application.DTOs.JobLevels;
 

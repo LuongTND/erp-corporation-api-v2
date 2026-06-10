@@ -25,10 +25,12 @@ public abstract class CrudApiController<TService, TDto, TCreate, TUpdate> : Base
 
     [HttpGet]
     [RequireCrudPermission(CrudOperation.Read)]
-    public virtual async Task<ActionResult<IReadOnlyList<TDto>>> GetAll(CancellationToken ct)
+    public virtual async Task<ActionResult<PaginatedResult<TDto>>> GetAll(
+        [FromQuery] PaginationQuery query,
+        CancellationToken ct)
     {
-        var items = await Service.GetAllAsync(ct);
-        return Ok(items);
+        var result = await Service.GetPagedAsync(query, ct);
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}")]

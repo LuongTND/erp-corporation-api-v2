@@ -1,5 +1,6 @@
+using Application.Common.Models;
 using Application.Interfaces.Repositories.Roles;
-using Domain.Entities;
+using Infrastructure.Extensions;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,19 +20,23 @@ public class RoleRepository : GenericRepository<Role>, IRoleRepository
             .FirstOrDefaultAsync(r => r.Id == id, ct);
     }
 
-    public async Task<List<Role>> GetAllWithPermissionsAsync(CancellationToken ct = default)
+    public async Task<PaginatedResult<Role>> GetPagedWithPermissionsAsync(PaginationQuery query, CancellationToken ct = default)
     {
         return await DbSet
+            .AsNoTracking()
             .Include(r => r.RolePermissions)
                 .ThenInclude(rp => rp.Permission)
-            .ToListAsync(ct);
+            .OrderBy(r => r.RoleName)
+            .ToPaginatedResultAsync(query, ct);
     }
 
-    public async Task<List<Permission>> GetAllPermissionsAsync(CancellationToken ct = default)
+    public async Task<PaginatedResult<Permission>> GetPagedPermissionsAsync(PaginationQuery query, CancellationToken ct = default)
     {
         return await Context.Permissions
+            .AsNoTracking()
             .Where(p => p.IsActive)
-            .ToListAsync(ct);
+            .OrderBy(p => p.PermissionCode)
+            .ToPaginatedResultAsync(query, ct);
     }
 
     public async Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default)

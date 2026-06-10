@@ -1,0 +1,107 @@
+using Application.Common.Exceptions;
+using Application.Common.Mapping;
+using Application.Common.Models;
+using Application.DTOs.Permissions;
+using Application.DTOs.Roles;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Repositories.Permissions;
+using Application.Interfaces.Services.Permissions;
+using AutoMapper;
+using FluentValidation;
+
+namespace Infrastructure.Implementations.Services.Permissions;
+
+public class PermissionService : IPermissionService
+{
+    private readonly IPermissionRepository _permissionRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IValidator<CreatePermissionRequest> _createValidator;
+    private readonly IValidator<UpdatePermissionRequest> _updateValidator;
+    private readonly IMapper _mapper;
+
+    public PermissionService(
+        IPermissionRepository permissionRepository,
+        IUnitOfWork unitOfWork,
+        IValidator<CreatePermissionRequest> createValidator,
+        IValidator<UpdatePermissionRequest> updateValidator,
+        IMapper mapper)
+    {
+        _permissionRepository = permissionRepository;
+        _unitOfWork = unitOfWork;
+        _createValidator = createValidator;
+        _updateValidator = updateValidator;
+        _mapper = mapper;
+    }
+
+    public async Task<PaginatedResult<PermissionDto>> GetPagedAsync(PaginationQuery query, CancellationToken ct = default)
+    {
+        var result = await _permissionRepository.GetPagedAsync(query, ct);
+        return PaginationMapper.Map<Permission, PermissionDto>(result, _mapper);
+    }
+
+    public async Task<PermissionDto> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var permission = await _permissionRepository.GetByIdAsync(id, ct);
+        if (permission == null)
+            throw new NotFoundException("Không tìm thấy quyền.");
+
+        return _mapper.Map<PermissionDto>(permission);
+    }
+
+    public async Task<PermissionDto> CreateAsync(CreatePermissionRequest request, CancellationToken ct = default)
+    {
+        await _createValidator.ValidateAndThrowAsync(request, ct);
+
+        var code = request.PermissionCode.Trim().ToLowerInvariant();
+        if (await _permissionRepository.ExistsByCodeAsync(code, ct))
+            throw new ConflictException($"Mã quyền '{code}' đã tồn tại.");
+
+        var permission = Permission.Create(
+            code,
+            request.PermissionName.Trim(),
+            request.Module,
+            request.Action,
+            request.Resource.Trim(),
+            request.Description?.Trim());
+
+        await _permissionRepository.AddAsync(permission, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        return _mapper.Map<PermissionDto>(permission);
+    }
+
+    public async Task<PermissionDto> UpdateAsync(Guid id, UpdatePermissionRequest request, CancellationToken ct = default)
+    {
+        await _updateValidator.ValidateAndThrowAsync(request, ct);
+
+        var permission = await _permissionRepository.GetByIdAsync(id, ct);
+        if (permission == null)
+            throw new NotFoundException("Không tìm thấy quyền cần cập nhật.");
+
+        if (!request.IsActive && permission.IsActive)
+        {
+            var isAssigned = await _permissionRepository.HasActiveRoleAssignmentsAsync(id, ct);
+            if (isAssigned)
+                throw new ConflictException("Không thể vô hiệu hóa quyền đang được gán cho vai trò hoạt động.");
+        }
+
+        permission.Update(request.PermissionName.Trim(), request.Description?.Trim(), request.IsActive);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        return _mapper.Map<PermissionDto>(permission);
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        var permission = await _permissionRepository.GetByIdAsync(id, ct);
+        if (permission == null)
+            throw new NotFoundException("Không tìm thấy quyền.");
+
+        var isAssigned = await _permissionRepository.HasActiveRoleAssignmentsAsync(id, ct);
+        if (isAssigned)
+            throw new ConflictException("Không thể vô hiệu hóa quyền đang được gán cho vai trò hoạt động.");
+
+        permission.IsActive = false;
+        await _unitOfWork.SaveChangesAsync(ct);
+    }
+}

@@ -1,8 +1,8 @@
-using Domain.Enums;
+using Application.Common.Models;
 
 namespace Application.DTOs.Roles;
 
-public class PermissionDto
+public class PermissionDto : IHasGuidId
 {
     public Guid Id { get; set; }
     public string PermissionCode { get; set; } = null!;

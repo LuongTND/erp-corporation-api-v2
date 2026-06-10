@@ -7,6 +7,7 @@ namespace Infrastructure.Implementations.Services.Auth;
 public class AuthorizationService : IAuthorizationService
 {
     private readonly IRoleRepository _roleRepository;
+    private readonly Dictionary<string, bool> _permissionCache = new();
 
     public AuthorizationService(IRoleRepository roleRepository)
     {
@@ -15,7 +16,13 @@ public class AuthorizationService : IAuthorizationService
 
     public async Task<bool> HasPermissionAsync(Guid userId, string permissionCode, CancellationToken ct = default)
     {
-        return await _roleRepository.HasPermissionAsync(userId, permissionCode, ct);
+        var cacheKey = $"{userId}:{permissionCode}";
+        if (_permissionCache.TryGetValue(cacheKey, out var cached))
+            return cached;
+
+        var hasPermission = await _roleRepository.HasPermissionAsync(userId, permissionCode, ct);
+        _permissionCache[cacheKey] = hasPermission;
+        return hasPermission;
     }
 
     public async Task EnsurePermissionAsync(Guid userId, string permissionCode, CancellationToken ct = default)

@@ -1,5 +1,4 @@
-using Domain.Entities;
-using Domain.Enums;
+using Application.Common.Models;
 
 namespace Application.Interfaces.Repositories.Users;
 
@@ -7,7 +6,7 @@ public interface IUserRepository : IGenericRepository<User>
 {
     Task<User?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default);
     Task<User?> GetByIdWithDetailsScopedAsync(Guid id, Guid currentUserId, ScopeType scope, IReadOnlyList<Guid> accessibleDeptIds, CancellationToken ct = default);
-    Task<List<User>> GetWithDetailsScopedAsync(Guid currentUserId, ScopeType scope, IReadOnlyList<Guid> accessibleDeptIds, CancellationToken ct = default);
+    Task<PaginatedResult<User>> GetPagedWithDetailsScopedAsync(Guid currentUserId, ScopeType scope, IReadOnlyList<Guid> accessibleDeptIds, PaginationQuery query, CancellationToken ct = default);
     Task<bool> ExistsByEmployeeCodeAsync(string employeeCode, CancellationToken ct = default);
     Task<bool> ExistsByEmailAsync(string email, CancellationToken ct = default);
     Task<bool> ExistsByEmailExcludeIdAsync(string email, Guid excludeId, CancellationToken ct = default);

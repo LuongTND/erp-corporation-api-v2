@@ -42,8 +42,10 @@ erp-corporation-api-v2/
 │   ├── Domain/                                     # [10] Lõi nghiệp vụ
 │   │   ├── Base/
 │   │   ├── Entities/
+│   │   │   └── {Module}/                       # User, Department, Role… theo module
 │   │   ├── ValueObjects/
 │   │   ├── Enums/
+│   │   │   └── {Module}/                       # UserStatus, ScopeType… theo module
 │   │   ├── Events/
 │   │   └── Common/
 │   │
@@ -81,7 +83,8 @@ src/API/Controllers/
   → src/Infrastructure/Implementations/Repositories/
   → src/Infrastructure/Persistence/
 
-src/Domain/Entities/
+src/Domain/Entities/{Module}/
+src/Domain/Enums/{Module}/
 src/Application/DTOs/{TênModule}/
 ```
 
@@ -199,9 +202,9 @@ Interfaces/
 |---------------------------|---------------------------------------|-----------------------------------------------------------------------------------------|:-------------:|
 | **`src/Domain/`** (root)  | Lõi domain                            | `.csproj` — chỉ `MediatR.Contracts` cho `IDomainEvent`                                  | **10**        |
 | **`Base/`**               | Nền tảng entity + Marker Interfaces   | `BaseEntity` (`Id`, DomainEvents); `IAuditable`, `ITracked` (interface đánh dấu audit)  | **10**        |
-| **`Entities/`**           | Entity có danh tính (identity)        | `Order`, `Product`… kế thừa `BaseEntity`, implement Interface audit cần thiết           | **10**        |
+| **`Entities/`**           | Entity có danh tính (identity)        | Gom `{Module}/`: `Users/`, `Departments/`, `JobLevels/`, `Roles/`                       | **10**        |
 | **`ValueObjects/`**       | Giá trị không identity, immutable     | `Email`, `Money`, `Address`                                                             | **8**         |
-| **`Enums/`**              | Tập giá trị cố định                   | `OrderStatus`, `UserRole`…                                                              | **8**         |
+| **`Enums/`**              | Tập giá trị cố định                   | Gom `{Module}/`: `UserStatus`, `ScopeType`, `PermissionAction`…                         | **8**         |
 | **`Events/`**             | Domain event — **định nghĩa** sự kiện | `IDomainEvent`, `OrderPlacedEvent`                                                      | **7**         |
 | **`Common/`**             | Exception / helper domain             | `DomainException`                                                                       | **7**         |
 |---------------------------|---------------------------------------|-----------------------------------------------------------------------------------------|:-------------:|

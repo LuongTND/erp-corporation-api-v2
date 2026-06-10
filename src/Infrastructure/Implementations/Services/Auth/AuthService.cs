@@ -8,7 +8,6 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Users;
 using Application.Interfaces.Services.Auth;
 using AutoMapper;
-using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Infrastructure.Security;
 using Microsoft.IdentityModel.Tokens;

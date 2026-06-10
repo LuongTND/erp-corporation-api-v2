@@ -1,11 +1,12 @@
 using Application.Common.Exceptions;
+using Application.Common.Mapping;
+using Application.Common.Models;
 using Application.DTOs.Departments;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Departments;
 using Application.Interfaces.Repositories.Users;
 using Application.Interfaces.Services.Departments;
 using AutoMapper;
-using Domain.Entities;
 
 namespace Infrastructure.Implementations.Services.Departments;
 
@@ -41,11 +42,10 @@ public class DepartmentService : IDepartmentService
         return _mapper.Map<DepartmentDto>(dept);
     }
 
-    public async Task<IReadOnlyList<DepartmentDto>> GetAllAsync(CancellationToken ct = default)
+    public async Task<PaginatedResult<DepartmentDto>> GetPagedAsync(PaginationQuery query, CancellationToken ct = default)
     {
-        var depts = await _departmentRepository.GetAllWithDetailsAsync(ct);
-
-        return _mapper.Map<List<DepartmentDto>>(depts);
+        var result = await _departmentRepository.GetPagedWithDetailsAsync(query, ct);
+        return PaginationMapper.Map<Department, DepartmentDto>(result, _mapper);
     }
 
     public async Task<DepartmentDto> CreateAsync(CreateDepartmentRequest request, CancellationToken ct = default)

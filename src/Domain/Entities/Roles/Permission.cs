@@ -1,7 +1,7 @@
 using Domain.Base;
-using Domain.Enums;
+using Domain.Enums.Roles;
 
-namespace Domain.Entities;
+namespace Domain.Entities.Roles;
 
 public class Permission : BaseEntity, IAuditable
 {
@@ -14,7 +14,6 @@ public class Permission : BaseEntity, IAuditable
 
     public bool IsActive { get; set; } = true;
 
-    // Navigation properties
     public virtual ICollection<RolePermission> RolePermissions { get; private set; } = [];
 
     private Permission() : base()
@@ -39,5 +38,12 @@ public class Permission : BaseEntity, IAuditable
             Description = description,
             IsActive = true
         };
+    }
+
+    public void Update(string permissionName, string? description, bool isActive)
+    {
+        PermissionName = permissionName;
+        Description = description;
+        IsActive = isActive;
     }
 }

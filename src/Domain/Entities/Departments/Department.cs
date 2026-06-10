@@ -1,6 +1,7 @@
 using Domain.Base;
+using Domain.Entities.Users;
 
-namespace Domain.Entities;
+namespace Domain.Entities.Departments;
 
 public class Department : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
@@ -19,7 +20,6 @@ public class Department : BaseEntity, IAuditable, ICreationTracked, IModificatio
     public Guid? CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }
 
-    // Navigation properties
     public virtual ICollection<User> Users { get; private set; } = [];
     public virtual ICollection<UserDepartment> UserDepartments { get; private set; } = [];
 

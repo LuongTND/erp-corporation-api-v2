@@ -1,6 +1,5 @@
 using Application.DTOs.JobLevels;
 using AutoMapper;
-using Domain.Entities;
 
 namespace Application.Mappings.JobLevels;
 

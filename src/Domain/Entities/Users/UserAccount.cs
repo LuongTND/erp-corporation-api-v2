@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Domain.Base;
 
-namespace Domain.Entities;
+namespace Domain.Entities.Users;
 
 public class UserAccount : BaseEntity
 {

@@ -1,5 +1,4 @@
 using Application.Interfaces.Repositories.JobLevels;
-using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,4 +19,11 @@ public class JobLevelRepository : GenericRepository<JobLevel>, IJobLevelReposito
     {
         return await GetQueryable().AnyAsync(jl => jl.Id != id && jl.LevelName.ToLower() == name.ToLower(), ct);
     }
+
+    public override async Task<IReadOnlyList<JobLevel>> GetAllAsync(CancellationToken cancellationToken = default) =>
+        await GetQueryable()
+            .AsNoTracking()
+            .OrderBy(j => j.LevelOrder)
+            .ThenBy(j => j.LevelName)
+            .ToListAsync(cancellationToken);
 }

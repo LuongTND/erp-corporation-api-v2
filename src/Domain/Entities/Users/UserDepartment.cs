@@ -1,6 +1,7 @@
 using Domain.Base;
+using Domain.Entities.Departments;
 
-namespace Domain.Entities;
+namespace Domain.Entities.Users;
 
 public class UserDepartment : BaseEntity, IAuditable
 {

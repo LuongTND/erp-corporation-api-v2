@@ -1,12 +1,12 @@
-using Domain.Entities;
+using Application.Common.Models;
 
 namespace Application.Interfaces.Repositories.Roles;
 
 public interface IRoleRepository : IGenericRepository<Role>
 {
     Task<Role?> GetByIdWithPermissionsAsync(Guid id, CancellationToken ct = default);
-    Task<List<Role>> GetAllWithPermissionsAsync(CancellationToken ct = default);
-    Task<List<Permission>> GetAllPermissionsAsync(CancellationToken ct = default);
+    Task<PaginatedResult<Role>> GetPagedWithPermissionsAsync(PaginationQuery query, CancellationToken ct = default);
+    Task<PaginatedResult<Permission>> GetPagedPermissionsAsync(PaginationQuery query, CancellationToken ct = default);
     Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default);
     Task<List<Permission>> GetPermissionsByIdsAsync(List<Guid> permissionIds, CancellationToken ct = default);
     Task<bool> HasBypassDataScopeRoleAsync(Guid userId, CancellationToken ct = default);

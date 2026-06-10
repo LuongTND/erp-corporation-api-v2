@@ -1,6 +1,5 @@
 using Application.DTOs.Departments;
 using AutoMapper;
-using Domain.Entities;
 
 namespace Application.Mappings.Departments;
 

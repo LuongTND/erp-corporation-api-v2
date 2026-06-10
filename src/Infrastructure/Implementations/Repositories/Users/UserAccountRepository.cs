@@ -1,5 +1,4 @@
 using Application.Interfaces.Repositories.Users;
-using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

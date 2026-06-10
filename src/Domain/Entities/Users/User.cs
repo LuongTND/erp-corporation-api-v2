@@ -1,7 +1,10 @@
 using Domain.Base;
-using Domain.Enums;
+using Domain.Entities.Departments;
+using Domain.Entities.JobLevels;
+using Domain.Entities.Roles;
+using Domain.Enums.Users;
 
-namespace Domain.Entities;
+namespace Domain.Entities.Users;
 
 public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
@@ -26,7 +29,6 @@ public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTrack
     public Guid? CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }
 
-    // Navigation properties
     public virtual UserAccount? UserAccount { get; private set; }
     public virtual ICollection<UserDepartment> UserDepartments { get; private set; } = [];
     public virtual ICollection<UserRole> UserRoles { get; private set; } = [];
@@ -46,9 +48,9 @@ public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTrack
         Guid? managerId = null,
         string? avatarUrl = null)
     {
-        var user = new User
+        return new User
         {
-            EmployeeCode = employeeCode.ToUpperInvariant(),
+            EmployeeCode = employeeCode.Trim(),
             FullName = fullName,
             Email = email.ToLowerInvariant(),
             DepartmentId = departmentId,
@@ -59,7 +61,6 @@ public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTrack
             AvatarUrl = avatarUrl,
             IsActive = IsStatusActive(status)
         };
-        return user;
     }
 
     public void UpdateProfile(

@@ -1,12 +1,15 @@
 using Application.Common.Exceptions;
+using Application.Common.Mapping;
+using Application.Common.Models;
 using Application.DTOs.JobLevels;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.JobLevels;
 using Application.Interfaces.Repositories.Users;
 using Application.Interfaces.Services.JobLevels;
 using AutoMapper;
-using Domain.Entities;
 using FluentValidation;
+using Infrastructure.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Implementations.Services.JobLevels;
 
@@ -44,10 +47,15 @@ public class JobLevelService : IJobLevelService
         return _mapper.Map<JobLevelDto>(jobLevel);
     }
 
-    public async Task<IReadOnlyList<JobLevelDto>> GetAllAsync(CancellationToken ct = default)
+    public async Task<PaginatedResult<JobLevelDto>> GetPagedAsync(PaginationQuery query, CancellationToken ct = default)
     {
-        var list = await _jobLevelRepository.GetAllAsync(ct);
-        return _mapper.Map<List<JobLevelDto>>(list);
+        var result = await _jobLevelRepository.GetQueryable()
+            .AsNoTracking()
+            .OrderBy(j => j.LevelOrder)
+            .ThenBy(j => j.LevelName)
+            .ToPaginatedResultAsync(query, ct);
+
+        return PaginationMapper.Map<JobLevel, JobLevelDto>(result, _mapper);
     }
 
     public async Task<JobLevelDto> CreateAsync(CreateJobLevelRequest request, CancellationToken ct = default)

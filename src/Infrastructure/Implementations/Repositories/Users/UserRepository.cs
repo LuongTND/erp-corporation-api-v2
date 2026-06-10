@@ -1,6 +1,6 @@
+using Application.Common.Models;
 using Application.Interfaces.Repositories.Users;
-using Domain.Entities;
-using Domain.Enums;
+using Infrastructure.Extensions;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,9 +45,14 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await query.FirstOrDefaultAsync(ct);
     }
 
-    public async Task<List<User>> GetWithDetailsScopedAsync(Guid currentUserId, ScopeType scope, IReadOnlyList<Guid> accessibleDeptIds, CancellationToken ct = default)
+    public async Task<PaginatedResult<User>> GetPagedWithDetailsScopedAsync(
+        Guid currentUserId,
+        ScopeType scope,
+        IReadOnlyList<Guid> accessibleDeptIds,
+        PaginationQuery query,
+        CancellationToken ct = default)
     {
-        var query = DbSet
+        var queryable = DbSet
             .Include(u => u.Department)
             .Include(u => u.JobLevel)
             .Include(u => u.Manager)
@@ -55,21 +60,26 @@ public class UserRepository : GenericRepository<User>, IUserRepository
                 .ThenInclude(ur => ur.Role)
             .AsNoTracking();
 
-        query = scope switch
+        queryable = scope switch
         {
-            ScopeType.Own => query.Where(u => u.Id == currentUserId),
-            ScopeType.Team => query.Where(u => u.ManagerId == currentUserId || u.Id == currentUserId),
-            ScopeType.Department => query.Where(u => accessibleDeptIds.Contains(u.DepartmentId)),
-            ScopeType.All => query,
-            _ => query.Where(u => u.Id == currentUserId)
+            ScopeType.Own => queryable.Where(u => u.Id == currentUserId),
+            ScopeType.Team => queryable.Where(u => u.ManagerId == currentUserId || u.Id == currentUserId),
+            ScopeType.Department => queryable.Where(u => accessibleDeptIds.Contains(u.DepartmentId)),
+            ScopeType.All => queryable,
+            _ => queryable.Where(u => u.Id == currentUserId)
         };
 
-        return await query.ToListAsync(ct);
+        return await queryable
+            .OrderBy(u => u.EmployeeCode)
+            .ToPaginatedResultAsync(query, ct);
     }
 
     public async Task<bool> ExistsByEmployeeCodeAsync(string employeeCode, CancellationToken ct = default)
     {
-        return await DbSet.AnyAsync(u => u.EmployeeCode == employeeCode, ct);
+        var normalized = employeeCode.Trim();
+        return await DbSet.AnyAsync(
+            u => u.EmployeeCode.ToLower() == normalized.ToLower(),
+            ct);
     }
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct = default)

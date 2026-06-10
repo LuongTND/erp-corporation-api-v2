@@ -1,7 +1,8 @@
 using Domain.Base;
-using Domain.Enums;
+using Domain.Entities.Users;
+using Domain.Enums.JobLevels;
 
-namespace Domain.Entities;
+namespace Domain.Entities.JobLevels;
 
 public class JobLevel : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
@@ -16,7 +17,6 @@ public class JobLevel : BaseEntity, IAuditable, ICreationTracked, IModificationT
     public Guid? CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }
 
-    // Navigation property
     public virtual ICollection<User> Users { get; private set; } = [];
 
     private JobLevel() : base()
