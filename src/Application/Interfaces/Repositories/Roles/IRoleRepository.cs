@@ -11,6 +11,7 @@ public interface IRoleRepository : IGenericRepository<Role>
     Task<List<Permission>> GetPermissionsByIdsAsync(List<Guid> permissionIds, CancellationToken ct = default);
     Task<bool> HasBypassDataScopeRoleAsync(Guid userId, CancellationToken ct = default);
     Task<bool> HasPermissionAsync(Guid userId, string permissionCode, CancellationToken ct = default);
+    Task<List<string>> GetUserPermissionCodesAsync(Guid userId, CancellationToken ct = default);
     Task UpdateRolePermissionsAsync(Role role, List<Guid> permissionIds, CancellationToken ct = default);
     Task<bool> HasActiveUsersInRoleAsync(Guid roleId, CancellationToken ct = default);
     Task<Role?> GetByNameAsync(string name, CancellationToken ct = default);

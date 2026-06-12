@@ -34,7 +34,7 @@ public class RolesController : BaseApiController
         return Ok(role);
     }
 
-    // API lấy tất cả các quyền, dùng để hiển thị danh sách quyền để gán cho vai trò
+    // API lấy danh sách quyền để gán cho vai trò (system.role.read)
     [HttpGet("permissions")]
     [AuthorizePermission("system.role.read")]
     public async Task<ActionResult<PaginatedResult<PermissionDto>>> GetAllPermissions([FromQuery] PaginationQuery query, CancellationToken ct)

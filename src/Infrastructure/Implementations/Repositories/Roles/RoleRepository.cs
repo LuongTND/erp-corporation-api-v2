@@ -74,6 +74,27 @@ public class RoleRepository : GenericRepository<Role>, IRoleRepository
             .AnyAsync(p => p.PermissionCode == normalizedPermission, ct);
     }
 
+    public async Task<List<string>> GetUserPermissionCodesAsync(Guid userId, CancellationToken ct = default)
+    {
+        if (await HasBypassDataScopeRoleAsync(userId, ct))
+        {
+            return await Context.Permissions
+                .Where(p => p.IsActive)
+                .Select(p => p.PermissionCode)
+                .OrderBy(c => c)
+                .ToListAsync(ct);
+        }
+
+        return await Context.UserRoles
+            .Where(ur => ur.UserId == userId && ur.IsActive && ur.RevokedAt == null && ur.Role.IsActive)
+            .SelectMany(ur => ur.Role.RolePermissions)
+            .Select(rp => rp.Permission)
+            .Where(p => p.IsActive)
+            .Select(p => p.PermissionCode)
+            .Distinct()
+            .ToListAsync(ct);
+    }
+
     public async Task UpdateRolePermissionsAsync(Role role, List<Guid> permissionIds, CancellationToken ct = default)
     {
         Context.RolePermissions.RemoveRange(role.RolePermissions);

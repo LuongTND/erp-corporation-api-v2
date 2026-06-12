@@ -6,6 +6,7 @@ using Application.DTOs.Auth;
 using Application.DTOs.Users;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Repositories.Users;
+using Application.Interfaces.Repositories.Roles;
 using Application.Interfaces.Services.Auth;
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,7 @@ public class AuthService : IAuthService
     private readonly TimeProvider _timeProvider;
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
+    private readonly IRoleRepository _roleRepository;
 
     public AuthService(
         IUserAccountRepository userAccountRepository,
@@ -31,7 +33,8 @@ public class AuthService : IAuthService
         IConfiguration configuration,
         TimeProvider timeProvider,
         ICurrentUserService currentUserService,
-        IMapper mapper)
+        IMapper mapper,
+        IRoleRepository roleRepository)
     {
         _userAccountRepository = userAccountRepository;
         _userRepository = userRepository;
@@ -40,6 +43,7 @@ public class AuthService : IAuthService
         _timeProvider = timeProvider;
         _currentUserService = currentUserService;
         _mapper = mapper;
+        _roleRepository = roleRepository;
     }
 
     public async Task<TokenResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
@@ -130,7 +134,10 @@ public class AuthService : IAuthService
             throw new NotFoundException("Không tìm thấy thông tin nhân sự.");
         }
 
-        return _mapper.Map<UserDto>(user);
+        var dto = _mapper.Map<UserDto>(user);
+        dto.BypassDataScope = await _roleRepository.HasBypassDataScopeRoleAsync(userId, ct);
+        dto.Permissions = await _roleRepository.GetUserPermissionCodesAsync(userId, ct);
+        return dto;
     }
 
     private (string tokenString, DateTime expiry) GenerateAccessToken(UserAccount account)

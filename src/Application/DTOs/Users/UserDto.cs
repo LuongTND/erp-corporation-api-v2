@@ -18,4 +18,6 @@ public class UserDto
     public UserStatus Status { get; set; }
     public bool IsActive { get; set; }
     public List<string> Roles { get; set; } = [];
+    public List<string> Permissions { get; set; } = [];
+    public bool BypassDataScope { get; set; }
 }

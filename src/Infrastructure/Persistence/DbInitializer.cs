@@ -26,41 +26,58 @@ public static class DbInitializer
     }
 
     /// <summary>
-    /// Seed thông báo + quyền notification cho DB đã tồn tại (idempotent).
+    /// Seed thông báo + quyền còn thiếu cho DB đã tồn tại (idempotent).
     /// </summary>
     public static async Task SeedNotificationsIfMissingAsync(AppDbContext context)
     {
-        await SeedMissingNotificationPermissionsAsync(context);
+        await SeedMissingPermissionsAsync(context);
+        await SyncSuperAdminPermissionsAsync(context);
         await SeedNotificationsAsync(context);
     }
 
-    private static async Task SeedMissingNotificationPermissionsAsync(AppDbContext context)
+    /// <summary>
+    /// Bổ sung quyền mới từ InitialData (vd. system.permission.*) vào DB đã seed trước đó.
+    /// </summary>
+    public static async Task SeedMissingPermissionsAsync(AppDbContext context)
+    {
+        var added = false;
+
+        foreach (var seed in InitialData.Permissions)
+        {
+            var exists = await context.Permissions.AnyAsync(p => p.PermissionCode == seed.PermissionCode);
+            if (exists)
+                continue;
+
+            await context.Permissions.AddAsync(
+                Permission.Create(
+                    seed.PermissionCode,
+                    seed.PermissionName,
+                    seed.Module,
+                    seed.Action,
+                    seed.Resource));
+            added = true;
+        }
+
+        if (added)
+            await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Gán mọi quyền active cho ROLE_SUPER_ADMIN (idempotent — bổ sung quyền mới sau này).
+    /// </summary>
+    public static async Task SyncSuperAdminPermissionsAsync(AppDbContext context)
     {
         var superAdmin = await context.Roles.FirstOrDefaultAsync(r => r.RoleName == InitialData.Keys.RoleSuperAdmin);
         if (superAdmin == null)
             return;
 
-        foreach (var seed in NotificationInitialData.NotificationPermissions)
+        var permissions = await context.Permissions.Where(p => p.IsActive).ToListAsync();
+        foreach (var permission in permissions)
         {
-            var permission = await context.Permissions.FirstOrDefaultAsync(p => p.PermissionCode == seed.PermissionCode);
-            if (permission == null)
-            {
-                permission = Permission.Create(
-                    seed.PermissionCode,
-                    seed.PermissionName,
-                    seed.Module,
-                    seed.Action,
-                    seed.Resource);
-                await context.Permissions.AddAsync(permission);
-                await context.SaveChangesAsync();
-            }
-
             var assigned = await context.RolePermissions.AnyAsync(rp =>
                 rp.RoleId == superAdmin.Id && rp.PermissionId == permission.Id);
             if (!assigned)
-            {
                 await context.RolePermissions.AddAsync(RolePermission.Create(superAdmin.Id, permission.Id));
-            }
         }
 
         await context.SaveChangesAsync();
