@@ -122,6 +122,27 @@ public static class InitialData
         new("system.notification.event.delete", "Vô hiệu hóa loại thông báo", PermissionModule.System, PermissionAction.Delete, "notification-event"),
         new("system.notification.trigger.read", "Xem gán thông báo chức năng", PermissionModule.System, PermissionAction.Read, "notification-trigger"),
         new("system.notification.trigger.update", "Gán thông báo cho chức năng", PermissionModule.System, PermissionAction.Update, "notification-trigger"),
+
+        // Chat
+        new("chat.conversation.read", "Xem hội thoại/tin nhắn", PermissionModule.Chat, PermissionAction.Read, "conversation"),
+        new("chat.conversation.create", "Tạo cuộc trò chuyện", PermissionModule.Chat, PermissionAction.Create, "conversation"),
+        new("chat.conversation.update", "Cập nhật cuộc trò chuyện", PermissionModule.Chat, PermissionAction.Update, "conversation"),
+        new("chat.conversation.delete", "Xóa cuộc trò chuyện", PermissionModule.Chat, PermissionAction.Delete, "conversation"),
+        new("chat.message.create", "Gửi tin nhắn", PermissionModule.Chat, PermissionAction.Create, "message"),
+        new("chat.message.update", "Chỉnh sửa tin nhắn", PermissionModule.Chat, PermissionAction.Update, "message"),
+        new("chat.message.delete", "Xóa/Thu hồi tin nhắn", PermissionModule.Chat, PermissionAction.Delete, "message"),
+        new("chat.member.manage", "Quản lý thành viên nhóm chat", PermissionModule.Chat, PermissionAction.Assign, "member"),
+        new("chat.admin.manage", "Quản trị viên Chat", PermissionModule.Chat, PermissionAction.Approve, "chat-admin"),
+
+        // Task
+        new("task.item.read", "Xem danh sách công việc", PermissionModule.Task, PermissionAction.Read, "task"),
+        new("task.item.create", "Tạo mới công việc", PermissionModule.Task, PermissionAction.Create, "task"),
+        new("task.item.update", "Cập nhật công việc", PermissionModule.Task, PermissionAction.Update, "task"),
+        new("task.item.delete", "Xóa công việc", PermissionModule.Task, PermissionAction.Delete, "task"),
+        new("task.item.assign", "Giao việc cho nhân viên", PermissionModule.Task, PermissionAction.Assign, "task"),
+        new("task.item.approve", "Phê duyệt công việc", PermissionModule.Task, PermissionAction.Approve, "task"),
+        new("task.comment.create", "Bình luận trong công việc", PermissionModule.Task, PermissionAction.Create, "comment"),
+        new("task.report.read", "Xem báo cáo hiệu suất công việc", PermissionModule.Task, PermissionAction.Read, "report"),
     ];
 
     public static readonly RoleSeed[] Roles =
@@ -142,10 +163,17 @@ public static class InitialData
             "hrm.department.read", "hrm.department.create", "hrm.department.update", "hrm.department.delete",
             "hrm.joblevel.read", "hrm.joblevel.create", "hrm.joblevel.update", "hrm.joblevel.delete",
             "system.role.assign", "system.user.resetpassword",
+            "chat.admin.manage", "task.report.read",
+            "chat.conversation.read", "chat.conversation.create", "chat.conversation.update", "chat.conversation.delete",
+            "chat.message.create", "chat.message.update", "chat.message.delete", "chat.member.manage",
+            "task.item.read", "task.item.create", "task.item.update", "task.item.delete", "task.item.assign", "task.item.approve", "task.comment.create"
         ],
         [Keys.RoleEmployee] =
         [
             "hrm.employee.read", "hrm.department.read", "hrm.joblevel.read",
+            "chat.conversation.read", "chat.conversation.create", "chat.conversation.update",
+            "chat.message.create", "chat.message.update", "chat.message.delete", "chat.member.manage",
+            "task.item.read", "task.item.create", "task.item.update", "task.comment.create"
         ],
     };
 

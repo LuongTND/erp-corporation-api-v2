@@ -1,3 +1,5 @@
+using Domain.Entities.Tasks;
+using Domain.Entities.Chat;
 using Domain.Base;
 using Domain.Events;
 using Infrastructure.Outbox;
@@ -26,6 +28,26 @@ public class AppDbContext : DbContext
     public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
     public DbSet<NotificationTriggerBinding> NotificationTriggerBindings => Set<NotificationTriggerBinding>();
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
+
+    // Phân hệ Quản lý công việc (Task)
+    public DbSet<TaskItem> Tasks => Set<TaskItem>();
+    public DbSet<TaskAssignee> TaskAssignees => Set<TaskAssignee>();
+    public DbSet<TaskFollower> TaskFollowers => Set<TaskFollower>();
+    public DbSet<TaskComment> TaskComments => Set<TaskComment>();
+    public DbSet<TaskActivityLog> TaskActivityLogs => Set<TaskActivityLog>();
+    public DbSet<TaskKpi> TaskKpis => Set<TaskKpi>();
+    public DbSet<TaskLmsCourse> TaskLmsCourses => Set<TaskLmsCourse>();
+    public DbSet<TaskTemplate> TaskTemplates => Set<TaskTemplate>();
+
+    // Phân hệ Chat nội bộ (Chat)
+    public DbSet<Conversation> Conversations => Set<Conversation>();
+    public DbSet<ConversationMember> ConversationMembers => Set<ConversationMember>();
+    public DbSet<Message> Messages => Set<Message>();
+    public DbSet<MessageAttachment> MessageAttachments => Set<MessageAttachment>();
+    public DbSet<MessageReaction> MessageReactions => Set<MessageReaction>();
+    public DbSet<MessageReadStatus> MessageReadStatuses => Set<MessageReadStatus>();
+    public DbSet<MessageTask> MessageTasks => Set<MessageTask>();
+    public DbSet<ConversationActivityLog> ConversationActivityLogs => Set<ConversationActivityLog>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

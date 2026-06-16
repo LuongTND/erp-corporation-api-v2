@@ -73,7 +73,11 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -130,5 +134,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<NotificationHub>(NotificationHub.HubPath);
+app.MapHub<ChatHub>(ChatHub.HubPath);
 
 app.Run();
