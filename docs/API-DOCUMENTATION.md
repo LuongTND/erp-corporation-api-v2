@@ -2,7 +2,7 @@
 
 > Tài liệu liệt kê tất cả API endpoints trong hệ thống.  
 > **Cập nhật liên tục** mỗi khi thêm/sửa API mới.  
-> Cập nhật lần cuối: **2026-06-03**
+> Cập nhật lần cuối: **2026-06-16**
 
 ---
 
@@ -74,6 +74,103 @@
 | 31  | Xóa cấp bậc             | `DELETE`  | `/api/job-levels/{id}`            | Xóa (vô hiệu hóa) cấp bậc                       |
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
 
+### 💬 Conversations — Quản lý cuộc trò chuyện (`/api/conversations`)
+
+|-----|---------------------------|-----------|-------------------------------------------|-------------------------------------------------|
+| #   | Tên API                   | Method    | URL                                       | Chức năng                                       |
+|-----|---------------------------|-----------|-------------------------------------------|-------------------------------------------------|
+| 32  | DS cuộc trò chuyện        | `GET`     | `/api/conversations`                      | Lấy danh sách cuộc trò chuyện của tôi           |
+| 33  | Chi tiết cuộc trò chuyện  | `GET`     | `/api/conversations/{id}`                 | Lấy thông tin một cuộc trò chuyện               |
+| 34  | Tạo nhóm chat             | `POST`    | `/api/conversations`                      | Tạo cuộc trò chuyện nhóm mới                    |
+| 35  | Chat 1-1                  | `POST`    | `/api/conversations/direct/{otherUserId}` | Lấy hoặc tạo hội thoại 1-1 với người dùng       |
+| 36  | Tắt/bật thông báo         | `POST`    | `/api/conversations/{id}/mute`            | Tắt hoặc bật thông báo cuộc trò chuyện          |
+| 37  | Lưu trữ/khôi phục         | `POST`    | `/api/conversations/{id}/archive`         | Lưu trữ hoặc khôi phục cuộc trò chuyện          |
+| 38  | Thêm thành viên           | `POST`    | `/api/conversations/{id}/members`         | Thêm danh sách thành viên vào nhóm              |
+| 39  | Xóa thành viên            | `DELETE`  | `/api/conversations/{id}/members/{userId}`| Xóa một thành viên khỏi nhóm                    |
+| 40  | DS tin nhắn               | `GET`     | `/api/conversations/{id}/messages`        | Lấy tin nhắn phân trang trong cuộc trò chuyện   |
+| 41  | Gửi tin nhắn              | `POST`    | `/api/conversations/{id}/messages`        | Gửi tin nhắn vào cuộc trò chuyện                |
+| 42  | Đánh dấu đã đọc           | `POST`    | `/api/conversations/{id}/read`            | Đánh dấu đã đọc toàn bộ tin nhắn                |
+|-----|---------------------------|-----------|-------------------------------------------|-------------------------------------------------|
+
+### ✉️ Messages — Quản lý tin nhắn (`/api/messages`)
+
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| #   | Tên API                 | Method    | URL                               | Chức năng                                       |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| 43  | Sửa tin nhắn            | `PUT`     | `/api/messages/{id}`              | Chỉnh sửa nội dung tin nhắn                     |
+| 44  | Xóa tin nhắn            | `DELETE`  | `/api/messages/{id}`              | Xóa tin nhắn (soft delete)                      |
+| 45  | Thêm/bỏ reaction        | `POST`    | `/api/messages/{id}/reactions`    | Toggle emoji reaction cho tin nhắn              |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+
+### ✅ Tasks — Quản lý công việc (`/api/tasks`)
+
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| #   | Tên API                 | Method    | URL                               | Chức năng                                       |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| 46  | DS công việc            | `GET`     | `/api/tasks`                      | Lấy danh sách công việc có phân trang & lọc     |
+| 47  | Chi tiết công việc      | `GET`     | `/api/tasks/{id}`                 | Lấy thông tin một công việc                     |
+| 48  | Tạo công việc           | `POST`    | `/api/tasks`                      | Tạo công việc mới                               |
+| 49  | Cập nhật công việc      | `PUT`     | `/api/tasks/{id}`                 | Cập nhật thông tin công việc                    |
+| 50  | Xóa công việc           | `DELETE`  | `/api/tasks/{id}`                 | Xóa (vô hiệu hóa) công việc                     |
+| 51  | DS bình luận            | `GET`     | `/api/tasks/{id}/comments`        | Lấy danh sách bình luận của công việc           |
+| 52  | Thêm bình luận          | `POST`    | `/api/tasks/{id}/comments`        | Thêm bình luận vào công việc                    |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+
+### 🔔 Notifications — Thông báo người dùng (`/api/notifications`)
+
+|-----|-----------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| #   | Tên API                     | Method    | URL                               | Chức năng                                       |
+|-----|-----------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| 53  | DS thông báo của tôi        | `GET`     | `/api/notifications`              | Lấy danh sách thông báo (phân trang, lọc đọc)   |
+| 54  | Số thông báo chưa đọc       | `GET`     | `/api/notifications/unread-count` | Đếm số thông báo chưa đọc                       |
+| 55  | Đánh dấu đã đọc 1 thông báo | `PATCH`   | `/api/notifications/{id}/read`    | Đánh dấu một thông báo là đã đọc                |
+| 56  | Đánh dấu tất cả đã đọc      | `PATCH`   | `/api/notifications/read-all`     | Đánh dấu toàn bộ thông báo là đã đọc            |
+|-----|-----------------------------|-----------|-----------------------------------|-------------------------------------------------|
+
+### 📋 NotificationEventTypes — Loại sự kiện thông báo (`/api/notification-event-types`)
+
+|-----|-------------------------|-----------|----------------------------------------------------------------|------------------------------------------|
+| #   | Tên API                 | Method    | URL                                                            | Chức năng                                |
+|-----|-------------------------|-----------|----------------------------------------------------------------|------------------------------------------|
+| 57  | DS loại sự kiện         | `GET`     | `/api/notification-event-types`                                | Lấy danh sách loại sự kiện (phân trang)  |
+| 58  | Chi tiết loại sự kiện   | `GET`     | `/api/notification-event-types/{id}`                           | Lấy thông tin một loại sự kiện           |
+| 59  | Tạo loại sự kiện        | `POST`    | `/api/notification-event-types`                                | Tạo loại sự kiện mới                     |
+| 60  | Cập nhật loại sự kiện   | `PUT`     | `/api/notification-event-types/{id}`                           | Cập nhật thông tin loại sự kiện          |
+| 61  | Xóa loại sự kiện        | `DELETE`  | `/api/notification-event-types/{id}`                           | Xóa (vô hiệu hóa) loại sự kiện           |
+| 62  | DS template theo sự kiện| `GET`     | `/api/notification-event-types/{eventTypeId}/templates`        | Lấy danh sách template theo loại sự kiện |
+| 63  | Tạo/cập nhật template   | `PUT`     | `/api/notification-event-types/{eventTypeId}/templates/{channel}` | Upsert template thông báo theo kênh   |
+|-----|-------------------------|-----------|----------------------------------------------------------------|------------------------------------------|
+
+### ⚙️ NotificationTriggers — Cấu hình trigger thông báo (`/api/notification-triggers`)
+
+|-----|-------------------------------|-----------|-------------------------------------------|-------------------------------------------------|
+| #   | Tên API                       | Method    | URL                                       | Chức năng                                       |
+|-----|-------------------------------|-----------|-------------------------------------------|-------------------------------------------------|
+| 64  | DS trigger                    | `GET`     | `/api/notification-triggers`              | Lấy danh sách trigger (phân trang, lọc module)  |
+| 65  | Chi tiết trigger              | `GET`     | `/api/notification-triggers/{triggerKey}` | Lấy thông tin trigger theo key                  |
+| 66  | Cập nhật binding trigger      | `PUT`     | `/api/notification-triggers/{triggerKey}` | Cập nhật EventType và người nhận của trigger    |
+|-----|-------------------------------|-----------|-------------------------------------------|-------------------------------------------------|
+
+### 🔑 Permissions — Quản lý quyền hệ thống (`/api/permissions`)
+
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| #   | Tên API                 | Method    | URL                               | Chức năng                                       |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| 67  | DS quyền                | `GET`     | `/api/permissions`                | Lấy danh sách tất cả quyền (phân trang)         |
+| 68  | Chi tiết quyền          | `GET`     | `/api/permissions/{id}`           | Lấy thông tin một quyền theo ID                 |
+| 69  | Tạo quyền               | `POST`    | `/api/permissions`                | Tạo quyền mới                                   |
+| 70  | Cập nhật quyền          | `PUT`     | `/api/permissions/{id}`           | Cập nhật thông tin quyền                        |
+| 71  | Xóa quyền               | `DELETE`  | `/api/permissions/{id}`           | Xóa (vô hiệu hóa) quyền                         |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+
+### 🏥 System — Health Check (`/api/health`)
+
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| #   | Tên API                 | Method    | URL                               | Chức năng                                       |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+| 72  | Health check            | `GET`     | `/api/health`                     | Kiểm tra trạng thái hoạt động của API           |
+|-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
+
 ---
 
 ## Chi tiết từng API
@@ -85,6 +182,14 @@
 3. [Departments — Quản lý phòng ban](#3-departments--quản-lý-phòng-ban)
 4. [Roles — Quản lý vai trò](#4-roles--quản-lý-vai-trò)
 5. [JobLevels — Quản lý cấp bậc chức danh](#5-joblevels--quản-lý-cấp-bậc-chức-danh)
+6. [Conversations — Quản lý cuộc trò chuyện](#6-conversations--quản-lý-cuộc-trò-chuyện)
+7. [Messages — Quản lý tin nhắn](#7-messages--quản-lý-tin-nhắn)
+8. [Tasks — Quản lý công việc](#8-tasks--quản-lý-công-việc)
+9. [Notifications — Thông báo người dùng](#9-notifications--thông-báo-người-dùng)
+10. [NotificationEventTypes — Loại sự kiện thông báo](#10-notificationeventtypes--loại-sự-kiện-thông-báo)
+11. [NotificationTriggers — Cấu hình trigger](#11-notificationtriggers--cấu-hình-trigger-thông-báo)
+12. [Permissions — Quản lý quyền hệ thống](#12-permissions--quản-lý-quyền-hệ-thống)
+13. [System — Health Check](#13-system--health-check)
 
 ---
 
@@ -904,6 +1009,621 @@ Base URL: `/api/job-levels`
 
 ---
 
+## 6. Conversations — Quản lý cuộc trò chuyện
+
+Base URL: `/api/conversations`
+
+> **SignalR Hub:** `/hubs/chat` — Client kết nối để nhận sự kiện realtime.
+
+---
+
+### 6.1. Lấy danh sách cuộc trò chuyện
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/conversations`                                          |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.conversation.read`                                      |
+| **Mô tả**       | Lấy danh sách cuộc trò chuyện mà người dùng hiện tại tham gia |
+|-----------------|---------------------------------------------------------------|
+
+**Request:** Không có body.
+
+**Response (200):**
+
+```json
+[
+  {
+    "id": "3fa85f64-...",
+    "conversationType": 1,
+    "title": "Nhóm IT",
+    "description": null,
+    "isPrivate": true,
+    "isArchived": false,
+    "createdBy": "3fa85f64-...",
+    "createdAt": "2026-06-10T08:00:00Z",
+    "updatedAt": null,
+    "members": [
+      {
+        "userID": "3fa85f64-...",
+        "fullName": "Nguyễn Văn A",
+        "employeeCode": "NV001",
+        "avatarUrl": null,
+        "roleInConversation": 1,
+        "joinedAt": "2026-06-10T08:00:00Z",
+        "isMuted": false,
+        "isActive": true
+      }
+    ],
+    "lastMessage": null,
+    "unreadCount": 0
+  }
+]
+```
+
+> `conversationType`: `1` = Direct, `2` = Group  
+> `roleInConversation`: `1` = Member, `2` = Admin
+
+---
+
+### 6.2. Lấy thông tin cuộc trò chuyện theo ID
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/conversations/{id}`                                     |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.conversation.read`                                      |
+| **Mô tả**       | Lấy chi tiết một cuộc trò chuyện                              |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):** Giống một phần tử trong response của API 6.1.
+
+---
+
+### 6.3. Tạo cuộc trò chuyện nhóm
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/conversations`                                          |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.conversation.create`                                    |
+| **Mô tả**       | Tạo cuộc trò chuyện nhóm mới                                  |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "conversationType": 2,
+  "title": "Nhóm dự án ABC",
+  "description": "Kênh trao đổi dự án ABC",
+  "isPrivate": true,
+  "memberIds": [
+    "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "9a1b2c3d-4e5f-6789-abcd-ef0123456789"
+  ]
+}
+```
+
+**Response (201):** Giống response của API 6.2.
+
+---
+
+### 6.4. Lấy hoặc tạo hội thoại 1-1
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/conversations/direct/{otherUserId}`                     |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.conversation.create`                                    |
+| **Mô tả**       | Lấy hội thoại 1-1 đã có, hoặc tạo mới nếu chưa tồn tại       |
+|-----------------|---------------------------------------------------------------|
+
+**Request:** Không có body. `otherUserId` truyền trên URL (GUID).
+
+**Response (200):** Giống response của API 6.2.
+
+---
+
+### 6.5. Tắt/bật thông báo cuộc trò chuyện
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/conversations/{id}/mute`                                |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.conversation.update`                                    |
+| **Mô tả**       | Tắt hoặc bật thông báo cho cuộc trò chuyện                    |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+true
+```
+
+> Body là JSON boolean (`true` = tắt thông báo, `false` = bật thông báo).
+
+**Response (200):**
+
+```json
+{ "message": "Cập nhật tắt/bật thông báo thành công." }
+```
+
+---
+
+### 6.6. Lưu trữ/khôi phục cuộc trò chuyện
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/conversations/{id}/archive`                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.conversation.update`                                    |
+| **Mô tả**       | Lưu trữ hoặc khôi phục cuộc trò chuyện                        |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+true
+```
+
+> Body là JSON boolean (`true` = lưu trữ, `false` = khôi phục).
+
+**Response (200):**
+
+```json
+{ "message": "Đã lưu trữ cuộc trò chuyện." }
+```
+
+---
+
+### 6.7. Thêm thành viên vào nhóm
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/conversations/{id}/members`                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.member.manage`                                          |
+| **Mô tả**       | Thêm một hoặc nhiều thành viên vào nhóm chat                  |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+[
+  "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "9a1b2c3d-4e5f-6789-abcd-ef0123456789"
+]
+```
+
+> Mảng GUID của các user cần thêm.
+
+**Response (200):**
+
+```json
+{ "message": "Thêm thành viên thành công." }
+```
+
+---
+
+### 6.8. Xóa thành viên khỏi nhóm
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `DELETE`                                                      |
+| **URL**         | `/api/conversations/{id}/members/{userId}`                    |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.member.manage`                                          |
+| **Mô tả**       | Xóa một thành viên khỏi nhóm chat                             |
+|-----------------|---------------------------------------------------------------|
+
+**Response:** `204 No Content`
+
+---
+
+### 6.9. Lấy tin nhắn phân trang
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/conversations/{id}/messages`                            |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.conversation.read`                                      |
+| **Mô tả**       | Lấy danh sách tin nhắn trong cuộc trò chuyện (phân trang)     |
+|-----------------|---------------------------------------------------------------|
+
+**Query Parameters:**
+
+| Tham số    | Kiểu  | Mặc định | Mô tả                  |
+|------------|-------|----------|------------------------|
+| `page`     | `int` | `1`      | Số trang               |
+| `pageSize` | `int` | `50`     | Số tin nhắn mỗi trang  |
+
+**Response (200):**
+
+```json
+[
+  {
+    "id": "3fa85f64-...",
+    "conversationID": "3fa85f64-...",
+    "userID": "3fa85f64-...",
+    "fullName": "Nguyễn Văn A",
+    "avatarUrl": null,
+    "content": "Xin chào!",
+    "messageType": 1,
+    "parentMessageID": null,
+    "isEdited": false,
+    "isDeleted": false,
+    "sentAt": "2026-06-16T08:00:00Z",
+    "editedAt": null,
+    "attachments": [],
+    "reactions": [],
+    "linkedTaskId": null
+  }
+]
+```
+
+> `messageType`: `1` = Text, `2` = Image, `3` = File, `4` = System
+
+---
+
+### 6.10. Gửi tin nhắn
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/conversations/{id}/messages`                            |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.message.create`                                         |
+| **Mô tả**       | Gửi tin nhắn vào cuộc trò chuyện. Broadcast qua SignalR event `ReceiveMessage` |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "content": "Xin chào mọi người!",
+  "messageType": 1,
+  "parentMessageID": null,
+  "attachments": [
+    {
+      "fileName": "report.pdf",
+      "fileURL": "https://blob.example.com/report.pdf",
+      "fileType": "application/pdf",
+      "fileSize": 204800,
+      "thumbnailURL": null
+    }
+  ]
+}
+```
+
+> `attachments` là tùy chọn. `parentMessageID` dùng để trả lời tin nhắn.
+
+**Response (200):** Giống một phần tử trong response của API 6.9.
+
+---
+
+### 6.11. Đánh dấu đã đọc
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/conversations/{id}/read`                                |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.message.create`                                         |
+| **Mô tả**       | Đánh dấu toàn bộ tin nhắn trong cuộc trò chuyện là đã đọc    |
+|-----------------|---------------------------------------------------------------|
+
+**Request:** Không có body.
+
+**Response (200):**
+
+```json
+{ "message": "Đã đánh dấu đã đọc cuộc hội thoại." }
+```
+
+---
+
+## 7. Messages — Quản lý tin nhắn
+
+Base URL: `/api/messages`
+
+---
+
+### 7.1. Sửa tin nhắn
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PUT`                                                         |
+| **URL**         | `/api/messages/{id}`                                          |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.message.update`                                         |
+| **Mô tả**       | Chỉnh sửa nội dung tin nhắn. Broadcast qua SignalR event `MessageEdited` |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+"Nội dung tin nhắn đã chỉnh sửa"
+```
+
+> Body là chuỗi JSON string trực tiếp.
+
+**Response (200):** Giống response của API 6.9 (một tin nhắn).
+
+---
+
+### 7.2. Xóa tin nhắn
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `DELETE`                                                      |
+| **URL**         | `/api/messages/{id}`                                          |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.message.delete`                                         |
+| **Mô tả**       | Xóa mềm tin nhắn (IsDeleted = true). Broadcast qua SignalR event `MessageDeleted` |
+|-----------------|---------------------------------------------------------------|
+
+**Request:** Không có body.
+
+**Response:** `204 No Content`
+
+---
+
+### 7.3. Toggle emoji reaction
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/messages/{id}/reactions`                                |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `chat.message.create`                                         |
+| **Mô tả**       | Thêm hoặc bỏ emoji reaction cho tin nhắn. Broadcast qua SignalR event `ReactionToggled` |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+"👍"
+```
+
+> Body là chuỗi emoji hoặc tên reaction (JSON string).
+
+**Response (200):**
+
+```json
+{
+  "id": "3fa85f64-...",
+  "messageID": "3fa85f64-...",
+  "userID": "3fa85f64-...",
+  "fullName": "Nguyễn Văn A",
+  "reactionType": "👍"
+}
+```
+
+> Nếu user đã react cùng loại → bỏ reaction (toggle). Nếu chưa → thêm mới.
+
+---
+
+## 8. Tasks — Quản lý công việc
+
+Base URL: `/api/tasks`
+
+---
+
+### 8.1. Lấy danh sách công việc
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/tasks`                                                  |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `task.item.read`                                              |
+| **Mô tả**       | Lấy danh sách công việc có phân trang và bộ lọc               |
+|-----------------|---------------------------------------------------------------|
+
+**Query Parameters (`TaskQuery`):**
+
+| Tham số    | Kiểu     | Mô tả                                    |
+|------------|----------|------------------------------------------|
+| `page`     | `int`    | Số trang (mặc định: 1)                   |
+| `pageSize` | `int`    | Số bản ghi mỗi trang (mặc định: 20)      |
+| `status`   | `int?`   | Lọc theo trạng thái (xem Enum bên dưới)  |
+| `priority` | `int?`   | Lọc theo độ ưu tiên                      |
+| `assignee` | `Guid?`  | Lọc theo người được giao                 |
+
+**Response (200):**
+
+```json
+{
+  "items": [
+    {
+      "id": "3fa85f64-...",
+      "taskCode": "TASK-001",
+      "title": "Phân tích yêu cầu module Chat",
+      "description": "Phân tích và thiết kế API Chat",
+      "taskType": 1,
+      "status": 1,
+      "priority": 2,
+      "progress": 0,
+      "startDate": "2026-06-10T00:00:00Z",
+      "dueDate": "2026-06-20T00:00:00Z",
+      "completedDate": null,
+      "estimatedHours": 8.0,
+      "actualHours": null,
+      "isRecurring": false,
+      "recurringPattern": null,
+      "parentTaskID": null,
+      "createdBy": "3fa85f64-...",
+      "createdAt": "2026-06-10T08:00:00Z",
+      "updatedAt": null,
+      "assignees": [],
+      "followers": [],
+      "comments": [],
+      "activityLogs": [],
+      "kpiIds": [],
+      "lmsCourseIds": [],
+      "subtasks": []
+    }
+  ],
+  "totalCount": 1,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 1
+}
+```
+
+---
+
+### 8.2. Lấy thông tin công việc theo ID
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/tasks/{id}`                                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `task.item.read`                                              |
+| **Mô tả**       | Lấy chi tiết một công việc                                    |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):** Giống một phần tử trong `items` của response API 8.1.
+
+---
+
+### 8.3. Tạo công việc mới
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/tasks`                                                  |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `task.item.create`                                            |
+| **Mô tả**       | Tạo công việc mới                                             |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "title": "Phân tích yêu cầu module Chat",
+  "description": "Phân tích và thiết kế API Chat",
+  "taskType": 1,
+  "priority": 2,
+  "startDate": "2026-06-10T00:00:00Z",
+  "dueDate": "2026-06-20T00:00:00Z",
+  "estimatedHours": 8.0,
+  "isRecurring": false,
+  "recurringPattern": null,
+  "parentTaskID": null,
+  "assigneeIds": ["3fa85f64-..."],
+  "primaryAssigneeId": "3fa85f64-...",
+  "followerIds": [],
+  "kpiIds": [],
+  "lmsCourseIds": []
+}
+```
+
+> `description`, `startDate`, `dueDate`, `estimatedHours`, `parentTaskID`, `primaryAssigneeId` là tùy chọn.
+
+**Response (201):** Giống response của API 8.2.
+
+---
+
+### 8.4. Cập nhật công việc
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PUT`                                                         |
+| **URL**         | `/api/tasks/{id}`                                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `task.item.update`                                            |
+| **Mô tả**       | Cập nhật thông tin, trạng thái, tiến độ công việc             |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "title": "Phân tích yêu cầu module Chat (updated)",
+  "description": "Đã hoàn thành phân tích",
+  "taskType": 1,
+  "status": 3,
+  "priority": 2,
+  "progress": 100,
+  "startDate": "2026-06-10T00:00:00Z",
+  "dueDate": "2026-06-20T00:00:00Z",
+  "estimatedHours": 8.0,
+  "actualHours": 7.5,
+  "isRecurring": false,
+  "recurringPattern": null,
+  "parentTaskID": null
+}
+```
+
+**Response (200):** Giống response của API 8.2.
+
+---
+
+### 8.5. Xóa công việc
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `DELETE`                                                      |
+| **URL**         | `/api/tasks/{id}`                                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `task.item.delete`                                            |
+| **Mô tả**       | Xóa (vô hiệu hóa) công việc                                   |
+|-----------------|---------------------------------------------------------------|
+
+**Request:** Không có body.
+
+**Response:** `204 No Content`
+
+---
+
+### 8.6. Lấy danh sách bình luận
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/tasks/{id}/comments`                                    |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `task.item.read`                                              |
+| **Mô tả**       | Lấy danh sách bình luận của một công việc                     |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):**
+
+```json
+[
+  {
+    "id": "3fa85f64-...",
+    "taskID": "3fa85f64-...",
+    "userID": "3fa85f64-...",
+    "fullName": "Nguyễn Văn A",
+    "avatarUrl": null,
+    "content": "Đã hoàn thành phần thiết kế.",
+    "parentCommentID": null,
+    "createdAt": "2026-06-16T08:00:00Z",
+    "replies": []
+  }
+]
+```
+
+---
+
+### 8.7. Thêm bình luận
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/tasks/{id}/comments`                                    |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `task.comment.create`                                         |
+| **Mô tả**       | Thêm bình luận vào công việc (hỗ trợ reply thread)            |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "content": "Đã hoàn thành phần thiết kế.",
+  "parentCommentID": null
+}
+```
+
+> `parentCommentID` là tùy chọn — dùng để reply bình luận khác.
+
+**Response (200):** Giống một phần tử trong response của API 8.6.
+
+---
+
 ## Quy ước chung
 
 ### Authentication
@@ -980,3 +1700,627 @@ Khi có lỗi, API trả về format:
 | `7`     | Export         |
 | `8`     | ManageTemplate |
 |---------|----------------|
+
+**TaskStatus:**
+
+|---------|------------|
+| Giá trị | Tên        |
+|---------|------------|
+| `1`     | Todo       |
+| `2`     | InProgress |
+| `3`     | Done       |
+| `4`     | Cancelled  |
+| `5`     | OnHold     |
+|---------|------------|
+
+**TaskPriority:**
+
+|---------|----------|
+| Giá trị | Tên      |
+|---------|----------|
+| `1`     | Low      |
+| `2`     | Medium   |
+| `3`     | High     |
+| `4`     | Critical |
+|---------|----------|
+
+**TaskType:**
+
+|---------|----------|
+| Giá trị | Tên      |
+|---------|----------|
+| `1`     | Normal   |
+| `2`     | Bug      |
+| `3`     | Feature  |
+| `4`     | Research |
+|---------|----------|
+
+**RecurringPattern:**
+
+|---------|----------|
+| Giá trị | Tên      |
+|---------|----------|
+| `1`     | Daily    |
+| `2`     | Weekly   |
+| `3`     | Monthly  |
+|---------|----------|
+
+**MessageType:**
+
+|---------|--------|
+| Giá trị | Tên    |
+|---------|--------|
+| `1`     | Text   |
+| `2`     | Image  |
+| `3`     | File   |
+| `4`     | System |
+|---------|--------|
+
+**ConversationType:**
+
+|---------|--------|
+| Giá trị | Tên    |
+|---------|--------|
+| `1`     | Direct |
+| `2`     | Group  |
+|---------|--------|
+
+**RoleInConversation:**
+
+|---------|--------|
+| Giá trị | Tên    |
+|---------|--------|
+| `1`     | Member |
+| `2`     | Admin  |
+|---------|--------|
+
+### SignalR Hub — Chat Realtime
+
+Client kết nối tới: `wss://<host>/hubs/chat`
+
+| Sự kiện (Server → Client) | Dữ liệu               | Mô tả                                   |
+|---------------------------|-----------------------|-----------------------------------------|
+| `ReceiveMessage`          | `MessageDto`          | Nhận tin nhắn mới trong nhóm            |
+| `MessageEdited`           | `MessageDto`          | Tin nhắn được chỉnh sửa                 |
+| `MessageDeleted`          | `Guid` (messageId)    | Tin nhắn bị xóa                         |
+| `ReactionToggled`         | `MessageReactionDto`  | Reaction được thêm hoặc bỏ              |
+
+---
+
+## 9. Notifications — Thông báo người dùng
+
+Base URL: `/api/notifications`
+
+---
+
+### 9.1. Lấy danh sách thông báo
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/notifications`                                          |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | Không yêu cầu quyền riêng (chỉ cần đăng nhập)               |
+| **Mô tả**       | Lấy danh sách thông báo của người dùng hiện tại               |
+|-----------------|---------------------------------------------------------------|
+
+**Query Parameters:**
+
+| Tham số    | Kiểu      | Mô tả                                         |
+|------------|-----------|-----------------------------------------------|
+| `page`     | `int`     | Số trang (mặc định: 1)                        |
+| `pageSize` | `int`     | Số bản ghi mỗi trang (mặc định: 20)           |
+| `isRead`   | `bool?`   | Lọc: `true` = đã đọc, `false` = chưa đọc, bỏ trống = tất cả |
+
+**Response (200):**
+
+```json
+{
+  "items": [
+    {
+      "id": "3fa85f64-...",
+      "triggerKey": "hrm.employee.created",
+      "eventTypeId": "3fa85f64-...",
+      "title": "Nhân viên mới được tạo",
+      "body": "Nguyễn Văn A vừa được thêm vào hệ thống.",
+      "linkUrl": "/users/3fa85f64-...",
+      "isRead": false,
+      "readAt": null,
+      "createdAt": "2026-06-16T08:00:00Z"
+    }
+  ],
+  "totalCount": 5,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 1
+}
+```
+
+---
+
+### 9.2. Lấy số thông báo chưa đọc
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/notifications/unread-count`                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Mô tả**       | Trả về số lượng thông báo chưa đọc của người dùng hiện tại   |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):**
+
+```json
+{ "count": 3 }
+```
+
+---
+
+### 9.3. Đánh dấu đã đọc một thông báo
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PATCH`                                                       |
+| **URL**         | `/api/notifications/{id}/read`                                |
+| **Auth**        | `Bearer Token`                                                |
+| **Mô tả**       | Đánh dấu một thông báo cụ thể là đã đọc                      |
+|-----------------|---------------------------------------------------------------|
+
+**Request:** Không có body.
+
+**Response (200):** Giống một phần tử trong `items` của API 9.1.
+
+---
+
+### 9.4. Đánh dấu tất cả đã đọc
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PATCH`                                                       |
+| **URL**         | `/api/notifications/read-all`                                 |
+| **Auth**        | `Bearer Token`                                                |
+| **Mô tả**       | Đánh dấu toàn bộ thông báo của người dùng là đã đọc          |
+|-----------------|---------------------------------------------------------------|
+
+**Request:** Không có body.
+
+**Response:** `204 No Content`
+
+---
+
+## 10. NotificationEventTypes — Loại sự kiện thông báo
+
+Base URL: `/api/notification-event-types`
+
+---
+
+### 10.1. Lấy danh sách loại sự kiện
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/notification-event-types`                               |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.event.read`                              |
+| **Mô tả**       | Lấy danh sách loại sự kiện thông báo (phân trang)             |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):**
+
+```json
+{
+  "items": [
+    {
+      "id": "3fa85f64-...",
+      "eventCode": "hrm.employee.created",
+      "name": "Nhân viên mới được tạo",
+      "module": "Hrm",
+      "description": "Kích hoạt khi tạo nhân viên mới",
+      "defaultTitleTemplate": "Nhân viên mới: {{FullName}}",
+      "defaultBodyTemplate": "{{FullName}} vừa được thêm vào hệ thống.",
+      "isActive": true
+    }
+  ],
+  "totalCount": 10,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 1
+}
+```
+
+---
+
+### 10.2. Lấy thông tin loại sự kiện theo ID
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/notification-event-types/{id}`                          |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.event.read`                              |
+| **Mô tả**       | Lấy chi tiết một loại sự kiện                                 |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):** Giống một phần tử trong `items` của API 10.1.
+
+---
+
+### 10.3. Tạo loại sự kiện mới
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/notification-event-types`                               |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.event.create`                            |
+| **Mô tả**       | Tạo loại sự kiện thông báo mới                                |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "eventCode": "hrm.employee.resigned",
+  "name": "Nhân viên nghỉ việc",
+  "module": "Hrm",
+  "description": "Kích hoạt khi nhân viên nghỉ việc",
+  "defaultTitleTemplate": "Nhân viên nghỉ việc: {{FullName}}",
+  "defaultBodyTemplate": "{{FullName}} đã nghỉ việc từ ngày {{Date}}."
+}
+```
+
+**Response (201):** Giống response của API 10.2.
+
+---
+
+### 10.4. Cập nhật loại sự kiện
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PUT`                                                         |
+| **URL**         | `/api/notification-event-types/{id}`                          |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.event.update`                            |
+| **Mô tả**       | Cập nhật thông tin loại sự kiện thông báo                     |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "name": "Nhân viên nghỉ việc (updated)",
+  "module": "Hrm",
+  "description": "Mô tả mới",
+  "defaultTitleTemplate": "Nghỉ việc: {{FullName}}",
+  "defaultBodyTemplate": "{{FullName}} đã nghỉ việc.",
+  "isActive": true
+}
+```
+
+**Response (200):** Giống response của API 10.2.
+
+---
+
+### 10.5. Xóa loại sự kiện
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `DELETE`                                                      |
+| **URL**         | `/api/notification-event-types/{id}`                          |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.event.delete`                            |
+| **Mô tả**       | Xóa (vô hiệu hóa) loại sự kiện thông báo                     |
+|-----------------|---------------------------------------------------------------|
+
+**Response:** `204 No Content`
+
+---
+
+### 10.6. Lấy danh sách template theo sự kiện
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/notification-event-types/{eventTypeId}/templates`       |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.event.read`                              |
+| **Mô tả**       | Lấy danh sách template thông báo của một loại sự kiện         |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):**
+
+```json
+[
+  {
+    "id": "3fa85f64-...",
+    "eventTypeId": "3fa85f64-...",
+    "channel": 1,
+    "titleTemplate": "Nhân viên mới: {{FullName}}",
+    "bodyTemplate": "{{FullName}} vừa được thêm.",
+    "isActive": true
+  }
+]
+```
+
+> `channel`: `1` = InApp, `2` = Email, `3` = Push
+
+---
+
+### 10.7. Tạo hoặc cập nhật template
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PUT`                                                         |
+| **URL**         | `/api/notification-event-types/{eventTypeId}/templates/{channel}` |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.event.update`                            |
+| **Mô tả**       | Upsert template thông báo cho một kênh cụ thể                 |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "titleTemplate": "Tiêu đề: {{FullName}}",
+  "bodyTemplate": "Nội dung: {{FullName}} đã {{Action}}.",
+  "isActive": true
+}
+```
+
+**Response (200):** Giống một phần tử trong response của API 10.6.
+
+---
+
+## 11. NotificationTriggers — Cấu hình trigger thông báo
+
+Base URL: `/api/notification-triggers`
+
+---
+
+### 11.1. Lấy danh sách trigger
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/notification-triggers`                                  |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.trigger.read`                            |
+| **Mô tả**       | Lấy danh sách tất cả trigger thông báo trong hệ thống         |
+|-----------------|---------------------------------------------------------------|
+
+**Query Parameters:**
+
+| Tham số    | Kiểu      | Mô tả                                    |
+|------------|-----------|------------------------------------------|
+| `page`     | `int`     | Số trang                                 |
+| `pageSize` | `int`     | Số bản ghi mỗi trang                     |
+| `module`   | `string?` | Lọc theo tên module (vd: `Hrm`, `Task`)  |
+
+**Response (200):**
+
+```json
+{
+  "items": [
+    {
+      "id": "3fa85f64-...",
+      "triggerKey": "hrm.employee.created",
+      "name": "Tạo nhân viên mới",
+      "module": "Hrm",
+      "description": "Kích hoạt khi tạo nhân viên mới",
+      "eventTypeId": "3fa85f64-...",
+      "eventCode": "hrm.employee.created",
+      "eventTypeName": "Nhân viên mới được tạo",
+      "linkUrlTemplate": "/users/{{UserId}}",
+      "recipientRules": {
+        "includeSubjectUser": true,
+        "includeActor": false,
+        "includeSuperAdmins": true,
+        "includeDepartmentManager": false,
+        "roleIds": [],
+        "userIds": []
+      },
+      "isActive": true
+    }
+  ],
+  "totalCount": 20,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 1
+}
+```
+
+---
+
+### 11.2. Lấy thông tin trigger theo key
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/notification-triggers/{triggerKey}`                     |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.trigger.read`                            |
+| **Mô tả**       | Lấy chi tiết một trigger theo trigger key (string)            |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):** Giống một phần tử trong `items` của API 11.1.
+
+---
+
+### 11.3. Cập nhật binding trigger
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PUT`                                                         |
+| **URL**         | `/api/notification-triggers/{triggerKey}`                     |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.notification.trigger.update`                          |
+| **Mô tả**       | Cập nhật EventType được gắn và cấu hình người nhận thông báo  |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "eventTypeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "linkUrlTemplate": "/users/{{UserId}}",
+  "recipientRules": {
+    "includeSubjectUser": true,
+    "includeActor": false,
+    "includeSuperAdmins": false,
+    "includeDepartmentManager": true,
+    "roleIds": ["3fa85f64-..."],
+    "userIds": []
+  },
+  "isActive": true
+}
+```
+
+> `eventTypeId` và `linkUrlTemplate` là tùy chọn (nullable).
+
+**Response (200):** Giống response của API 11.2.
+
+---
+
+## 12. Permissions — Quản lý quyền hệ thống
+
+Base URL: `/api/permissions`
+
+---
+
+### 12.1. Lấy danh sách quyền
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/permissions`                                            |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.permission.read`                                      |
+| **Mô tả**       | Lấy danh sách tất cả quyền trong hệ thống (phân trang)        |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):**
+
+```json
+{
+  "items": [
+    {
+      "id": "3fa85f64-...",
+      "permissionCode": "hrm.employee.read",
+      "permissionName": "Xem nhân viên",
+      "module": 1,
+      "action": 2,
+      "resource": "employee",
+      "description": null,
+      "isActive": true
+    }
+  ],
+  "totalCount": 30,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 2
+}
+```
+
+---
+
+### 12.2. Lấy thông tin quyền theo ID
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/permissions/{id}`                                       |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.permission.read`                                      |
+| **Mô tả**       | Lấy chi tiết một quyền                                        |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):** Giống một phần tử trong `items` của API 12.1.
+
+---
+
+### 12.3. Tạo quyền mới
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/permissions`                                            |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.permission.create`                                    |
+| **Mô tả**       | Tạo quyền mới trong hệ thống                                  |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "permissionCode": "hrm.employee.export",
+  "permissionName": "Xuất danh sách nhân viên",
+  "module": 1,
+  "action": 7,
+  "resource": "employee",
+  "description": "Cho phép xuất Excel danh sách nhân viên"
+}
+```
+
+> `description` là tùy chọn.
+
+**Response (201):** Giống response của API 12.2.
+
+---
+
+### 12.4. Cập nhật quyền
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PUT`                                                         |
+| **URL**         | `/api/permissions/{id}`                                       |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.permission.update`                                    |
+| **Mô tả**       | Cập nhật tên hiển thị và mô tả của quyền                      |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "permissionName": "Xuất Excel nhân viên (updated)",
+  "description": "Cập nhật mô tả",
+  "isActive": true
+}
+```
+
+**Response (200):** Giống response của API 12.2.
+
+---
+
+### 12.5. Xóa quyền
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `DELETE`                                                      |
+| **URL**         | `/api/permissions/{id}`                                       |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `system.permission.delete`                                    |
+| **Mô tả**       | Xóa (vô hiệu hóa) quyền                                       |
+|-----------------|---------------------------------------------------------------|
+
+**Response:** `204 No Content`
+
+---
+
+## 13. System — Health Check
+
+Base URL: `/api/health`
+
+---
+
+### 13.1. Health Check
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/health`                                                 |
+| **Auth**        | Không yêu cầu                                                 |
+| **Mô tả**       | Kiểm tra API đang hoạt động                                   |
+|-----------------|---------------------------------------------------------------|
+
+**Response (200):**
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-06-16T02:25:00Z"
+}
+```
+
+---
+
+### NotificationChannel Enum
+
+|---------|--------|
+| Giá trị | Tên    |
+|---------|--------|
+| `1`     | InApp  |
+| `2`     | Email  |
+| `3`     | Push   |
+|---------|--------|
