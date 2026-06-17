@@ -15,7 +15,9 @@ public class TaskMappingProfile : Profile
             .ForMember(d => d.Followers, opt => opt.MapFrom(s => s.Followers))
             .ForMember(d => d.Comments, opt => opt.MapFrom(s => s.Comments))
             .ForMember(d => d.ActivityLogs, opt => opt.MapFrom(s => s.ActivityLogs))
-            .ForMember(d => d.Subtasks, opt => opt.MapFrom(s => s.Subtasks));
+            .ForMember(d => d.Subtasks, opt => opt.MapFrom(s => s.Subtasks
+                .Where(st => st.IsActive)
+                .OrderBy(st => st.CreatedAt)));
 
         CreateMap<TaskAssignee, TaskAssigneeDto>()
             .ForMember(d => d.FullName, opt => opt.MapFrom(s => s.User != null ? s.User.FullName : string.Empty))

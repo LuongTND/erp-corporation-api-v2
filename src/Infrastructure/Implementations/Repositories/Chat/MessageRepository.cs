@@ -20,6 +20,7 @@ public class MessageRepository : GenericRepository<Message>, IMessageRepository
             .Include(m => m.Reactions)
                 .ThenInclude(r => r.User)
             .Include(m => m.MessageTasks)
+            .AsSplitQuery()
             .Where(m => m.ConversationID == conversationId)
             .OrderByDescending(m => m.CreatedAt) // Mới nhất lên trước để phân trang
             .Skip((page - 1) * pageSize)

@@ -130,4 +130,31 @@ public class TaskItem : BaseEntity, IAuditable, ICreationTracked, IModificationT
     {
         ActualHours = actualHours;
     }
+
+    /// <summary>
+    /// Cập nhật tiến độ task cha dựa trên số subtask đã hoàn thành.
+    /// </summary>
+    public void ApplySubtaskProgress(int completedCount, int totalCount)
+    {
+        if (totalCount <= 0) return;
+
+        Progress = (int)Math.Round(completedCount * 100.0 / totalCount);
+
+        if (Progress == 100)
+        {
+            Status = TaskStatus.Done;
+            CompletedDate = DateTime.UtcNow;
+            return;
+        }
+
+        CompletedDate = null;
+        if (Status == TaskStatus.Done)
+        {
+            Status = TaskStatus.InProgress;
+        }
+        else if (Progress > 0 && Status == TaskStatus.ToDo)
+        {
+            Status = TaskStatus.InProgress;
+        }
+    }
 }

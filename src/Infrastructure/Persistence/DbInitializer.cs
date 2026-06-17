@@ -40,12 +40,15 @@ public static class DbInitializer
     /// </summary>
     public static async Task SeedMissingPermissionsAsync(AppDbContext context)
     {
+        var existingCodes = (await context.Permissions
+            .Select(p => p.PermissionCode)
+            .ToListAsync()).ToHashSet();
+
         var added = false;
 
         foreach (var seed in InitialData.Permissions)
         {
-            var exists = await context.Permissions.AnyAsync(p => p.PermissionCode == seed.PermissionCode);
-            if (exists)
+            if (existingCodes.Contains(seed.PermissionCode))
                 continue;
 
             await context.Permissions.AddAsync(
@@ -72,12 +75,17 @@ public static class DbInitializer
             return;
 
         var permissions = await context.Permissions.Where(p => p.IsActive).ToListAsync();
+        var existingPermissionIds = (await context.RolePermissions
+            .Where(rp => rp.RoleId == superAdmin.Id)
+            .Select(rp => rp.PermissionId)
+            .ToListAsync()).ToHashSet();
+
         foreach (var permission in permissions)
         {
-            var assigned = await context.RolePermissions.AnyAsync(rp =>
-                rp.RoleId == superAdmin.Id && rp.PermissionId == permission.Id);
-            if (!assigned)
+            if (!existingPermissionIds.Contains(permission.Id))
+            {
                 await context.RolePermissions.AddAsync(RolePermission.Create(superAdmin.Id, permission.Id));
+            }
         }
 
         await context.SaveChangesAsync();
@@ -85,12 +93,15 @@ public static class DbInitializer
 
     private static async Task SeedNotificationsAsync(AppDbContext context)
     {
+        var existingEventCodes = (await context.NotificationEventTypes
+            .Select(x => x.EventCode)
+            .ToListAsync()).ToHashSet();
+
         foreach (var seed in NotificationInitialData.EventTypes)
         {
-            var entity = await context.NotificationEventTypes.FirstOrDefaultAsync(x => x.EventCode == seed.EventCode);
-            if (entity == null)
+            if (!existingEventCodes.Contains(seed.EventCode))
             {
-                entity = NotificationEventType.Create(
+                var entity = NotificationEventType.Create(
                     seed.Id,
                     seed.EventCode,
                     seed.Name,
@@ -104,12 +115,15 @@ public static class DbInitializer
 
         await context.SaveChangesAsync();
 
+        var existingTriggerKeys = (await context.NotificationTriggerBindings
+            .Select(x => x.TriggerKey)
+            .ToListAsync()).ToHashSet();
+
         foreach (var seed in NotificationInitialData.Triggers)
         {
-            var entity = await context.NotificationTriggerBindings.FirstOrDefaultAsync(x => x.TriggerKey == seed.TriggerKey);
-            if (entity == null)
+            if (!existingTriggerKeys.Contains(seed.TriggerKey))
             {
-                entity = NotificationTriggerBinding.Create(
+                var entity = NotificationTriggerBinding.Create(
                     seed.Id,
                     seed.TriggerKey,
                     seed.Name,

@@ -15,22 +15,26 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     public async Task<User?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
     {
         return await DbSet
+            .AsNoTracking()
             .Include(u => u.Department)
             .Include(u => u.JobLevel)
             .Include(u => u.Manager)
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(u => u.Id == id, ct);
     }
 
     public async Task<User?> GetByIdWithDetailsScopedAsync(Guid id, Guid currentUserId, ScopeType scope, IReadOnlyList<Guid> accessibleDeptIds, CancellationToken ct = default)
     {
         var query = DbSet
+            .AsNoTracking()
             .Include(u => u.Department)
             .Include(u => u.JobLevel)
             .Include(u => u.Manager)
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
+            .AsSplitQuery()
             .Where(u => u.Id == id);
 
         query = scope switch
@@ -53,12 +57,13 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         CancellationToken ct = default)
     {
         var queryable = DbSet
+            .AsNoTracking()
             .Include(u => u.Department)
             .Include(u => u.JobLevel)
             .Include(u => u.Manager)
             .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
-            .AsNoTracking();
+            .AsSplitQuery();
 
         queryable = scope switch
         {

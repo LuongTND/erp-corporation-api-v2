@@ -15,8 +15,10 @@ public class ConversationRepository : GenericRepository<Conversation>, IConversa
     public async Task<Conversation?> GetByIdWithMembersAsync(Guid id, CancellationToken ct = default)
     {
         return await DbSet
+            .AsNoTracking()
             .Include(c => c.Members)
                 .ThenInclude(m => m.User)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(c => c.Id == id, ct);
     }
 
@@ -26,6 +28,7 @@ public class ConversationRepository : GenericRepository<Conversation>, IConversa
             .AsNoTracking()
             .Include(c => c.Members)
                 .ThenInclude(m => m.User)
+            .AsSplitQuery()
             .Where(c => c.IsActive && c.Members.Any(m => m.UserID == userId && m.IsActive))
             .OrderByDescending(c => c.UpdatedAt)
             .ToListAsync(ct);

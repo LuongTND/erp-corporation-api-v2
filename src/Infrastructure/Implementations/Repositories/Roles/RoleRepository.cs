@@ -15,8 +15,10 @@ public class RoleRepository : GenericRepository<Role>, IRoleRepository
     public async Task<Role?> GetByIdWithPermissionsAsync(Guid id, CancellationToken ct = default)
     {
         return await DbSet
+            .AsNoTracking()
             .Include(r => r.RolePermissions)
                 .ThenInclude(rp => rp.Permission)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(r => r.Id == id, ct);
     }
 
@@ -26,6 +28,7 @@ public class RoleRepository : GenericRepository<Role>, IRoleRepository
             .AsNoTracking()
             .Include(r => r.RolePermissions)
                 .ThenInclude(rp => rp.Permission)
+            .AsSplitQuery()
             .OrderBy(r => r.RoleName)
             .ToPaginatedResultAsync(query, ct);
     }

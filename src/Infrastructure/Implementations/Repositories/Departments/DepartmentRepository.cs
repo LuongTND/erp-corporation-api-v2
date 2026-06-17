@@ -15,6 +15,7 @@ public class DepartmentRepository : GenericRepository<Department>, IDepartmentRe
     public async Task<Department?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
     {
         return await DbSet
+            .AsNoTracking()
             .Include(d => d.ParentDepartment)
             .Include(d => d.Manager)
             .FirstOrDefaultAsync(d => d.Id == id, ct);
@@ -26,6 +27,7 @@ public class DepartmentRepository : GenericRepository<Department>, IDepartmentRe
             .AsNoTracking()
             .Include(d => d.ParentDepartment)
             .Include(d => d.Manager)
+            .AsSplitQuery()
             .OrderBy(d => d.DepartmentCode)
             .ToPaginatedResultAsync(query, ct);
     }

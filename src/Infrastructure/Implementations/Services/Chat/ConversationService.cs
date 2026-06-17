@@ -47,26 +47,12 @@ public class ConversationService : IConversationService
 
         var dto = _mapper.Map<ConversationDto>(conv);
 
-        // Fetch last message
-        var lastMsg = await _messageRepository.GetQueryable()
-            .Include(m => m.User)
-            .Include(m => m.Attachments)
-            .Include(m => m.Reactions)
-                .ThenInclude(r => r.User)
-            .Where(m => m.ConversationID == id && !m.IsDeleted)
-            .OrderByDescending(m => m.CreatedAt)
-            .FirstOrDefaultAsync(ct);
-
-        if (lastMsg != null)
-        {
+        var lastMessages = await LoadLastMessagesAsync([id], ct);
+        if (lastMessages.TryGetValue(id, out var lastMsg))
             dto.LastMessage = _mapper.Map<MessageDto>(lastMsg);
-        }
 
-        // Fetch unread count for current user
         if (member != null)
-        {
             dto.UnreadCount = await CalculateUnreadCountAsync(id, currentUserId, member.LastReadMessageID, ct);
-        }
 
         return dto;
     }
@@ -76,32 +62,23 @@ public class ConversationService : IConversationService
         var currentUserId = _currentUserService.UserId ?? Guid.Empty;
 
         var conversations = await _conversationRepository.GetUserConversationsAsync(currentUserId, ct);
-        var dtos = new List<ConversationDto>();
+        if (conversations.Count == 0)
+            return [];
 
+        var convIds = conversations.Select(c => c.Id).ToList();
+        var lastMessages = await LoadLastMessagesAsync(convIds, ct);
+        var unreadCounts = await LoadUnreadCountsAsync(currentUserId, conversations, ct);
+
+        var dtos = new List<ConversationDto>(conversations.Count);
         foreach (var conv in conversations)
         {
             var dto = _mapper.Map<ConversationDto>(conv);
 
-            // Fetch last message
-            var lastMsg = await _messageRepository.GetQueryable()
-                .Include(m => m.User)
-                .Include(m => m.Attachments)
-                .Include(m => m.Reactions)
-                    .ThenInclude(r => r.User)
-                .Where(m => m.ConversationID == conv.Id && !m.IsDeleted)
-                .OrderByDescending(m => m.CreatedAt)
-                .FirstOrDefaultAsync(ct);
-
-            if (lastMsg != null)
-            {
+            if (lastMessages.TryGetValue(conv.Id, out var lastMsg))
                 dto.LastMessage = _mapper.Map<MessageDto>(lastMsg);
-            }
 
-            var member = conv.Members.FirstOrDefault(m => m.UserID == currentUserId && m.IsActive);
-            if (member != null)
-            {
-                dto.UnreadCount = await CalculateUnreadCountAsync(conv.Id, currentUserId, member.LastReadMessageID, ct);
-            }
+            if (unreadCounts.TryGetValue(conv.Id, out var unread))
+                dto.UnreadCount = unread;
 
             dtos.Add(dto);
         }
@@ -262,24 +239,101 @@ public class ConversationService : IConversationService
         await _unitOfWork.SaveChangesAsync(ct);
     }
 
+    private async Task<Dictionary<Guid, Message>> LoadLastMessagesAsync(IReadOnlyList<Guid> conversationIds, CancellationToken ct)
+    {
+        if (conversationIds.Count == 0)
+            return [];
+
+        var lastMessageIds = await _messageRepository.GetQueryable()
+            .AsNoTracking()
+            .Where(m => conversationIds.Contains(m.ConversationID) && !m.IsDeleted)
+            .GroupBy(m => m.ConversationID)
+            .Select(g => g.OrderByDescending(m => m.CreatedAt).Select(m => m.Id).First())
+            .ToListAsync(ct);
+
+        if (lastMessageIds.Count == 0)
+            return [];
+
+        var messages = await _messageRepository.GetQueryable()
+            .AsNoTracking()
+            .Include(m => m.User)
+            .Include(m => m.Attachments)
+            .Include(m => m.Reactions)
+                .ThenInclude(r => r.User)
+            .Where(m => lastMessageIds.Contains(m.Id))
+            .AsSplitQuery()
+            .ToListAsync(ct);
+
+        return messages.ToDictionary(m => m.ConversationID);
+    }
+
+    private async Task<Dictionary<Guid, int>> LoadUnreadCountsAsync(
+        Guid currentUserId,
+        IReadOnlyList<Conversation> conversations,
+        CancellationToken ct)
+    {
+        var result = new Dictionary<Guid, int>();
+        var convIds = conversations.Select(c => c.Id).ToList();
+        if (convIds.Count == 0)
+            return result;
+
+        var memberships = conversations
+            .Select(c => (ConvId: c.Id, Member: c.Members.FirstOrDefault(m => m.UserID == currentUserId && m.IsActive)))
+            .Where(x => x.Member != null)
+            .ToList();
+
+        var lastReadIds = memberships
+            .Where(x => x.Member!.LastReadMessageID.HasValue)
+            .Select(x => x.Member!.LastReadMessageID!.Value)
+            .Distinct()
+            .ToList();
+
+        var thresholdByConv = lastReadIds.Count == 0
+            ? new Dictionary<Guid, DateTime>()
+            : (await _messageRepository.GetQueryable()
+                .AsNoTracking()
+                .Where(m => lastReadIds.Contains(m.Id))
+                .Select(m => new { m.ConversationID, m.CreatedAt })
+                .ToListAsync(ct))
+                .ToDictionary(x => x.ConversationID, x => x.CreatedAt);
+
+        var unreadCandidates = await _messageRepository.GetQueryable()
+            .AsNoTracking()
+            .Where(m => convIds.Contains(m.ConversationID) && !m.IsDeleted && m.UserID != currentUserId)
+            .Select(m => new { m.ConversationID, m.CreatedAt })
+            .ToListAsync(ct);
+
+        foreach (var (convId, member) in memberships)
+        {
+            DateTime? threshold = null;
+            if (member!.LastReadMessageID.HasValue && thresholdByConv.TryGetValue(convId, out var ts))
+                threshold = ts;
+
+            result[convId] = unreadCandidates.Count(m =>
+                m.ConversationID == convId &&
+                (!threshold.HasValue || m.CreatedAt > threshold.Value));
+        }
+
+        return result;
+    }
+
     private async Task<int> CalculateUnreadCountAsync(Guid conversationId, Guid userId, Guid? lastReadMessageId, CancellationToken ct)
     {
+        DateTime? threshold = null;
         if (lastReadMessageId.HasValue)
         {
-            var lastReadMsg = await _messageRepository.GetByIdAsync(lastReadMessageId.Value, ct);
-            if (lastReadMsg != null)
-            {
-                return await _messageRepository.GetQueryable()
-                    .CountAsync(m => m.ConversationID == conversationId && 
-                                     m.CreatedAt > lastReadMsg.CreatedAt && 
-                                     m.UserID != userId && 
-                                     !m.IsDeleted, ct);
-            }
+            threshold = await _messageRepository.GetQueryable()
+                .AsNoTracking()
+                .Where(m => m.Id == lastReadMessageId.Value)
+                .Select(m => (DateTime?)m.CreatedAt)
+                .FirstOrDefaultAsync(ct);
         }
 
         return await _messageRepository.GetQueryable()
-            .CountAsync(m => m.ConversationID == conversationId && 
-                             m.UserID != userId && 
-                             !m.IsDeleted, ct);
+            .AsNoTracking()
+            .CountAsync(m => m.ConversationID == conversationId &&
+                             !m.IsDeleted &&
+                             m.UserID != userId &&
+                             (!threshold.HasValue || m.CreatedAt > threshold.Value), ct);
     }
 }
