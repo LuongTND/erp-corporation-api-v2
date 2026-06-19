@@ -11,5 +11,7 @@ public record CreateUserRequest(
     UserStatus Status,
     Guid? ManagerId = null,
     string? AvatarUrl = null,
-    string? Password = null
+    string? Password = null,
+    string? CheckInTimeTarget = null,
+    string? CheckOutTimeTarget = null
 );

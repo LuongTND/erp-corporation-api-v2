@@ -1,5 +1,6 @@
 using Domain.Entities.Tasks;
 using Domain.Entities.Chat;
+using Domain.Entities.Attendances;
 using Domain.Base;
 using Domain.Events;
 using Infrastructure.Outbox;
@@ -15,6 +16,11 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<AttendanceLocation> AttendanceLocations => Set<AttendanceLocation>();
+    public DbSet<AttendanceLocationUser> AttendanceLocationUsers => Set<AttendanceLocationUser>();
+    public DbSet<AttendanceLocationDepartment> AttendanceLocationDepartments => Set<AttendanceLocationDepartment>();
+    public DbSet<AttendanceLog> AttendanceLogs => Set<AttendanceLog>();
+    public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<JobLevel> JobLevels => Set<JobLevel>();
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<Role> Roles => Set<Role>();

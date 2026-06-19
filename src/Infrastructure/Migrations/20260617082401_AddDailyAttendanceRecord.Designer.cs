@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260617082401_AddDailyAttendanceRecord")]
+    partial class AddDailyAttendanceRecord
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -502,20 +505,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CheckInTimeTarget")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)")
-                        .HasDefaultValue("08:00");
-
-                    b.Property<string>("CheckOutTimeTarget")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)")
-                        .HasDefaultValue("17:00");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1206,14 +1195,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("AvatarUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("CheckInTimeTarget")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("CheckOutTimeTarget")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");

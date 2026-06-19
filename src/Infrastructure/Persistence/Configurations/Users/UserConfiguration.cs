@@ -56,5 +56,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(x => x.IsActive)
             .IsRequired();
+
+        builder.Property(x => x.CheckInTimeTarget)
+            .HasMaxLength(5);
+
+        builder.Property(x => x.CheckOutTimeTarget)
+            .HasMaxLength(5);
     }
 }

@@ -82,7 +82,9 @@ public class DepartmentService : IDepartmentService
             codeUpper,
             request.ParentDepartmentId,
             request.ManagerId,
-            request.Description
+            request.Description,
+            request.CheckInTimeTarget,
+            request.CheckOutTimeTarget
         );
 
         await _departmentRepository.AddAsync(dept, ct);
@@ -135,7 +137,9 @@ public class DepartmentService : IDepartmentService
             codeUpper,
             request.ParentDepartmentId,
             request.ManagerId,
-            request.Description
+            request.Description,
+            request.CheckInTimeTarget,
+            request.CheckOutTimeTarget
         );
         dept.IsActive = request.IsActive;
 

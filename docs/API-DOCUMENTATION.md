@@ -2,7 +2,7 @@
 
 > Tài liệu liệt kê tất cả API endpoints trong hệ thống.  
 > **Cập nhật liên tục** mỗi khi thêm/sửa API mới.  
-> Cập nhật lần cuối: **2026-06-16**
+> Cập nhật lần cuối: **2026-06-18**
 
 ---
 
@@ -163,12 +163,26 @@
 | 71  | Xóa quyền               | `DELETE`  | `/api/permissions/{id}`           | Xóa (vô hiệu hóa) quyền                         |
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
 
+### 📍 Attendances — Chấm công (`/api/attendances`)
+
+|-----|-------------------------------|-----------|------------------------------------------------------|---------------------------------------------------|
+| #   | Tên API                       | Method    | URL                                                  | Chức năng                                         |
+|-----|-------------------------------|-----------|------------------------------------------------------|---------------------------------------------------|
+| 72  | Tạo vị trí chấm công          | `POST`    | `/api/attendances/locations`                         | Tạo vị trí chấm công mới                          |
+| 73  | Cập nhật vị trí chấm công     | `PUT`     | `/api/attendances/locations/{id}`                    | Cập nhật thông tin vị trí                         |
+| 74  | Chi tiết vị trí chấm công     | `GET`     | `/api/attendances/locations/{id}`                    | Lấy thông tin một vị trí chấm công               |
+| 75  | DS vị trí chấm công           | `GET`     | `/api/attendances/locations`                         | Lấy danh sách vị trí chấm công (phân trang)      |
+| 76  | Chấm công (vào/ra)            | `POST`    | `/api/attendances/check-in?latitude=&longitude=`     | Chấm công vào hoặc ra, tọa độ qua query string   |
+| 77  | Trạng thái chấm công hôm nay  | `GET`     | `/api/attendances/today`                             | Lấy trạng thái chấm công hôm nay của bản thân   |
+| 78  | Lịch sử chấm công             | `GET`     | `/api/attendances/logs`                              | Lấy log chấm công (phân trang, lọc theo ngày)    |
+|-----|-------------------------------|-----------|------------------------------------------------------|---------------------------------------------------|
+
 ### 🏥 System — Health Check (`/api/health`)
 
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
 | #   | Tên API                 | Method    | URL                               | Chức năng                                       |
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
-| 72  | Health check            | `GET`     | `/api/health`                     | Kiểm tra trạng thái hoạt động của API           |
+| 79  | Health check            | `GET`     | `/api/health`                     | Kiểm tra trạng thái hoạt động của API           |
 |-----|-------------------------|-----------|-----------------------------------|-------------------------------------------------|
 
 ---
@@ -189,7 +203,8 @@
 10. [NotificationEventTypes — Loại sự kiện thông báo](#10-notificationeventtypes--loại-sự-kiện-thông-báo)
 11. [NotificationTriggers — Cấu hình trigger](#11-notificationtriggers--cấu-hình-trigger-thông-báo)
 12. [Permissions — Quản lý quyền hệ thống](#12-permissions--quản-lý-quyền-hệ-thống)
-13. [System — Health Check](#13-system--health-check)
+13. [Attendances — Chấm công](#13-attendances--chấm-công)
+14. [System — Health Check](#14-system--health-check)
 
 ---
 
@@ -212,7 +227,7 @@ Base URL: `/api/auth`
 
 ```json
 {
-  "email": "admin@company.com",
+  "email": "admin1@digifnb.com",
   "password": "123456"
 }
 ```
@@ -293,7 +308,7 @@ Base URL: `/api/auth`
   "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "employeeCode": "NV001",
   "fullName": "Nguyễn Văn A",
-  "email": "admin@company.com",
+  "email": "admin1@digifnb.com",
   "avatarUrl": "https://blob.example.com/avatar.jpg",
   "departmentId": "...",
   "departmentName": "Phòng Nhân sự",
@@ -2289,13 +2304,318 @@ Base URL: `/api/permissions`
 
 ---
 
-## 13. System — Health Check
+## 13. Attendances — Chấm công
+
+Base URL: `/api/attendances`
+
+---
+
+### 13.1. Tạo vị trí chấm công
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `POST`                                                        |
+| **URL**         | `/api/attendances/locations`                                  |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `attendances.location.manage`                                 |
+| **Mô tả**       | Tạo vị trí chấm công mới, có thể gán cho nhân viên/phòng ban  |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "name": "Văn phòng HCM",
+  "latitude": 10.7769,
+  "longitude": 106.7009,
+  "radiusInMeters": 100,
+  "assignedUserIds": [
+    "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  ],
+  "assignedDepartmentIds": [
+    "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+  ]
+}
+```
+
+> `assignedUserIds` và `assignedDepartmentIds` là tùy chọn, có thể để mảng rỗng.
+
+**Response (201):**
+
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "name": "Văn phòng HCM",
+  "latitude": 10.7769,
+  "longitude": 106.7009,
+  "radiusInMeters": 100,
+  "isActive": true,
+  "createdAt": "2026-06-18T08:00:00Z",
+  "updatedAt": null,
+  "createdBy": "3fa85f64-5717-4562-b3fc-2c963f66afa9",
+  "assignedUserIds": ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
+  "assignedDepartmentIds": ["3fa85f64-5717-4562-b3fc-2c963f66afa7"]
+}
+```
+
+---
+
+### 13.2. Cập nhật vị trí chấm công
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `PUT`                                                         |
+| **URL**         | `/api/attendances/locations/{id}`                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `attendances.location.manage`                                 |
+| **Mô tả**       | Cập nhật thông tin vị trí chấm công, gán lại nhân viên/phòng ban |
+|-----------------|---------------------------------------------------------------|
+
+**Request:**
+
+```json
+{
+  "name": "Văn phòng HCM (cập nhật)",
+  "latitude": 10.7769,
+  "longitude": 106.7009,
+  "radiusInMeters": 150,
+  "isActive": true,
+  "assignedUserIds": [
+    "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  ],
+  "assignedDepartmentIds": []
+}
+```
+
+**Response (200):** Giống response của API 13.1.
+
+---
+
+### 13.3. Chi tiết vị trí chấm công
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/attendances/locations/{id}`                             |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `attendances.location.manage`                                 |
+| **Mô tả**       | Lấy thông tin chi tiết một vị trí chấm công theo ID          |
+|-----------------|---------------------------------------------------------------|
+
+**Request:** Không có body. `id` truyền trên URL (GUID).
+
+**Response (200):** Giống response của API 13.1.
+
+---
+
+### 13.4. Danh sách vị trí chấm công
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/attendances/locations`                                  |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | `attendances.location.manage`                                 |
+| **Mô tả**       | Lấy danh sách vị trí chấm công có phân trang và tìm kiếm     |
+|-----------------|---------------------------------------------------------------|
+
+**Query Parameters:**
+
+| Tham số     | Kiểu       | Bắt buộc | Mô tả                              |
+|-------------|------------|----------|------------------------------------|
+| `page`      | `int`      | Không    | Trang hiện tại (mặc định: 1)       |
+| `pageSize`  | `int`      | Không    | Số bản ghi mỗi trang (mặc định: 20)|
+| `search`    | `string`   | Không    | Tìm kiếm theo tên vị trí           |
+| `userId`    | `guid`     | Không    | Lọc theo nhân viên được gán        |
+| `startDate` | `date`     | Không    | Lọc từ ngày (YYYY-MM-DD)           |
+| `endDate`   | `date`     | Không    | Lọc đến ngày (YYYY-MM-DD)          |
+
+**Response (200):**
+
+```json
+{
+  "items": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "name": "Văn phòng HCM",
+      "latitude": 10.7769,
+      "longitude": 106.7009,
+      "radiusInMeters": 100,
+      "isActive": true,
+      "createdAt": "2026-06-18T08:00:00Z",
+      "updatedAt": null,
+      "createdBy": "3fa85f64-5717-4562-b3fc-2c963f66afa9",
+      "assignedUserIds": [],
+      "assignedDepartmentIds": []
+    }
+  ],
+  "totalCount": 1,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 1
+}
+```
+
+---
+
+### 13.5. Chấm công (vào ca / tan ca)
+
+|-----------------|-------------------------------------------------------------------|
+| **Method**      | `POST`                                                            |
+| **URL**         | `/api/attendances/check-in?latitude={lat}&longitude={lng}`        |
+| **Auth**        | `Bearer Token`                                                    |
+| **Permission**  | Không yêu cầu quyền đặc biệt (nhân viên tự chấm)                  |
+| **Mô tả**       | Chấm công vào ca hoặc tan ca. Tọa độ GPS gửi qua **query string** |
+|-----------------|-------------------------------------------------------------------|
+
+> ⚠️ **Lưu ý bảo mật**: Tọa độ GPS (`latitude`, `longitude`) được gửi qua **query parameters** (không phải request body)  
+> để tách biệt dữ liệu vị trí khỏi payload nghiệp vụ.
+
+**Query Parameters:**
+
+| Tham số     | Kiểu     | Bắt buộc | Mô tả                               |
+|-------------|----------|----------|-------------------------------------|
+| `latitude`  | `double` | ✅ Có    | Vĩ độ GPS của người dùng hiện tại   |
+| `longitude` | `double` | ✅ Có    | Kinh độ GPS của người dùng hiện tại |
+
+**Request Body:**
+
+```json
+{
+  "type": 1
+}
+```
+
+> **AttendanceType Enum:**
+> - `1` = `CheckIn` — Chấm vào ca
+> - `2` = `CheckOut` — Chấm tan ca
+
+**Response (200) — Thành công:**
+
+```json
+{
+  "isSuccess": true,
+  "message": "Chấm công thành công.",
+  "distanceInMeters": 42.5,
+  "locationName": "Văn phòng HCM",
+  "checkTime": "2026-06-18T08:30:00Z"
+}
+```
+
+**Response (200) — Thất bại (ngoài bán kính):**
+
+```json
+{
+  "isSuccess": false,
+  "message": "Vượt quá bán kính cho phép.",
+  "distanceInMeters": 350.2,
+  "locationName": "Văn phòng HCM",
+  "checkTime": "2026-06-18T08:30:00Z"
+}
+```
+
+> API luôn trả `200 OK`. Kiểm tra `isSuccess` để biết chấm công có hợp lệ không.  
+> Nếu nhân viên chấm lại trong ngày (vào lại / ra lại), hệ thống sẽ **ghi đè** kết quả cũ.
+
+---
+
+### 13.6. Trạng thái chấm công hôm nay
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/attendances/today`                                      |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | Không yêu cầu quyền đặc biệt                                  |
+| **Mô tả**       | Lấy trạng thái chấm công hôm nay của người đang đăng nhập     |
+|-----------------|---------------------------------------------------------------|
+
+**Request:** Không có body.
+
+**Response (200) — Đã chấm:**
+
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
+  "userFullName": "Nguyễn Văn A",
+  "date": "2026-06-18",
+  "checkInTime": "2026-06-18T01:30:00Z",
+  "checkInLocationName": "Văn phòng HCM",
+  "checkOutTime": null,
+  "checkOutLocationName": null
+}
+```
+
+**Response (200) — Chưa chấm:** `null`
+
+---
+
+### 13.7. Lịch sử chấm công
+
+|-----------------|---------------------------------------------------------------|
+| **Method**      | `GET`                                                         |
+| **URL**         | `/api/attendances/logs`                                       |
+| **Auth**        | `Bearer Token`                                                |
+| **Permission**  | Không yêu cầu quyền đặc biệt (nhân viên xem lịch sử của mình)|
+| **Mô tả**       | Lấy danh sách log chấm công, hỗ trợ lọc theo người dùng, ngày, kết quả |
+|-----------------|---------------------------------------------------------------|
+
+**Query Parameters:**
+
+| Tham số     | Kiểu       | Bắt buộc | Mô tả                                      |
+|-------------|------------|----------|--------------------------------------------|
+| `page`      | `int`      | Không    | Trang hiện tại (mặc định: 1)               |
+| `pageSize`  | `int`      | Không    | Số bản ghi mỗi trang (mặc định: 20)        |
+| `search`    | `string`   | Không    | Tìm kiếm theo tên nhân viên                |
+| `userId`    | `guid`     | Không    | Lọc theo ID nhân viên (quản lý xem hộ)     |
+| `isSuccess` | `bool`     | Không    | Lọc theo kết quả (`true`/`false`)          |
+| `startDate` | `date`     | Không    | Lọc từ ngày (YYYY-MM-DD)                   |
+| `endDate`   | `date`     | Không    | Lọc đến ngày (YYYY-MM-DD)                  |
+
+**Response (200):**
+
+```json
+{
+  "items": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
+      "userFullName": "Nguyễn Văn A",
+      "userEmployeeCode": "NV001",
+      "attendanceLocationId": "3fa85f64-5717-4562-b3fc-2c963f66afa8",
+      "attendanceLocationName": "Văn phòng HCM",
+      "checkTime": "2026-06-18T01:30:00Z",
+      "latitude": 10.7769,
+      "longitude": 106.7009,
+      "distanceInMeters": 42.5,
+      "isSuccess": true,
+      "type": 1,
+      "failureReason": null
+    }
+  ],
+  "totalCount": 1,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 1
+}
+```
+
+---
+
+### AttendanceType Enum
+
+|---------|----------|
+| Giá trị | Tên      |
+|---------|----------|
+| `1`     | CheckIn  |
+| `2`     | CheckOut |
+|---------|----------|
+
+---
+
+## 14. System — Health Check
 
 Base URL: `/api/health`
 
 ---
 
-### 13.1. Health Check
+### 14.1. Health Check
 
 |-----------------|---------------------------------------------------------------|
 | **Method**      | `GET`                                                         |

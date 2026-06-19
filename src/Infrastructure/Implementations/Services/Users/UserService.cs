@@ -127,7 +127,9 @@ public class UserService : IUserService
             request.DateOfJoin,
             request.Status,
             request.ManagerId,
-            request.AvatarUrl
+            request.AvatarUrl,
+            request.CheckInTimeTarget,
+            request.CheckOutTimeTarget
         );
 
         await _userRepository.AddAsync(user, ct);
@@ -205,7 +207,9 @@ public class UserService : IUserService
             request.DateOfJoin,
             request.Status,
             request.ManagerId,
-            request.AvatarUrl
+            request.AvatarUrl,
+            request.CheckInTimeTarget,
+            request.CheckOutTimeTarget
         );
 
         // Đồng bộ LoginEmail của tài khoản đăng nhập

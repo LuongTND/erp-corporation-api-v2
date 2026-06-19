@@ -6,5 +6,7 @@ public record UpdateDepartmentRequest(
     Guid? ParentDepartmentId = null,
     Guid? ManagerId = null,
     string? Description = null,
-    bool IsActive = true
+    bool IsActive = true,
+    string CheckInTimeTarget = "08:00",
+    string CheckOutTimeTarget = "17:00"
 );

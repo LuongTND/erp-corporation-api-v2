@@ -17,6 +17,8 @@ public class Department : BaseEntity, IAuditable, ICreationTracked, IModificatio
     public string? Description { get; private set; }
 
     public bool IsActive { get; set; } = true;
+    public string CheckInTimeTarget { get; private set; } = "08:00";
+    public string CheckOutTimeTarget { get; private set; } = "17:00";
     public Guid? CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }
 
@@ -32,7 +34,9 @@ public class Department : BaseEntity, IAuditable, ICreationTracked, IModificatio
         string departmentCode,
         Guid? parentDepartmentId = null,
         Guid? managerId = null,
-        string? description = null)
+        string? description = null,
+        string checkInTimeTarget = "08:00",
+        string checkOutTimeTarget = "17:00")
     {
         return new Department
         {
@@ -41,7 +45,9 @@ public class Department : BaseEntity, IAuditable, ICreationTracked, IModificatio
             ParentDepartmentId = parentDepartmentId,
             ManagerId = managerId,
             Description = description,
-            IsActive = true
+            IsActive = true,
+            CheckInTimeTarget = checkInTimeTarget,
+            CheckOutTimeTarget = checkOutTimeTarget
         };
     }
 
@@ -50,13 +56,17 @@ public class Department : BaseEntity, IAuditable, ICreationTracked, IModificatio
         string departmentCode,
         Guid? parentDepartmentId = null,
         Guid? managerId = null,
-        string? description = null)
+        string? description = null,
+        string checkInTimeTarget = "08:00",
+        string checkOutTimeTarget = "17:00")
     {
         DepartmentName = departmentName;
         DepartmentCode = departmentCode;
         ParentDepartmentId = parentDepartmentId;
         ManagerId = managerId;
         Description = description;
+        CheckInTimeTarget = checkInTimeTarget;
+        CheckOutTimeTarget = checkOutTimeTarget;
     }
 
     public void SetManager(Guid? managerId)

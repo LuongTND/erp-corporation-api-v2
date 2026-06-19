@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260617075415_AddAttendanceModule")]
+    partial class AddAttendanceModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,75 +24,6 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Domain.Entities.Attendances.Attendance", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<double?>("CheckInDistanceInMeters")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("CheckInLatitude")
-                        .HasColumnType("float");
-
-                    b.Property<Guid?>("CheckInLocationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<double?>("CheckInLongitude")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime?>("CheckInTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double?>("CheckOutDistanceInMeters")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("CheckOutLatitude")
-                        .HasColumnType("float");
-
-                    b.Property<Guid?>("CheckOutLocationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<double?>("CheckOutLongitude")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime?>("CheckOutTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CheckInLocationId");
-
-                    b.HasIndex("CheckOutLocationId");
-
-                    b.HasIndex("UserId", "Date")
-                        .IsUnique();
-
-                    b.ToTable("Attendances", (string)null);
-                });
 
             modelBuilder.Entity("Domain.Entities.Attendances.AttendanceLocation", b =>
                 {
@@ -194,9 +128,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<double>("Longitude")
                         .HasColumnType("float");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -502,20 +433,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CheckInTimeTarget")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)")
-                        .HasDefaultValue("08:00");
-
-                    b.Property<string>("CheckOutTimeTarget")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)")
-                        .HasDefaultValue("17:00");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1207,14 +1124,6 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("CheckInTimeTarget")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("CheckOutTimeTarget")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1445,31 +1354,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProcessedAt", "CreatedAt");
 
                     b.ToTable("OutboxMessages", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.Attendances.Attendance", b =>
-                {
-                    b.HasOne("Domain.Entities.Attendances.AttendanceLocation", "CheckInLocation")
-                        .WithMany()
-                        .HasForeignKey("CheckInLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.Attendances.AttendanceLocation", "CheckOutLocation")
-                        .WithMany()
-                        .HasForeignKey("CheckOutLocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Domain.Entities.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CheckInLocation");
-
-                    b.Navigation("CheckOutLocation");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Attendances.AttendanceLocationDepartment", b =>

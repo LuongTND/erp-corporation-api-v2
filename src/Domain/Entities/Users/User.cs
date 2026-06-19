@@ -26,6 +26,8 @@ public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTrack
     public DateOnly DateOfJoin { get; private set; }
     public UserStatus Status { get; private set; }
     public bool IsActive { get; set; } = true;
+    public string? CheckInTimeTarget { get; private set; }
+    public string? CheckOutTimeTarget { get; private set; }
     public Guid? CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }
 
@@ -46,7 +48,9 @@ public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTrack
         DateOnly dateOfJoin,
         UserStatus status,
         Guid? managerId = null,
-        string? avatarUrl = null)
+        string? avatarUrl = null,
+        string? checkInTimeTarget = null,
+        string? checkOutTimeTarget = null)
     {
         return new User
         {
@@ -59,7 +63,9 @@ public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTrack
             Status = status,
             ManagerId = managerId,
             AvatarUrl = avatarUrl,
-            IsActive = IsStatusActive(status)
+            IsActive = IsStatusActive(status),
+            CheckInTimeTarget = checkInTimeTarget,
+            CheckOutTimeTarget = checkOutTimeTarget
         };
     }
 
@@ -71,7 +77,9 @@ public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTrack
         DateOnly dateOfJoin,
         UserStatus status,
         Guid? managerId = null,
-        string? avatarUrl = null)
+        string? avatarUrl = null,
+        string? checkInTimeTarget = null,
+        string? checkOutTimeTarget = null)
     {
         FullName = fullName;
         Email = email.ToLowerInvariant();
@@ -82,6 +90,13 @@ public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTrack
         ManagerId = managerId;
         AvatarUrl = avatarUrl;
         IsActive = IsStatusActive(status);
+        CheckInTimeTarget = checkInTimeTarget;
+        CheckOutTimeTarget = checkOutTimeTarget;
+    }
+
+    public void UpdateEmail(string email)
+    {
+        Email = email.ToLowerInvariant();
     }
 
     public void SetStatus(UserStatus status)

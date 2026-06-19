@@ -296,8 +296,24 @@ public static class DbInitializer
 
         foreach (var seed in InitialData.Users)
         {
-            if (await context.Users.AnyAsync(u => u.EmployeeCode == seed.EmployeeCode))
+            var existingUser = await context.Users.FirstOrDefaultAsync(u => u.EmployeeCode == seed.EmployeeCode);
+            if (existingUser != null)
+            {
+                if (existingUser.Email != seed.Email.ToLowerInvariant())
+                {
+                    existingUser.UpdateEmail(seed.Email);
+                    context.Users.Update(existingUser);
+
+                    var account = await context.UserAccounts.FirstOrDefaultAsync(a => a.UserId == existingUser.Id);
+                    if (account != null)
+                    {
+                        account.UpdateEmail(seed.Email);
+                        context.UserAccounts.Update(account);
+                    }
+                    await context.SaveChangesAsync();
+                }
                 continue;
+            }
 
             var user = User.Create(
                 seed.EmployeeCode,

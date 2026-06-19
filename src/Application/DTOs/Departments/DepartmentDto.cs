@@ -13,4 +13,6 @@ public class DepartmentDto : IHasGuidId
     public string? ManagerName { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
+    public string CheckInTimeTarget { get; set; } = null!;
+    public string CheckOutTimeTarget { get; set; } = null!;
 }

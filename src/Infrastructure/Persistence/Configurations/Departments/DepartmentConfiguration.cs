@@ -34,5 +34,15 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 
         builder.Property(x => x.IsActive)
             .IsRequired();
+
+        builder.Property(x => x.CheckInTimeTarget)
+            .HasMaxLength(5)
+            .HasDefaultValue("08:00")
+            .IsRequired();
+
+        builder.Property(x => x.CheckOutTimeTarget)
+            .HasMaxLength(5)
+            .HasDefaultValue("17:00")
+            .IsRequired();
     }
 }

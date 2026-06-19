@@ -143,6 +143,10 @@ public static class InitialData
         new("task.item.approve", "Phê duyệt công việc", PermissionModule.Task, PermissionAction.Approve, "task"),
         new("task.comment.create", "Bình luận trong công việc", PermissionModule.Task, PermissionAction.Create, "comment"),
         new("task.report.read", "Xem báo cáo hiệu suất công việc", PermissionModule.Task, PermissionAction.Read, "report"),
+
+        // Attendance
+        new("attendances.location.manage", "Cấu hình vị trí chấm công", PermissionModule.Hrm, PermissionAction.Update, "attendance-location"),
+        new("attendances.log.read", "Xem lịch sử chấm công nhân viên", PermissionModule.Hrm, PermissionAction.Read, "attendance-log"),
     ];
 
     public static readonly RoleSeed[] Roles =
@@ -166,7 +170,8 @@ public static class InitialData
             "chat.admin.manage", "task.report.read",
             "chat.conversation.read", "chat.conversation.create", "chat.conversation.update", "chat.conversation.delete",
             "chat.message.create", "chat.message.update", "chat.message.delete", "chat.member.manage",
-            "task.item.read", "task.item.create", "task.item.update", "task.item.delete", "task.item.assign", "task.item.approve", "task.comment.create"
+            "task.item.read", "task.item.create", "task.item.update", "task.item.delete", "task.item.assign", "task.item.approve", "task.comment.create",
+            "attendances.location.manage", "attendances.log.read"
         ],
         [Keys.RoleEmployee] =
         [
@@ -182,7 +187,7 @@ public static class InitialData
         new(
             EmployeeCode: "ADMIN001",
             FullName: "System Administrator",
-            Email: "admin@company.com",
+            Email: "admin1@digifnb.com",
             Password: Keys.DefaultPassword,
             DepartmentCode: Keys.DeptBoard,
             JobLevelName: Keys.JobDirector,

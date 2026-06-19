@@ -20,4 +20,6 @@ public class UserDto
     public List<string> Roles { get; set; } = [];
     public List<string> Permissions { get; set; } = [];
     public bool BypassDataScope { get; set; }
+    public string? CheckInTimeTarget { get; set; }
+    public string? CheckOutTimeTarget { get; set; }
 }

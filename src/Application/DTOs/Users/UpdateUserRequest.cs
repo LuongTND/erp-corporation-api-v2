@@ -9,6 +9,8 @@ public record UpdateUserRequest(
     DateOnly DateOfJoin,
     UserStatus Status,
     Guid? ManagerId = null,
-    string? AvatarUrl = null
+    string? AvatarUrl = null,
+    string? CheckInTimeTarget = null,
+    string? CheckOutTimeTarget = null
 );
 // For updating password, locking account, or assigning roles, we can use dedicated endpoints/methods.
