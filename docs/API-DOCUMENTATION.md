@@ -165,17 +165,17 @@
 
 ### 📍 Attendances — Chấm công (`/api/attendances`)
 
-|-----|-------------------------------|-----------|------------------------------------------------------|---------------------------------------------------|
-| #   | Tên API                       | Method    | URL                                                  | Chức năng                                         |
-|-----|-------------------------------|-----------|------------------------------------------------------|---------------------------------------------------|
-| 72  | Tạo vị trí chấm công          | `POST`    | `/api/attendances/locations`                         | Tạo vị trí chấm công mới                          |
-| 73  | Cập nhật vị trí chấm công     | `PUT`     | `/api/attendances/locations/{id}`                    | Cập nhật thông tin vị trí                         |
-| 74  | Chi tiết vị trí chấm công     | `GET`     | `/api/attendances/locations/{id}`                    | Lấy thông tin một vị trí chấm công               |
-| 75  | DS vị trí chấm công           | `GET`     | `/api/attendances/locations`                         | Lấy danh sách vị trí chấm công (phân trang)      |
-| 76  | Chấm công (vào/ra)            | `POST`    | `/api/attendances/check-in?latitude=&longitude=`     | Chấm công vào hoặc ra, tọa độ qua query string   |
-| 77  | Trạng thái chấm công hôm nay  | `GET`     | `/api/attendances/today`                             | Lấy trạng thái chấm công hôm nay của bản thân   |
-| 78  | Lịch sử chấm công             | `GET`     | `/api/attendances/logs`                              | Lấy log chấm công (phân trang, lọc theo ngày)    |
-|-----|-------------------------------|-----------|------------------------------------------------------|---------------------------------------------------|
+|-----|-------------------------------|-----------|-------------------------------------------------|-------------------------------------------------|
+| #   | Tên API                       | Method    | URL                                             | Chức năng                                       |
+|-----|-------------------------------|-----------|-------------------------------------------------|-------------------------------------------------|
+| 72  | Tạo vị trí chấm công          | `POST`    | `/api/attendances/locations`                    | Tạo vị trí chấm công mới                        |
+| 73  | Cập nhật vị trí chấm công     | `PUT`     | `/api/attendances/locations/{id}`               | Cập nhật thông tin vị trí                       |
+| 74  | Chi tiết vị trí chấm công     | `GET`     | `/api/attendances/locations/{id}`               | Lấy thông tin một vị trí chấm công              |
+| 75  | DS vị trí chấm công           | `GET`     | `/api/attendances/locations`                    | Lấy danh sách vị trí chấm công (phân trang)     |
+| 76  | Chấm công (vào/ra)            | `POST`    | `/api/attendances/check-in?latitude=&longitude=`| Chấm công vào hoặc ra, tọa độ qua query string  |
+| 77  | Trạng thái chấm công hôm nay  | `GET`     | `/api/attendances/today`                        | Lấy trạng thái chấm công hôm nay của bản thân   |
+| 78  | Lịch sử chấm công             | `GET`     | `/api/attendances/logs`                         | Lấy log chấm công (phân trang, lọc theo ngày)   |
+|-----|-------------------------------|-----------|-------------------------------------------------|-------------------------------------------------|
 
 ### 🏥 System — Health Check (`/api/health`)
 
