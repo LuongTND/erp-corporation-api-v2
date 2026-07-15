@@ -1,7 +1,6 @@
-using Domain.Enums.Tasks;
-using TaskStatus = Domain.Enums.Tasks.TaskStatus;
+using TaskStatus = global::Domain.TaskStatus;
 
-namespace Application.DTOs.Tasks;
+namespace Application;
 
 public class TaskDto
 {

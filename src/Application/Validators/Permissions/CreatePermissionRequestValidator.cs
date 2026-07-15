@@ -1,7 +1,4 @@
-using Application.DTOs.Permissions;
-using FluentValidation;
-
-namespace Application.Validators.Permissions;
+namespace Application;
 
 public class CreatePermissionRequestValidator : AbstractValidator<CreatePermissionRequest>
 {

@@ -1,7 +1,4 @@
-using Application.DTOs.JobLevels;
-using FluentValidation;
-
-namespace Application.Validators.JobLevels;
+namespace Application;
 
 public class UpdateJobLevelRequestValidator : AbstractValidator<UpdateJobLevelRequest>
 {

@@ -1,5 +1,4 @@
-namespace Application.Interfaces.Services.Auth;
-
+namespace Application;
 public interface ICurrentUserService
 {
     Guid? UserId { get; }

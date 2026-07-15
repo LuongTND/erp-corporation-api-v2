@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Enums.Chat;
 
-namespace Domain.Entities.Chat;
-
+namespace Domain;
 public class Conversation : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public ConversationType ConversationType { get; private set; }

@@ -1,7 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Infrastructure.Persistence.Configurations.JobLevels;
+namespace Infrastructure;
 
 public class JobLevelConfiguration : IEntityTypeConfiguration<JobLevel>
 {

@@ -1,22 +1,6 @@
-using Application.Common.Exceptions;
-using Application.Common.Mapping;
-using Application.Common.Models;
-using Application.DTOs.Users;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Users;
-using Application.Interfaces.Repositories.Departments;
-using Application.Interfaces.Repositories.Roles;
-using Application.Interfaces.Repositories.JobLevels;
-using Application.Interfaces.Services.Users;
-using Application.Interfaces.Services.Auth;
-using Application.Constants;
-using Application.Interfaces.Services.Notifications;
-using AutoMapper;
-using Infrastructure.Security;
-using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 
-namespace Infrastructure.Implementations.Services.Users;
+namespace Infrastructure;
 
 public class UserService : IUserService
 {
@@ -369,7 +353,8 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<IReadOnlyList<UserDepartmentDto>> GetSecondaryDepartmentsAsync(Guid userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<UserDepartmentDto>> GetSecondaryDepartmentsAsync(Guid userId,
+        CancellationToken ct = default)
     {
         var user = await _userRepository.GetByIdAsync(userId, ct);
         if (user == null)
@@ -380,7 +365,8 @@ public class UserService : IUserService
         return _mapper.Map<List<UserDepartmentDto>>(secondaryDepts);
     }
 
-    public async Task<UserDepartmentDto> AddSecondaryDepartmentAsync(Guid userId, AddUserDepartmentRequest request, CancellationToken ct = default)
+    public async Task<UserDepartmentDto> AddSecondaryDepartmentAsync(Guid userId, AddUserDepartmentRequest request,
+        CancellationToken ct = default)
     {
         await _addDeptValidator.ValidateAndThrowAsync(request, ct);
 
@@ -399,7 +385,8 @@ public class UserService : IUserService
         if (exists)
             throw new ConflictException("Nhân sự đang kiêm nhiệm phòng ban này rồi.");
 
-        var userDept = UserDepartment.Create(userId, request.DepartmentId, isPrimary: false, request.StartDate, request.EndDate);
+        var userDept = UserDepartment.Create(userId, request.DepartmentId, isPrimary: false, request.StartDate,
+            request.EndDate);
         await _userDeptRepository.AddAsync(userDept, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
@@ -452,5 +439,4 @@ public class UserService : IUserService
             },
             cancellationToken: ct);
     }
-
 }

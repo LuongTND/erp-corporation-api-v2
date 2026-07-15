@@ -1,6 +1,3 @@
-using Application.DTOs.JobLevels;
-using Application.Interfaces.Services.Common;
 
-namespace Application.Interfaces.Services.JobLevels;
-
+namespace Application;
 public interface IJobLevelService : ICrudService<JobLevelDto, CreateJobLevelRequest, UpdateJobLevelRequest>;

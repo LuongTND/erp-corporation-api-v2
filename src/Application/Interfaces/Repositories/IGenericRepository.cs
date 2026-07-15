@@ -1,7 +1,5 @@
-using Domain.Base;
 
-namespace Application.Interfaces.Repositories;
-
+namespace Application;
 public interface IGenericRepository<T> where T : BaseEntity
 {
     Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

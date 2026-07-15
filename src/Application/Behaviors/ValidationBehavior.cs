@@ -1,7 +1,4 @@
-using FluentValidation;
-using MediatR;
-
-namespace Application.Behaviors;
+namespace Application;
 
 public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull

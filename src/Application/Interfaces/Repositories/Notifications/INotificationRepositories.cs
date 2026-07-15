@@ -1,8 +1,5 @@
-using Application.Common.Models;
-using Application.Interfaces.Repositories;
 
-namespace Application.Interfaces.Repositories.Notifications;
-
+namespace Application;
 public interface INotificationEventTypeRepository : IGenericRepository<NotificationEventType>
 {
     Task<PaginatedResult<NotificationEventType>> GetPagedAsync(PaginationQuery query, string? module, bool? isActive, CancellationToken ct = default);

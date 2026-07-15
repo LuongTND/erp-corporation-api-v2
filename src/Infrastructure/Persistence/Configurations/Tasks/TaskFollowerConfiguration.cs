@@ -1,8 +1,4 @@
-using Domain.Entities.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Infrastructure.Persistence.Configurations.Tasks;
+namespace Infrastructure;
 
 public class TaskFollowerConfiguration : IEntityTypeConfiguration<TaskFollower>
 {

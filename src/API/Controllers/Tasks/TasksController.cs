@@ -1,11 +1,4 @@
-using API.Base;
-using API.Filters;
-using Application.Common.Models;
-using Application.DTOs.Tasks;
-using Application.Interfaces.Services.Tasks;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Controllers.Tasks;
+namespace API;
 
 public class TasksController : BaseApiController
 {
@@ -18,7 +11,8 @@ public class TasksController : BaseApiController
 
     [HttpGet]
     [AuthorizePermission("task.item.read")]
-    public async Task<ActionResult<PaginatedResult<TaskDto>>> GetPaged([FromQuery] TaskQuery query, CancellationToken ct)
+    public async Task<ActionResult<PaginatedResult<TaskDto>>> GetPaged([FromQuery] TaskQuery query,
+        CancellationToken ct)
     {
         var result = await _taskService.GetPagedAsync(query, ct);
         return Ok(result);
@@ -66,7 +60,8 @@ public class TasksController : BaseApiController
 
     [HttpPost("{id:guid}/comments")]
     [AuthorizePermission("task.comment.create")]
-    public async Task<ActionResult<TaskCommentDto>> AddComment(Guid id, [FromBody] CreateCommentRequest request, CancellationToken ct)
+    public async Task<ActionResult<TaskCommentDto>> AddComment(Guid id, [FromBody] CreateCommentRequest request,
+        CancellationToken ct)
     {
         var comment = await _taskService.AddCommentAsync(id, request, ct);
         return Ok(comment);

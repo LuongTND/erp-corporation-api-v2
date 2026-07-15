@@ -1,9 +1,4 @@
-using API.Hubs;
-using Application.DTOs.Notifications;
-using Application.Interfaces.Services.Notifications;
-using Microsoft.AspNetCore.SignalR;
-
-namespace API.Services;
+namespace API;
 
 public class SignalRNotificationSender : INotificationRealtimeSender
 {
@@ -14,7 +9,8 @@ public class SignalRNotificationSender : INotificationRealtimeSender
         _hubContext = hubContext;
     }
 
-    public async Task SendToUserAsync(Guid userId, RealtimeNotificationPayload payload, CancellationToken cancellationToken = default)
+    public async Task SendToUserAsync(Guid userId, RealtimeNotificationPayload payload,
+        CancellationToken cancellationToken = default)
     {
         await _hubContext.Clients
             .User(userId.ToString())

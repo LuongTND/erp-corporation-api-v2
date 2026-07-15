@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Infrastructure.Implementations.Services.Notifications;
+namespace Infrastructure;
 
 public static partial class TemplateRenderer
 {

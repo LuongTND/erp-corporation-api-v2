@@ -1,6 +1,5 @@
 
-namespace Application.Interfaces.Services.Auth;
-
+namespace Application;
 public sealed record UserScopeContext(
     ScopeType Scope,
     IReadOnlyList<Guid> AccessibleDepartmentIds);

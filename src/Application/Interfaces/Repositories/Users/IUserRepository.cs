@@ -1,7 +1,5 @@
-using Application.Common.Models;
 
-namespace Application.Interfaces.Repositories.Users;
-
+namespace Application;
 public interface IUserRepository : IGenericRepository<User>
 {
     Task<User?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default);

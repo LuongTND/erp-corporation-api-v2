@@ -1,9 +1,4 @@
-using Application.Common.Notifications;
-using Infrastructure.Persistence.Seed;
-using Infrastructure.Security;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Persistence;
+namespace Infrastructure;
 
 public static class DbInitializer
 {
@@ -106,7 +101,8 @@ public static class DbInitializer
 
         foreach (var seed in NotificationInitialData.Triggers)
         {
-            var entity = await context.NotificationTriggerBindings.FirstOrDefaultAsync(x => x.TriggerKey == seed.TriggerKey);
+            var entity =
+                await context.NotificationTriggerBindings.FirstOrDefaultAsync(x => x.TriggerKey == seed.TriggerKey);
             if (entity == null)
             {
                 entity = NotificationTriggerBinding.Create(
@@ -197,7 +193,8 @@ public static class DbInitializer
 
         foreach (var seed in InitialData.Permissions)
         {
-            var permission = await context.Permissions.FirstOrDefaultAsync(p => p.PermissionCode == seed.PermissionCode);
+            var permission =
+                await context.Permissions.FirstOrDefaultAsync(p => p.PermissionCode == seed.PermissionCode);
             if (permission == null)
             {
                 permission = Permission.Create(

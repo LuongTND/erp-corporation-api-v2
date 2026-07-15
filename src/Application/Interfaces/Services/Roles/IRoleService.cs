@@ -1,8 +1,5 @@
-using Application.Common.Models;
-using Application.DTOs.Roles;
 
-namespace Application.Interfaces.Services.Roles;
-
+namespace Application;
 public interface IRoleService
 {
     Task<RoleDto> GetByIdAsync(Guid id, CancellationToken ct = default);

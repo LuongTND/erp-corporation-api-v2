@@ -1,7 +1,5 @@
-using Domain.Entities.Users;
 
-namespace Domain.Entities.Chat;
-
+namespace Domain;
 public class MessageReadStatus
 {
     public Guid MessageID { get; private set; }

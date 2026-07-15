@@ -1,7 +1,5 @@
-using Application.Common.Models;
 
-namespace Application.Interfaces.Repositories.Departments;
-
+namespace Application;
 public interface IDepartmentRepository : IGenericRepository<Department>
 {
     Task<Department?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default);

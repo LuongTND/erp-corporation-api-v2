@@ -1,5 +1,4 @@
-
-namespace Application.DTOs.JobLevels;
+namespace Application;
 
 public record UpdateJobLevelRequest(
     string LevelName,

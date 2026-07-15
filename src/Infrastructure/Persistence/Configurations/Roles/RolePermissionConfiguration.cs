@@ -1,7 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Infrastructure.Persistence.Configurations.Roles;
+namespace Infrastructure;
 
 public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermission>
 {

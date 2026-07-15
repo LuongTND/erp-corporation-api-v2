@@ -1,9 +1,4 @@
-using API.Base;
-using Application.Interfaces.Services.Auth;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-
-namespace API.Filters;
+namespace API;
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class RequireCrudPermissionAttribute : Attribute, IAsyncActionFilter
@@ -25,7 +20,7 @@ public sealed class RequireCrudPermissionAttribute : Attribute, IAsyncActionFilt
 
         var permissionCode = provider.Permissions.Get(_operation);
         var currentUserService = context.HttpContext.RequestServices.GetRequiredService<ICurrentUserService>();
-        var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthorizationService>();
+        var authService = context.HttpContext.RequestServices.GetRequiredService<Application.IAuthorizationService>();
 
         var userId = currentUserService.UserId;
         if (!userId.HasValue)

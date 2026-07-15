@@ -1,20 +1,6 @@
-using Application.Common.Exceptions;
-using Application.Common.Mapping;
-using Application.Common.Models;
-using Application.DTOs.Tasks;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Tasks;
-using Application.Interfaces.Services.Tasks;
-using Application.Interfaces.Services.Auth;
-using AutoMapper;
-using Domain.Entities.Tasks;
-using Domain.Enums.Tasks;
-using Domain.Enums.JobLevels;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.Extensions;
-using TaskStatus = Domain.Enums.Tasks.TaskStatus;
+using TaskStatus = global::Domain.TaskStatus;
 
-namespace Infrastructure.Implementations.Services.Tasks;
+namespace Infrastructure;
 
 public class TaskService : ITaskService
 {
@@ -50,8 +36,8 @@ public class TaskService : ITaskService
         if (scopeContext.Scope != ScopeType.All)
         {
             var hasAccess = false;
-            var isRelated = task.CreatedBy == currentUserId || 
-                            task.Assignees.Any(a => a.UserID == currentUserId) || 
+            var isRelated = task.CreatedBy == currentUserId ||
+                            task.Assignees.Any(a => a.UserID == currentUserId) ||
                             task.Followers.Any(f => f.UserID == currentUserId);
 
             if (isRelated)
@@ -60,15 +46,20 @@ public class TaskService : ITaskService
             }
             else if (scopeContext.Scope == ScopeType.Team)
             {
-                var isSubordinateRelated = task.Assignees.Any(a => a.User != null && a.User.ManagerId == currentUserId) ||
-                                           task.Followers.Any(f => f.User != null && f.User.ManagerId == currentUserId);
+                var isSubordinateRelated =
+                    task.Assignees.Any(a => a.User != null && a.User.ManagerId == currentUserId) ||
+                    task.Followers.Any(f => f.User != null && f.User.ManagerId == currentUserId);
                 if (isSubordinateRelated)
                     hasAccess = true;
             }
             else if (scopeContext.Scope == ScopeType.Department)
             {
-                var isDeptRelated = task.Assignees.Any(a => a.User != null && scopeContext.AccessibleDepartmentIds.Contains(a.User.DepartmentId)) ||
-                                    task.Followers.Any(f => f.User != null && scopeContext.AccessibleDepartmentIds.Contains(f.User.DepartmentId));
+                var isDeptRelated = task.Assignees.Any(a =>
+                                        a.User != null &&
+                                        scopeContext.AccessibleDepartmentIds.Contains(a.User.DepartmentId)) ||
+                                    task.Followers.Any(f =>
+                                        f.User != null &&
+                                        scopeContext.AccessibleDepartmentIds.Contains(f.User.DepartmentId));
                 if (isDeptRelated)
                     hasAccess = true;
             }
@@ -87,9 +78,9 @@ public class TaskService : ITaskService
 
         var queryable = _taskRepository.GetQueryable()
             .Include(t => t.Assignees)
-                .ThenInclude(a => a.User)
+            .ThenInclude(a => a.User)
             .Include(t => t.Followers)
-                .ThenInclude(f => f.User)
+            .ThenInclude(f => f.User)
             .Include(t => t.TaskKpis)
             .Include(t => t.TaskLmsCourses)
             .Where(t => t.IsActive)
@@ -99,17 +90,29 @@ public class TaskService : ITaskService
         {
             queryable = scopeContext.Scope switch
             {
-                ScopeType.Own => queryable.Where(t => t.CreatedBy == currentUserId || 
-                                                     t.Assignees.Any(a => a.UserID == currentUserId) || 
-                                                     t.Followers.Any(f => f.UserID == currentUserId)),
-                ScopeType.Team => queryable.Where(t => t.CreatedBy == currentUserId || 
-                                                      t.Assignees.Any(a => a.UserID == currentUserId || (a.User != null && a.User.ManagerId == currentUserId)) || 
-                                                      t.Followers.Any(f => f.UserID == currentUserId || (f.User != null && f.User.ManagerId == currentUserId))),
-                ScopeType.Department => queryable.Where(t => t.CreatedBy == currentUserId || 
-                                                            t.Assignees.Any(a => a.UserID == currentUserId || (a.User != null && scopeContext.AccessibleDepartmentIds.Contains(a.User.DepartmentId))) || 
-                                                            t.Followers.Any(f => f.UserID == currentUserId || (f.User != null && scopeContext.AccessibleDepartmentIds.Contains(f.User.DepartmentId)))),
-                _ => queryable.Where(t => t.CreatedBy == currentUserId || 
-                                          t.Assignees.Any(a => a.UserID == currentUserId) || 
+                ScopeType.Own => queryable.Where(t => t.CreatedBy == currentUserId ||
+                                                      t.Assignees.Any(a => a.UserID == currentUserId) ||
+                                                      t.Followers.Any(f => f.UserID == currentUserId)),
+                ScopeType.Team => queryable.Where(t => t.CreatedBy == currentUserId ||
+                                                       t.Assignees.Any(a =>
+                                                           a.UserID == currentUserId || (a.User != null &&
+                                                               a.User.ManagerId == currentUserId)) ||
+                                                       t.Followers.Any(f =>
+                                                           f.UserID == currentUserId || (f.User != null &&
+                                                               f.User.ManagerId == currentUserId))),
+                ScopeType.Department => queryable.Where(t => t.CreatedBy == currentUserId ||
+                                                             t.Assignees.Any(a =>
+                                                                 a.UserID == currentUserId ||
+                                                                 (a.User != null &&
+                                                                  scopeContext.AccessibleDepartmentIds.Contains(
+                                                                      a.User.DepartmentId))) ||
+                                                             t.Followers.Any(f =>
+                                                                 f.UserID == currentUserId ||
+                                                                 (f.User != null &&
+                                                                  scopeContext.AccessibleDepartmentIds.Contains(
+                                                                      f.User.DepartmentId)))),
+                _ => queryable.Where(t => t.CreatedBy == currentUserId ||
+                                          t.Assignees.Any(a => a.UserID == currentUserId) ||
                                           t.Followers.Any(f => f.UserID == currentUserId))
             };
         }
@@ -117,8 +120,8 @@ public class TaskService : ITaskService
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
             var search = query.Search.Trim().ToLower();
-            queryable = queryable.Where(t => t.Title.ToLower().Contains(search) || 
-                                             t.TaskCode.ToLower().Contains(search) || 
+            queryable = queryable.Where(t => t.Title.ToLower().Contains(search) ||
+                                             t.TaskCode.ToLower().Contains(search) ||
                                              (t.Description != null && t.Description.ToLower().Contains(search)));
         }
 
@@ -179,7 +182,7 @@ public class TaskService : ITaskService
             var isPrimary = request.PrimaryAssigneeId == userId;
             task.Assignees.Add(TaskAssignee.Create(task.Id, userId, currentUserId, isPrimary));
         }
-        
+
         if (request.PrimaryAssigneeId.HasValue && !request.AssigneeIds.Contains(request.PrimaryAssigneeId.Value))
         {
             task.Assignees.Add(TaskAssignee.Create(task.Id, request.PrimaryAssigneeId.Value, currentUserId, true));
@@ -200,7 +203,8 @@ public class TaskService : ITaskService
             task.TaskLmsCourses.Add(TaskLmsCourse.Create(task.Id, courseId));
         }
 
-        task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.Created, null, request.Title));
+        task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.Created, null,
+            request.Title));
 
         await _taskRepository.AddAsync(task, ct);
         await _unitOfWork.SaveChangesAsync(ct);
@@ -238,23 +242,30 @@ public class TaskService : ITaskService
 
         if (originalStatus != task.Status)
         {
-            task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.StatusChanged, originalStatus.ToString(), task.Status.ToString()));
+            task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.StatusChanged,
+                originalStatus.ToString(), task.Status.ToString()));
             if (task.Status == TaskStatus.Done)
             {
-                task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.Completed, null, null));
+                task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.Completed, null,
+                    null));
             }
             else if (task.Status == TaskStatus.Cancelled)
             {
-                task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.Cancelled, null, null));
+                task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.Cancelled, null,
+                    null));
             }
         }
+
         if (originalProgress != task.Progress)
         {
-            task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.ProgressUpdated, originalProgress.ToString(), task.Progress.ToString()));
+            task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.ProgressUpdated,
+                originalProgress.ToString(), task.Progress.ToString()));
         }
+
         if (originalDueDate != task.DueDate)
         {
-            task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.DueDateChanged, originalDueDate?.ToString("yyyy-MM-dd HH:mm:ss"), task.DueDate?.ToString("yyyy-MM-dd HH:mm:ss")));
+            task.ActivityLogs.Add(TaskActivityLog.Create(task.Id, currentUserId, TaskActivityAction.DueDateChanged,
+                originalDueDate?.ToString("yyyy-MM-dd HH:mm:ss"), task.DueDate?.ToString("yyyy-MM-dd HH:mm:ss")));
         }
 
         _taskRepository.Update(task);
@@ -274,7 +285,8 @@ public class TaskService : ITaskService
         await _unitOfWork.SaveChangesAsync(ct);
     }
 
-    public async Task<TaskCommentDto> AddCommentAsync(Guid taskId, CreateCommentRequest request, CancellationToken ct = default)
+    public async Task<TaskCommentDto> AddCommentAsync(Guid taskId, CreateCommentRequest request,
+        CancellationToken ct = default)
     {
         var currentUserId = _currentUserService.UserId ?? Guid.Empty;
         var task = await _taskRepository.GetByIdAsync(taskId, ct);
@@ -284,7 +296,8 @@ public class TaskService : ITaskService
         var comment = TaskComment.Create(taskId, currentUserId, request.Content, request.ParentCommentID);
         task.Comments.Add(comment);
 
-        task.ActivityLogs.Add(TaskActivityLog.Create(taskId, currentUserId, TaskActivityAction.CommentAdded, null, request.Content.Length > 50 ? request.Content.Substring(0, 50) + "..." : request.Content));
+        task.ActivityLogs.Add(TaskActivityLog.Create(taskId, currentUserId, TaskActivityAction.CommentAdded, null,
+            request.Content.Length > 50 ? request.Content.Substring(0, 50) + "..." : request.Content));
 
         await _unitOfWork.SaveChangesAsync(ct);
 
@@ -307,7 +320,7 @@ public class TaskService : ITaskService
             .SelectMany(t => t.Comments)
             .Include(c => c.User)
             .Include(c => c.Replies)
-                .ThenInclude(r => r.User)
+            .ThenInclude(r => r.User)
             .Where(c => c.ParentCommentID == null)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync(ct);

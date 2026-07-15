@@ -1,5 +1,4 @@
-namespace Domain.Entities.Roles;
-
+namespace Domain;
 public class RolePermission
 {
     public Guid RoleId { get; private set; }

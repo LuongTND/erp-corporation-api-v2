@@ -1,16 +1,4 @@
-using Application.Common.Exceptions;
-using Application.Common.Mapping;
-using Application.Common.Models;
-using Application.Constants;
-using Application.DTOs.Departments;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Departments;
-using Application.Interfaces.Repositories.Users;
-using Application.Interfaces.Services.Departments;
-using Application.Interfaces.Services.Notifications;
-using AutoMapper;
-
-namespace Infrastructure.Implementations.Services.Departments;
+namespace Infrastructure;
 
 public class DepartmentService : IDepartmentService
 {
@@ -50,7 +38,8 @@ public class DepartmentService : IDepartmentService
         return _mapper.Map<DepartmentDto>(dept);
     }
 
-    public async Task<PaginatedResult<DepartmentDto>> GetPagedAsync(PaginationQuery query, CancellationToken ct = default)
+    public async Task<PaginatedResult<DepartmentDto>> GetPagedAsync(PaginationQuery query,
+        CancellationToken ct = default)
     {
         var result = await _departmentRepository.GetPagedWithDetailsAsync(query, ct);
         return PaginationMapper.Map<Department, DepartmentDto>(result, _mapper);
@@ -104,14 +93,16 @@ public class DepartmentService : IDepartmentService
         return await GetByIdAsync(dept.Id, ct);
     }
 
-    public async Task<DepartmentDto> UpdateAsync(Guid id, UpdateDepartmentRequest request, CancellationToken ct = default)
+    public async Task<DepartmentDto> UpdateAsync(Guid id, UpdateDepartmentRequest request,
+        CancellationToken ct = default)
     {
         var dept = await _departmentRepository.GetByIdAsync(id, ct);
         if (dept == null)
             throw new NotFoundException("Không tìm thấy phòng ban cần cập nhật.");
 
         var codeUpper = request.DepartmentCode.ToUpperInvariant();
-        if (dept.DepartmentCode != codeUpper && await _departmentRepository.ExistsByCodeExcludeIdAsync(codeUpper, id, ct))
+        if (dept.DepartmentCode != codeUpper &&
+            await _departmentRepository.ExistsByCodeExcludeIdAsync(codeUpper, id, ct))
             throw new ConflictException($"Mã phòng ban '{request.DepartmentCode}' đã tồn tại.");
 
         if (request.ParentDepartmentId.HasValue)
@@ -166,7 +157,8 @@ public class DepartmentService : IDepartmentService
         while (currentParentId != Guid.Empty)
         {
             if (currentParentId == departmentId)
-                throw new ConflictException("Tạo chu trình phân cấp: Phòng ban cha được chọn đang là con hoặc cháu của phòng ban hiện tại.");
+                throw new ConflictException(
+                    "Tạo chu trình phân cấp: Phòng ban cha được chọn đang là con hoặc cháu của phòng ban hiện tại.");
 
             var parent = await _departmentRepository.GetByIdAsync(currentParentId, ct);
             currentParentId = parent?.ParentDepartmentId ?? Guid.Empty;

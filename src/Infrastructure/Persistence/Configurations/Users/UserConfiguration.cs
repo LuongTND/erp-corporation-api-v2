@@ -1,7 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Infrastructure.Persistence.Configurations.Users;
+namespace Infrastructure;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {

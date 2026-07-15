@@ -1,8 +1,4 @@
-using Domain.Entities.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Infrastructure.Persistence.Configurations.Tasks;
+namespace Infrastructure;
 
 public class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
 {
@@ -11,7 +7,7 @@ public class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
         builder.ToTable("Tasks");
 
         builder.HasKey(x => x.Id);
-        
+
         builder.Property(x => x.Id)
             .HasColumnName("TaskID");
 

@@ -1,4 +1,4 @@
-namespace API.Base;
+namespace API;
 
 public sealed class CrudPermissions
 {

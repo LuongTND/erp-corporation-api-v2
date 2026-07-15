@@ -1,4 +1,4 @@
-namespace Application.Common.Exceptions;
+namespace Application;
 
 public class ConflictException : Exception
 {

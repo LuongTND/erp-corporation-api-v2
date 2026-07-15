@@ -1,4 +1,4 @@
-namespace Application.Constants;
+namespace Application;
 
 public static class NotificationTriggers
 {

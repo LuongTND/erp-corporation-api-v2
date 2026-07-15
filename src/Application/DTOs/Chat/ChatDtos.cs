@@ -1,6 +1,4 @@
-using Domain.Enums.Chat;
-
-namespace Application.DTOs.Chat;
+namespace Application;
 
 public class ConversationDto
 {

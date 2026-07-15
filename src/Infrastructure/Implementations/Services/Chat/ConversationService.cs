@@ -1,15 +1,4 @@
-using Application.Common.Exceptions;
-using Application.DTOs.Chat;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Chat;
-using Application.Interfaces.Services.Chat;
-using Application.Interfaces.Services.Auth;
-using AutoMapper;
-using Domain.Entities.Chat;
-using Domain.Enums.Chat;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Services.Chat;
+namespace Infrastructure;
 
 public class ConversationService : IConversationService
 {
@@ -52,7 +41,7 @@ public class ConversationService : IConversationService
             .Include(m => m.User)
             .Include(m => m.Attachments)
             .Include(m => m.Reactions)
-                .ThenInclude(r => r.User)
+            .ThenInclude(r => r.User)
             .Where(m => m.ConversationID == id && !m.IsDeleted)
             .OrderByDescending(m => m.CreatedAt)
             .FirstOrDefaultAsync(ct);
@@ -87,7 +76,7 @@ public class ConversationService : IConversationService
                 .Include(m => m.User)
                 .Include(m => m.Attachments)
                 .Include(m => m.Reactions)
-                    .ThenInclude(r => r.User)
+                .ThenInclude(r => r.User)
                 .Where(m => m.ConversationID == conv.Id && !m.IsDeleted)
                 .OrderByDescending(m => m.CreatedAt)
                 .FirstOrDefaultAsync(ct);
@@ -132,7 +121,8 @@ public class ConversationService : IConversationService
         }
 
         // Log activity
-        conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId, ConversationActivityAction.MemberJoined, $"Người tạo tạo cuộc hội thoại và tham gia"));
+        conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId,
+            ConversationActivityAction.MemberJoined, $"Người tạo tạo cuộc hội thoại và tham gia"));
 
         await _conversationRepository.AddAsync(conv, ct);
         await _unitOfWork.SaveChangesAsync(ct);
@@ -140,7 +130,8 @@ public class ConversationService : IConversationService
         return await GetByIdAsync(conv.Id, ct);
     }
 
-    public async Task<ConversationDto> GetOrCreateDirectConversationAsync(Guid otherUserId, CancellationToken ct = default)
+    public async Task<ConversationDto> GetOrCreateDirectConversationAsync(Guid otherUserId,
+        CancellationToken ct = default)
     {
         var currentUserId = _currentUserService.UserId ?? Guid.Empty;
         if (currentUserId == otherUserId)
@@ -197,7 +188,8 @@ public class ConversationService : IConversationService
             throw new ForbiddenException("Bạn không phải thành viên của cuộc hội thoại này.");
 
         conv.SetArchived(isArchived);
-        conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId, isArchived ? ConversationActivityAction.Archived : ConversationActivityAction.Unarchived));
+        conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId,
+            isArchived ? ConversationActivityAction.Archived : ConversationActivityAction.Unarchived));
 
         _conversationRepository.Update(conv);
         await _unitOfWork.SaveChangesAsync(ct);
@@ -222,8 +214,9 @@ public class ConversationService : IConversationService
         if (targetMember != null)
         {
             targetMember.Deactivate();
-            conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId, ConversationActivityAction.MemberLeft, $"Thành viên {userId} rời/bị xóa khỏi cuộc hội thoại."));
-            
+            conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId,
+                ConversationActivityAction.MemberLeft, $"Thành viên {userId} rời/bị xóa khỏi cuộc hội thoại."));
+
             _conversationRepository.Update(conv);
             await _unitOfWork.SaveChangesAsync(ct);
         }
@@ -248,13 +241,15 @@ public class ConversationService : IConversationService
                 if (!existingMember.IsActive)
                 {
                     existingMember.Reactivate();
-                    conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId, ConversationActivityAction.MemberJoined, $"Thành viên {userId} quay lại cuộc hội thoại."));
+                    conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId,
+                        ConversationActivityAction.MemberJoined, $"Thành viên {userId} quay lại cuộc hội thoại."));
                 }
             }
             else
             {
                 conv.Members.Add(ConversationMember.Create(conv.Id, userId, RoleInConversation.Member));
-                conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId, ConversationActivityAction.MemberJoined, $"Thành viên {userId} được thêm vào cuộc hội thoại."));
+                conv.ActivityLogs.Add(ConversationActivityLog.Create(conv.Id, currentUserId,
+                    ConversationActivityAction.MemberJoined, $"Thành viên {userId} được thêm vào cuộc hội thoại."));
             }
         }
 
@@ -262,7 +257,8 @@ public class ConversationService : IConversationService
         await _unitOfWork.SaveChangesAsync(ct);
     }
 
-    private async Task<int> CalculateUnreadCountAsync(Guid conversationId, Guid userId, Guid? lastReadMessageId, CancellationToken ct)
+    private async Task<int> CalculateUnreadCountAsync(Guid conversationId, Guid userId, Guid? lastReadMessageId,
+        CancellationToken ct)
     {
         if (lastReadMessageId.HasValue)
         {
@@ -270,16 +266,16 @@ public class ConversationService : IConversationService
             if (lastReadMsg != null)
             {
                 return await _messageRepository.GetQueryable()
-                    .CountAsync(m => m.ConversationID == conversationId && 
-                                     m.CreatedAt > lastReadMsg.CreatedAt && 
-                                     m.UserID != userId && 
+                    .CountAsync(m => m.ConversationID == conversationId &&
+                                     m.CreatedAt > lastReadMsg.CreatedAt &&
+                                     m.UserID != userId &&
                                      !m.IsDeleted, ct);
             }
         }
 
         return await _messageRepository.GetQueryable()
-            .CountAsync(m => m.ConversationID == conversationId && 
-                             m.UserID != userId && 
+            .CountAsync(m => m.ConversationID == conversationId &&
+                             m.UserID != userId &&
                              !m.IsDeleted, ct);
     }
 }

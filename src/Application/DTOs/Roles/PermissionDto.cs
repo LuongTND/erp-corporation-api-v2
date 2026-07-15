@@ -1,6 +1,4 @@
-using Application.Common.Models;
-
-namespace Application.DTOs.Roles;
+namespace Application;
 
 public class PermissionDto : IHasGuidId
 {

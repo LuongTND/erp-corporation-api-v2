@@ -1,8 +1,4 @@
-using Domain.Entities.Chat;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Infrastructure.Persistence.Configurations.Chat;
+namespace Infrastructure;
 
 public class MessageAttachmentConfiguration : IEntityTypeConfiguration<MessageAttachment>
 {

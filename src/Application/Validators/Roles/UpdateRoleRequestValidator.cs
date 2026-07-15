@@ -1,7 +1,4 @@
-using Application.DTOs.Roles;
-using FluentValidation;
-
-namespace Application.Validators.Roles;
+namespace Application;
 
 public class UpdateRoleRequestValidator : AbstractValidator<UpdateRoleRequest>
 {

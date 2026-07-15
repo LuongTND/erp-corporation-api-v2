@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Enums.Roles;
 
-namespace Domain.Entities.Roles;
-
+namespace Domain;
 public class Permission : BaseEntity, IAuditable
 {
     public string PermissionCode { get; private set; } = null!;

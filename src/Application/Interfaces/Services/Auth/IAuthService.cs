@@ -1,8 +1,5 @@
-using Application.DTOs.Auth;
-using Application.DTOs.Users;
 
-namespace Application.Interfaces.Services.Auth;
-
+namespace Application;
 public interface IAuthService
 {
     Task<TokenResponse> LoginAsync(LoginRequest request, CancellationToken ct = default);

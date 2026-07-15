@@ -1,9 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Users;
-using Domain.Enums.JobLevels;
 
-namespace Domain.Entities.JobLevels;
-
+namespace Domain;
 public class JobLevel : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public string LevelName { get; private set; } = null!;

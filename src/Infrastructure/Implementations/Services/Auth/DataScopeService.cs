@@ -1,9 +1,4 @@
-using Application.Interfaces.Repositories.Users;
-using Application.Interfaces.Repositories.Roles;
-using Application.Interfaces.Repositories.Departments;
-using Application.Interfaces.Services.Auth;
-
-namespace Infrastructure.Implementations.Services.Auth;
+namespace Infrastructure;
 
 public class DataScopeService : IDataScopeService
 {
@@ -61,7 +56,8 @@ public class DataScopeService : IDataScopeService
         return context.AccessibleDepartmentIds;
     }
 
-    public async Task<IQueryable<User>> ApplyUserScopeAsync(IQueryable<User> query, Guid userId, CancellationToken ct = default)
+    public async Task<IQueryable<User>> ApplyUserScopeAsync(IQueryable<User> query, Guid userId,
+        CancellationToken ct = default)
     {
         var context = await GetUserScopeContextAsync(userId, ct);
 

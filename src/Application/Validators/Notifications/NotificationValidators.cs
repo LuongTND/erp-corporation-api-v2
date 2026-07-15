@@ -1,7 +1,4 @@
-using Application.DTOs.Notifications;
-using FluentValidation;
-
-namespace Application.Validators.Notifications;
+namespace Application;
 
 public class CreateNotificationEventTypeRequestValidator : AbstractValidator<CreateNotificationEventTypeRequest>
 {
@@ -28,7 +25,8 @@ public class UpdateNotificationEventTypeRequestValidator : AbstractValidator<Upd
     }
 }
 
-public class UpdateNotificationTriggerBindingRequestValidator : AbstractValidator<UpdateNotificationTriggerBindingRequest>
+public class
+    UpdateNotificationTriggerBindingRequestValidator : AbstractValidator<UpdateNotificationTriggerBindingRequest>
 {
     public UpdateNotificationTriggerBindingRequestValidator()
     {

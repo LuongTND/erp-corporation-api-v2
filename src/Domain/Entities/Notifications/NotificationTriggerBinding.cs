@@ -1,7 +1,5 @@
-using Domain.Base;
 
-namespace Domain.Entities.Notifications;
-
+namespace Domain;
 public class NotificationTriggerBinding : BaseEntity
 {
     public string TriggerKey { get; private set; } = null!;

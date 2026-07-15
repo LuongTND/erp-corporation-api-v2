@@ -1,16 +1,4 @@
-using Application.Common.Exceptions;
-using Application.DTOs.Chat;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Chat;
-using Application.Interfaces.Services.Chat;
-using Application.Interfaces.Services.Auth;
-using AutoMapper;
-using Domain.Entities.Chat;
-using Domain.Enums.Chat;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.Persistence;
-
-namespace Infrastructure.Implementations.Services.Chat;
+namespace Infrastructure;
 
 public class MessageService : IMessageService
 {
@@ -37,7 +25,8 @@ public class MessageService : IMessageService
         _context = context;
     }
 
-    public async Task<List<MessageDto>> GetPagedMessagesAsync(Guid conversationId, int page, int pageSize, CancellationToken ct = default)
+    public async Task<List<MessageDto>> GetPagedMessagesAsync(Guid conversationId, int page, int pageSize,
+        CancellationToken ct = default)
     {
         var currentUserId = _currentUserService.UserId ?? Guid.Empty;
 
@@ -53,7 +42,8 @@ public class MessageService : IMessageService
         return _mapper.Map<List<MessageDto>>(messages);
     }
 
-    public async Task<MessageDto> SendMessageAsync(Guid conversationId, CreateMessageRequest request, CancellationToken ct = default)
+    public async Task<MessageDto> SendMessageAsync(Guid conversationId, CreateMessageRequest request,
+        CancellationToken ct = default)
     {
         var currentUserId = _currentUserService.UserId ?? Guid.Empty;
 
@@ -102,7 +92,7 @@ public class MessageService : IMessageService
             .Include(m => m.User)
             .Include(m => m.Attachments)
             .Include(m => m.Reactions)
-                .ThenInclude(r => r.User)
+            .ThenInclude(r => r.User)
             .Include(m => m.MessageTasks)
             .FirstOrDefaultAsync(m => m.Id == message.Id, ct);
 
@@ -115,7 +105,7 @@ public class MessageService : IMessageService
 
         var message = await _messageRepository.GetQueryable()
             .Include(m => m.Conversation)
-                .ThenInclude(c => c.Members)
+            .ThenInclude(c => c.Members)
             .FirstOrDefaultAsync(m => m.Id == messageId, ct);
 
         if (message == null || message.IsDeleted)
@@ -134,7 +124,7 @@ public class MessageService : IMessageService
             .Include(m => m.User)
             .Include(m => m.Attachments)
             .Include(m => m.Reactions)
-                .ThenInclude(r => r.User)
+            .ThenInclude(r => r.User)
             .Include(m => m.MessageTasks)
             .FirstOrDefaultAsync(m => m.Id == messageId, ct);
 
@@ -147,7 +137,7 @@ public class MessageService : IMessageService
 
         var message = await _messageRepository.GetQueryable()
             .Include(m => m.Conversation)
-                .ThenInclude(c => c.Members)
+            .ThenInclude(c => c.Members)
             .FirstOrDefaultAsync(m => m.Id == messageId, ct);
 
         if (message == null || message.IsDeleted)
@@ -166,13 +156,14 @@ public class MessageService : IMessageService
         await _unitOfWork.SaveChangesAsync(ct);
     }
 
-    public async Task<MessageReactionDto> ToggleReactionAsync(Guid messageId, string reactionType, CancellationToken ct = default)
+    public async Task<MessageReactionDto> ToggleReactionAsync(Guid messageId, string reactionType,
+        CancellationToken ct = default)
     {
         var currentUserId = _currentUserService.UserId ?? Guid.Empty;
 
         var message = await _messageRepository.GetQueryable()
             .Include(m => m.Conversation)
-                .ThenInclude(c => c.Members)
+            .ThenInclude(c => c.Members)
             .Include(m => m.Reactions)
             .FirstOrDefaultAsync(m => m.Id == messageId, ct);
 
@@ -183,8 +174,9 @@ public class MessageService : IMessageService
         if (member == null)
             throw new ForbiddenException("Bạn không phải thành viên của cuộc hội thoại này.");
 
-        var existingReaction = message.Reactions.FirstOrDefault(r => r.UserID == currentUserId && r.ReactionType == reactionType);
-        
+        var existingReaction =
+            message.Reactions.FirstOrDefault(r => r.UserID == currentUserId && r.ReactionType == reactionType);
+
         if (existingReaction != null)
         {
             // Remove reaction
@@ -208,7 +200,7 @@ public class MessageService : IMessageService
             var messageWithReactions = await _messageRepository.GetQueryable()
                 .AsNoTracking()
                 .Include(m => m.Reactions)
-                    .ThenInclude(r => r.User)
+                .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(m => m.Id == messageId, ct);
 
             var reactionDb = messageWithReactions?.Reactions.FirstOrDefault(r => r.Id == newReaction.Id);

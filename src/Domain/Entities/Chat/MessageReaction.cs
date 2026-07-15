@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Users;
 
-namespace Domain.Entities.Chat;
-
+namespace Domain;
 public class MessageReaction : BaseEntity
 {
     public Guid MessageID { get; private set; }

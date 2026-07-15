@@ -1,10 +1,4 @@
-using Application.Common.Models;
-using Application.Interfaces.Repositories.Roles;
-using Infrastructure.Extensions;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Repositories.Roles;
+namespace Infrastructure;
 
 public class RoleRepository : GenericRepository<Role>, IRoleRepository
 {
@@ -16,21 +10,23 @@ public class RoleRepository : GenericRepository<Role>, IRoleRepository
     {
         return await DbSet
             .Include(r => r.RolePermissions)
-                .ThenInclude(rp => rp.Permission)
+            .ThenInclude(rp => rp.Permission)
             .FirstOrDefaultAsync(r => r.Id == id, ct);
     }
 
-    public async Task<PaginatedResult<Role>> GetPagedWithPermissionsAsync(PaginationQuery query, CancellationToken ct = default)
+    public async Task<PaginatedResult<Role>> GetPagedWithPermissionsAsync(PaginationQuery query,
+        CancellationToken ct = default)
     {
         return await DbSet
             .AsNoTracking()
             .Include(r => r.RolePermissions)
-                .ThenInclude(rp => rp.Permission)
+            .ThenInclude(rp => rp.Permission)
             .OrderBy(r => r.RoleName)
             .ToPaginatedResultAsync(query, ct);
     }
 
-    public async Task<PaginatedResult<Permission>> GetPagedPermissionsAsync(PaginationQuery query, CancellationToken ct = default)
+    public async Task<PaginatedResult<Permission>> GetPagedPermissionsAsync(PaginationQuery query,
+        CancellationToken ct = default)
     {
         return await Context.Permissions
             .AsNoTracking()
@@ -44,7 +40,8 @@ public class RoleRepository : GenericRepository<Role>, IRoleRepository
         return await DbSet.AnyAsync(r => r.RoleName == name, ct);
     }
 
-    public async Task<List<Permission>> GetPermissionsByIdsAsync(List<Guid> permissionIds, CancellationToken ct = default)
+    public async Task<List<Permission>> GetPermissionsByIdsAsync(List<Guid> permissionIds,
+        CancellationToken ct = default)
     {
         return await Context.Permissions
             .Where(p => permissionIds.Contains(p.Id) && p.IsActive)

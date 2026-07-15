@@ -1,4 +1,4 @@
-namespace Application.DTOs.Roles;
+namespace Application;
 
 public record CreateRoleRequest(
     string RoleName,

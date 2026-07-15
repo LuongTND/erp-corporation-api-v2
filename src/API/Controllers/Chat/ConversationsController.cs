@@ -1,10 +1,4 @@
-using API.Base;
-using API.Filters;
-using Application.DTOs.Chat;
-using Application.Interfaces.Services.Chat;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Controllers.Chat;
+namespace API;
 
 public class ConversationsController : BaseApiController
 {
@@ -33,7 +27,8 @@ public class ConversationsController : BaseApiController
 
     [HttpPost]
     [AuthorizePermission("chat.conversation.create")]
-    public async Task<ActionResult<ConversationDto>> Create([FromBody] CreateConversationRequest request, CancellationToken ct)
+    public async Task<ActionResult<ConversationDto>> Create([FromBody] CreateConversationRequest request,
+        CancellationToken ct)
     {
         var conv = await _conversationService.CreateAsync(request, ct);
         return CreatedAtAction(nameof(GetById), new { id = conv.Id }, conv);
@@ -41,7 +36,8 @@ public class ConversationsController : BaseApiController
 
     [HttpPost("direct/{otherUserId:guid}")]
     [AuthorizePermission("chat.conversation.create")]
-    public async Task<ActionResult<ConversationDto>> GetOrCreateDirectConversation(Guid otherUserId, CancellationToken ct)
+    public async Task<ActionResult<ConversationDto>> GetOrCreateDirectConversation(Guid otherUserId,
+        CancellationToken ct)
     {
         var conv = await _conversationService.GetOrCreateDirectConversationAsync(otherUserId, ct);
         return Ok(conv);

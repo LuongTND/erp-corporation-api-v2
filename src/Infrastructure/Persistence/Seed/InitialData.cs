@@ -1,6 +1,5 @@
 
-namespace Infrastructure.Persistence.Seed;
-
+namespace Infrastructure;
 /// <summary>
 /// Dữ liệu khởi tạo hệ thống — chỉnh sửa tại đây khi cần bổ sung seed mới.
 /// DbInitializer đọc file này và ghi vào database khi setup lần đầu (DB chưa có nhân sự).
