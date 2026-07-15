@@ -1,7 +1,6 @@
 using System.Text.Json;
-using Domain.Events;
 
-namespace Infrastructure.Outbox;
+namespace Infrastructure;
 
 internal static class OutboxSerializer
 {
@@ -13,7 +12,7 @@ internal static class OutboxSerializer
     public static (string Type, string Payload) Serialize(IDomainEvent domainEvent)
     {
         var type = domainEvent.GetType().AssemblyQualifiedName
-            ?? throw new InvalidOperationException($"Cannot resolve type for {domainEvent.GetType().Name}.");
+                   ?? throw new InvalidOperationException($"Cannot resolve type for {domainEvent.GetType().Name}.");
 
         var payload = JsonSerializer.Serialize(domainEvent, domainEvent.GetType(), Options);
         return (type, payload);
@@ -22,10 +21,11 @@ internal static class OutboxSerializer
     public static object Deserialize(string typeName, string payload)
     {
         var type = ResolveType(typeName)
-            ?? throw new InvalidOperationException($"Unknown outbox event type: {typeName}.");
+                   ?? throw new InvalidOperationException($"Unknown outbox event type: {typeName}.");
 
         var notification = JsonSerializer.Deserialize(payload, type, Options)
-            ?? throw new InvalidOperationException($"Failed to deserialize outbox payload for {typeName}.");
+                           ?? throw new InvalidOperationException(
+                               $"Failed to deserialize outbox payload for {typeName}.");
 
         return notification;
     }

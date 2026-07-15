@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Enums.Notifications;
 
-namespace Domain.Entities.Notifications;
-
+namespace Domain;
 public class NotificationTemplate : BaseEntity, IAuditable
 {
     public Guid EventTypeId { get; private set; }

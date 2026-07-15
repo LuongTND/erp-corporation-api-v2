@@ -1,7 +1,5 @@
-using Application.Common.Models;
 
-namespace Application.Interfaces.Repositories.Permissions;
-
+namespace Application;
 public interface IPermissionRepository : IGenericRepository<Permission>
 {
     Task<PaginatedResult<Permission>> GetPagedAsync(PaginationQuery query, CancellationToken ct = default);

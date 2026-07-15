@@ -1,4 +1,4 @@
-namespace Application.DTOs.Notifications;
+namespace Application;
 
 public record NotificationRecipientRulesDto
 {

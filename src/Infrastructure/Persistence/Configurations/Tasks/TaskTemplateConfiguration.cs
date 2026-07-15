@@ -1,8 +1,4 @@
-using Domain.Entities.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Infrastructure.Persistence.Configurations.Tasks;
+namespace Infrastructure;
 
 public class TaskTemplateConfiguration : IEntityTypeConfiguration<TaskTemplate>
 {
@@ -26,7 +22,7 @@ public class TaskTemplateConfiguration : IEntityTypeConfiguration<TaskTemplate>
             .HasMaxLength(50)
             .HasConversion<string>();
 
-        builder.HasOne<Domain.Entities.Users.User>()
+        builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(x => x.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict);

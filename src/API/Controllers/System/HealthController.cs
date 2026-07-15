@@ -1,7 +1,4 @@
-using API.Base;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Controllers.System;
+namespace API;
 
 public class HealthController : BaseApiController
 {

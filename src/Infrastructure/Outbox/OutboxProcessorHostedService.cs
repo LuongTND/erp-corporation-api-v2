@@ -1,11 +1,9 @@
-using Infrastructure.Persistence;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Outbox;
+namespace Infrastructure;
 
 public sealed class OutboxProcessorHostedService : BackgroundService
 {
@@ -67,7 +65,8 @@ public sealed class OutboxProcessorHostedService : BackgroundService
             {
                 message.RetryCount++;
                 message.Error = ex.Message.Length > 4000 ? ex.Message[..4000] : ex.Message;
-                _logger.LogWarning(ex, "Outbox message {OutboxId} failed (retry {Retry})", message.Id, message.RetryCount);
+                _logger.LogWarning(ex, "Outbox message {OutboxId} failed (retry {Retry})", message.Id,
+                    message.RetryCount);
             }
         }
 

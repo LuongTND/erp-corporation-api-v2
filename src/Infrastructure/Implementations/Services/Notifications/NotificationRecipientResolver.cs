@@ -1,9 +1,4 @@
-using Application.DTOs.Notifications;
-using Application.Interfaces.Services.Notifications;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Services.Notifications;
+namespace Infrastructure;
 
 public class NotificationRecipientResolver : INotificationRecipientResolver
 {

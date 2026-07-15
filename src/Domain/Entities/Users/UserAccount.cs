@@ -1,8 +1,6 @@
 using System.Security.Cryptography;
-using Domain.Base;
 
-namespace Domain.Entities.Users;
-
+namespace Domain;
 public class UserAccount : BaseEntity
 {
     public Guid UserId { get; private set; }

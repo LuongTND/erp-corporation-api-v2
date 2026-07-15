@@ -1,7 +1,5 @@
-using Application.Common.Models;
 
-namespace Application.Interfaces.Repositories.Roles;
-
+namespace Application;
 public interface IRoleRepository : IGenericRepository<Role>
 {
     Task<Role?> GetByIdWithPermissionsAsync(Guid id, CancellationToken ct = default);

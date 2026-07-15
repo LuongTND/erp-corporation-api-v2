@@ -1,9 +1,3 @@
-using Application.Interfaces.Repositories;
-using Infrastructure.Extensions;
-using Infrastructure.Implementations.Repositories;
-using Infrastructure.Outbox;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,13 +18,13 @@ public static class DependencyInjection
         }
 
         services.AddSingleton(TimeProvider.System);
-        services.AddScoped<Infrastructure.Persistence.Interceptors.AuditSaveChangesInterceptor>();
+        services.AddScoped<AuditSaveChangesInterceptor>();
 
         services.AddDbContext<AppDbContext>((sp, options) =>
         {
-            var interceptor = sp.GetRequiredService<Infrastructure.Persistence.Interceptors.AuditSaveChangesInterceptor>();
+            var interceptor = sp.GetRequiredService<AuditSaveChangesInterceptor>();
             options.UseSqlServer(connectionString)
-                   .AddInterceptors(interceptor);
+                .AddInterceptors(interceptor);
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -1,7 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Infrastructure.Persistence.Configurations.Departments;
+namespace Infrastructure;
 
 public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 {

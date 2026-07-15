@@ -1,5 +1,4 @@
-namespace Domain.Enums.Chat;
-
+namespace Domain;
 public enum ConversationActivityAction
 {
     MemberJoined = 1,

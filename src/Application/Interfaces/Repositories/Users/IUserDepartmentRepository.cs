@@ -1,6 +1,5 @@
 
-namespace Application.Interfaces.Repositories.Users;
-
+namespace Application;
 public interface IUserDepartmentRepository : IGenericRepository<UserDepartment>
 {
     Task<List<UserDepartment>> GetSecondaryDepartmentsByUserIdAsync(Guid userId, CancellationToken ct = default);

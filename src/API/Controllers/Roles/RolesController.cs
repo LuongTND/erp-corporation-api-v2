@@ -1,11 +1,4 @@
-using API.Base;
-using API.Filters;
-using Application.Common.Models;
-using Application.DTOs.Roles;
-using Application.Interfaces.Services.Roles;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Controllers.Roles;
+namespace API;
 
 public class RolesController : BaseApiController
 {
@@ -19,7 +12,8 @@ public class RolesController : BaseApiController
     // API lấy tất cả các vai trò, dùng để hiển thị danh sách vai trò
     [HttpGet]
     [AuthorizePermission("system.role.read")]
-    public async Task<ActionResult<PaginatedResult<RoleDto>>> GetAll([FromQuery] PaginationQuery query, CancellationToken ct)
+    public async Task<ActionResult<PaginatedResult<RoleDto>>> GetAll([FromQuery] PaginationQuery query,
+        CancellationToken ct)
     {
         var result = await _roleService.GetPagedAsync(query, ct);
         return Ok(result);
@@ -37,11 +31,12 @@ public class RolesController : BaseApiController
     // API lấy danh sách quyền để gán cho vai trò (system.role.read)
     [HttpGet("permissions")]
     [AuthorizePermission("system.role.read")]
-    public async Task<ActionResult<PaginatedResult<PermissionDto>>> GetAllPermissions([FromQuery] PaginationQuery query, CancellationToken ct)
+    public async Task<ActionResult<PaginatedResult<PermissionDto>>> GetAllPermissions([FromQuery] PaginationQuery query,
+        CancellationToken ct)
     {
         var result = await _roleService.GetPagedPermissionsAsync(query, ct);
         return Ok(result);
-    }   
+    }
 
     // API tạo vai trò mới, sau khi tạo thành công sẽ trả về thông tin vai trò vừa tạo
     [HttpPost]
@@ -55,7 +50,8 @@ public class RolesController : BaseApiController
     // API cập nhật danh sách quyền cho vai trò, sau khi cập nhật thành công sẽ trả về thông báo
     [HttpPut("{id:guid}/permissions")]
     [AuthorizePermission("system.role.update")]
-    public async Task<IActionResult> UpdatePermissions(Guid id, [FromBody] UpdateRolePermissionsRequest request, CancellationToken ct)
+    public async Task<IActionResult> UpdatePermissions(Guid id, [FromBody] UpdateRolePermissionsRequest request,
+        CancellationToken ct)
     {
         await _roleService.UpdatePermissionsAsync(id, request, ct);
         return Ok(new { Message = "Cập nhật danh sách quyền cho vai trò thành công." });

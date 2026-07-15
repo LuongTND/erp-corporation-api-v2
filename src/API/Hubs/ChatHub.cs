@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
-namespace API.Hubs;
+namespace API;
 
 [Authorize]
 public class ChatHub : Hub
@@ -25,7 +24,8 @@ public class ChatHub : Hub
         var fullName = Context.User?.FindFirst(ClaimTypes.Name)?.Value;
         if (!string.IsNullOrEmpty(userId))
         {
-            await Clients.Group(conversationId).SendAsync("ReceiveTypingStatus", conversationId, userId, fullName, isTyping);
+            await Clients.Group(conversationId)
+                .SendAsync("ReceiveTypingStatus", conversationId, userId, fullName, isTyping);
         }
     }
 }

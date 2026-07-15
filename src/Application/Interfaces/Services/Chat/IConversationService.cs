@@ -1,7 +1,5 @@
-using Application.DTOs.Chat;
 
-namespace Application.Interfaces.Services.Chat;
-
+namespace Application;
 public interface IConversationService
 {
     Task<ConversationDto> GetByIdAsync(Guid id, CancellationToken ct = default);

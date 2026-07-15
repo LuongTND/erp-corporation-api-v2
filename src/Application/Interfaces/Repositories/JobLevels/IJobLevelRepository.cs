@@ -1,6 +1,5 @@
 
-namespace Application.Interfaces.Repositories.JobLevels;
-
+namespace Application;
 public interface IJobLevelRepository : IGenericRepository<JobLevel>
 {
     Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default);

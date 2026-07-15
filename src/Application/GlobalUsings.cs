@@ -1,9 +1,8 @@
-global using Domain.Entities.Departments;
-global using Domain.Entities.JobLevels;
-global using Domain.Entities.Notifications;
-global using Domain.Entities.Roles;
-global using Domain.Entities.Users;
-global using Domain.Enums.JobLevels;
-global using Domain.Enums.Notifications;
-global using Domain.Enums.Roles;
-global using Domain.Enums.Users;
+global using Domain;
+global using AutoMapper;
+global using FluentValidation;
+global using MediatR;
+global using Microsoft.Extensions.DependencyInjection;
+global using System.Text.Json;
+
+

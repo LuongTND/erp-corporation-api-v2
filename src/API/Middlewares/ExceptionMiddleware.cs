@@ -1,9 +1,6 @@
-using Application.Common.Exceptions;
-using Domain.Common;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 
-namespace API.Middlewares;
+namespace API;
 
 public class ExceptionMiddleware
 {

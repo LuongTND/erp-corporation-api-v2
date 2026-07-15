@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Base;
+namespace API;
 
 /// <summary>
 /// Controller gốc — <b>Service-first</b>: inject <c>I*Service</c> qua constructor ở controller con.

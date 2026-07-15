@@ -1,7 +1,4 @@
-using Application.Common.Models;
-using AutoMapper;
-
-namespace Application.Common.Mapping;
+namespace Application;
 
 public static class PaginationMapper
 {

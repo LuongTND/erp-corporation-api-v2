@@ -1,8 +1,4 @@
-using Application.Interfaces.Repositories.JobLevels;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Repositories.JobLevels;
+namespace Infrastructure;
 
 public class JobLevelRepository : GenericRepository<JobLevel>, IJobLevelRepository
 {

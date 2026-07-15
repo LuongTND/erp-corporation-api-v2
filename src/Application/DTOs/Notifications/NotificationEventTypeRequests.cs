@@ -1,6 +1,4 @@
-using Domain.Enums.Notifications;
-
-namespace Application.DTOs.Notifications;
+namespace Application;
 
 public record CreateNotificationEventTypeRequest
 {

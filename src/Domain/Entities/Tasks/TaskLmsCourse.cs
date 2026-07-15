@@ -1,5 +1,4 @@
-namespace Domain.Entities.Tasks;
-
+namespace Domain;
 public class TaskLmsCourse
 {
     public Guid TaskID { get; private set; }

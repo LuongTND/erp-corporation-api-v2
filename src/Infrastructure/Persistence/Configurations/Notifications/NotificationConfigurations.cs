@@ -1,7 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace Infrastructure.Persistence.Configurations.Notifications;
+namespace Infrastructure;
 
 public class NotificationEventTypeConfiguration : IEntityTypeConfiguration<NotificationEventType>
 {

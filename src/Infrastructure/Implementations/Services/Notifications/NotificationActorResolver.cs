@@ -1,9 +1,4 @@
-using Application.DTOs.Notifications;
-using Application.Interfaces.Repositories.Users;
-using Application.Interfaces.Services.Auth;
-using Application.Interfaces.Services.Notifications;
-
-namespace Infrastructure.Implementations.Services.Notifications;
+namespace Infrastructure;
 
 public class NotificationActorResolver : INotificationActorResolver
 {

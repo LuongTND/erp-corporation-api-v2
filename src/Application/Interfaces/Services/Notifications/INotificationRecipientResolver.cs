@@ -1,7 +1,5 @@
-using Application.DTOs.Notifications;
 
-namespace Application.Interfaces.Services.Notifications;
-
+namespace Application;
 public interface INotificationRecipientResolver
 {
     Task<IReadOnlyList<Guid>> ResolveAsync(

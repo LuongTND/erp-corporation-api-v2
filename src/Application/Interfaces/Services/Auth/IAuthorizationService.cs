@@ -1,5 +1,4 @@
-namespace Application.Interfaces.Services.Auth;
-
+namespace Application;
 public interface IAuthorizationService
 {
     Task<bool> HasPermissionAsync(Guid userId, string permissionCode, CancellationToken ct = default);

@@ -1,10 +1,4 @@
-using Application.Common.Models;
-using Application.Interfaces.Repositories.Departments;
-using Infrastructure.Extensions;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Repositories.Departments;
+namespace Infrastructure;
 
 public class DepartmentRepository : GenericRepository<Department>, IDepartmentRepository
 {
@@ -20,7 +14,8 @@ public class DepartmentRepository : GenericRepository<Department>, IDepartmentRe
             .FirstOrDefaultAsync(d => d.Id == id, ct);
     }
 
-    public async Task<PaginatedResult<Department>> GetPagedWithDetailsAsync(PaginationQuery query, CancellationToken ct = default)
+    public async Task<PaginatedResult<Department>> GetPagedWithDetailsAsync(PaginationQuery query,
+        CancellationToken ct = default)
     {
         return await DbSet
             .AsNoTracking()

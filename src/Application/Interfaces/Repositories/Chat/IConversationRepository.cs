@@ -1,7 +1,5 @@
-using Domain.Entities.Chat;
 
-namespace Application.Interfaces.Repositories.Chat;
-
+namespace Application;
 public interface IConversationRepository : IGenericRepository<Conversation>
 {
     Task<Conversation?> GetByIdWithMembersAsync(Guid id, CancellationToken ct = default);

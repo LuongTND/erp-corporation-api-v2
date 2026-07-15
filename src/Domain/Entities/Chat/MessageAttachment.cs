@@ -1,7 +1,5 @@
-using Domain.Base;
 
-namespace Domain.Entities.Chat;
-
+namespace Domain;
 public class MessageAttachment : BaseEntity
 {
     public Guid MessageID { get; private set; }

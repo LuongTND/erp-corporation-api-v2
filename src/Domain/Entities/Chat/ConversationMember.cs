@@ -1,8 +1,5 @@
-using Domain.Entities.Users;
-using Domain.Enums.Chat;
 
-namespace Domain.Entities.Chat;
-
+namespace Domain;
 public class ConversationMember
 {
     public Guid ConversationID { get; private set; }
@@ -27,7 +24,7 @@ public class ConversationMember
     public static ConversationMember Create(
         Guid conversationId, 
         Guid userId, 
-        Domain.Enums.Chat.RoleInConversation? role = Domain.Enums.Chat.RoleInConversation.Member)
+        global::Domain.RoleInConversation? role = global::Domain.RoleInConversation.Member)
     {
         return new ConversationMember
         {

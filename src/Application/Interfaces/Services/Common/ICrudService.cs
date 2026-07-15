@@ -1,7 +1,5 @@
-using Application.Common.Models;
 
-namespace Application.Interfaces.Services.Common;
-
+namespace Application;
 /// <summary>
 /// Contract CRUD chuẩn: Repo (data) → Service (logic + map DTO) → API.
 /// </summary>

@@ -1,5 +1,4 @@
-
-namespace Application.DTOs.Permissions;
+namespace Application;
 
 public record CreatePermissionRequest(
     string PermissionCode,

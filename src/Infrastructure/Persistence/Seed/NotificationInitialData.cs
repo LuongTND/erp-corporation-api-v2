@@ -1,9 +1,6 @@
 
-using Application.Common.Notifications;
-using Application.Constants;
 
-namespace Infrastructure.Persistence.Seed;
-
+namespace Infrastructure;
 /// <summary>
 /// Seed dữ liệu thông báo — idempotent, chạy mỗi lần khởi động dev.
 /// </summary>

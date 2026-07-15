@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Users;
 
-namespace Domain.Entities.Tasks;
-
+namespace Domain;
 public class TaskComment : BaseEntity
 {
     public Guid TaskID { get; private set; }

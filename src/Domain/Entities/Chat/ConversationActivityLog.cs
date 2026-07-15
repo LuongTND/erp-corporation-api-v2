@@ -1,9 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Users;
-using Domain.Enums.Chat;
 
-namespace Domain.Entities.Chat;
-
+namespace Domain;
 public class ConversationActivityLog : BaseEntity
 {
     public Guid ConversationID { get; private set; }

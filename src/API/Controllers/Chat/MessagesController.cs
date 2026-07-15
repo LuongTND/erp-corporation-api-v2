@@ -1,12 +1,4 @@
-using API.Base;
-using API.Filters;
-using API.Hubs;
-using Application.DTOs.Chat;
-using Application.Interfaces.Services.Chat;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-
-namespace API.Controllers.Chat;
+namespace API;
 
 public class MessagesController : BaseApiController
 {
@@ -23,7 +15,8 @@ public class MessagesController : BaseApiController
 
     [HttpGet("/api/conversations/{conversationId:guid}/messages")]
     [AuthorizePermission("chat.conversation.read")]
-    public async Task<ActionResult<List<MessageDto>>> GetPagedMessages(Guid conversationId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken ct = default)
+    public async Task<ActionResult<List<MessageDto>>> GetPagedMessages(Guid conversationId, [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50, CancellationToken ct = default)
     {
         var messages = await _messageService.GetPagedMessagesAsync(conversationId, page, pageSize, ct);
         return Ok(messages);
@@ -31,12 +24,14 @@ public class MessagesController : BaseApiController
 
     [HttpPost("/api/conversations/{conversationId:guid}/messages")]
     [AuthorizePermission("chat.message.create")]
-    public async Task<ActionResult<MessageDto>> SendMessage(Guid conversationId, [FromBody] CreateMessageRequest request, CancellationToken ct)
+    public async Task<ActionResult<MessageDto>> SendMessage(Guid conversationId,
+        [FromBody] CreateMessageRequest request, CancellationToken ct)
     {
         var message = await _messageService.SendMessageAsync(conversationId, request, ct);
-        
+
         // Broadcast message to conversation group
-        await _chatHubContext.Clients.Group(conversationId.ToString()).SendAsync("ReceiveMessage", message, cancellationToken: ct);
+        await _chatHubContext.Clients.Group(conversationId.ToString())
+            .SendAsync("ReceiveMessage", message, cancellationToken: ct);
 
         return Ok(message);
     }
@@ -48,7 +43,8 @@ public class MessagesController : BaseApiController
         var message = await _messageService.EditMessageAsync(id, newContent, ct);
 
         // Broadcast edit event to conversation group
-        await _chatHubContext.Clients.Group(message.ConversationID.ToString()).SendAsync("MessageEdited", message, cancellationToken: ct);
+        await _chatHubContext.Clients.Group(message.ConversationID.ToString())
+            .SendAsync("MessageEdited", message, cancellationToken: ct);
 
         return Ok(message);
     }
@@ -58,7 +54,7 @@ public class MessagesController : BaseApiController
     public async Task<IActionResult> DeleteMessage(Guid id, CancellationToken ct)
     {
         await _messageService.DeleteMessageAsync(id, ct);
-        
+
         // Broadcast message delete to all clients
         await _chatHubContext.Clients.All.SendAsync("MessageDeleted", id, cancellationToken: ct);
 
@@ -67,7 +63,8 @@ public class MessagesController : BaseApiController
 
     [HttpPost("/api/messages/{id:guid}/reactions")]
     [AuthorizePermission("chat.message.create")]
-    public async Task<ActionResult<MessageReactionDto>> ToggleReaction(Guid id, [FromBody] string reactionType, CancellationToken ct)
+    public async Task<ActionResult<MessageReactionDto>> ToggleReaction(Guid id, [FromBody] string reactionType,
+        CancellationToken ct)
     {
         var reaction = await _messageService.ToggleReactionAsync(id, reactionType, ct);
 

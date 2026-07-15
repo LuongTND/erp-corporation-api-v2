@@ -1,16 +1,6 @@
-using Application.Common.Exceptions;
-using Application.Common.Mapping;
-using Application.Common.Models;
-using Application.Common.Notifications;
-using Application.DTOs.Notifications;
-using Application.Interfaces.Services.Auth;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Notifications;
-using Application.Interfaces.Services.Notifications;
-using AutoMapper;
 using FluentValidation;
 
-namespace Infrastructure.Implementations.Services.Notifications;
+namespace Infrastructure;
 
 public class NotificationEventTypeService : INotificationEventTypeService
 {
@@ -40,7 +30,8 @@ public class NotificationEventTypeService : INotificationEventTypeService
         _mapper = mapper;
     }
 
-    public async Task<PaginatedResult<NotificationEventTypeDto>> GetPagedAsync(PaginationQuery query, CancellationToken ct = default)
+    public async Task<PaginatedResult<NotificationEventTypeDto>> GetPagedAsync(PaginationQuery query,
+        CancellationToken ct = default)
     {
         var result = await _eventTypeRepository.GetPagedAsync(query, module: null, isActive: null, ct);
         return PaginationMapper.Map<NotificationEventType, NotificationEventTypeDto>(result, _mapper);
@@ -55,7 +46,8 @@ public class NotificationEventTypeService : INotificationEventTypeService
         return _mapper.Map<NotificationEventTypeDto>(entity);
     }
 
-    public async Task<NotificationEventTypeDto> CreateAsync(CreateNotificationEventTypeRequest request, CancellationToken ct = default)
+    public async Task<NotificationEventTypeDto> CreateAsync(CreateNotificationEventTypeRequest request,
+        CancellationToken ct = default)
     {
         await _createValidator.ValidateAndThrowAsync(request, ct);
 
@@ -78,7 +70,8 @@ public class NotificationEventTypeService : INotificationEventTypeService
         return _mapper.Map<NotificationEventTypeDto>(entity);
     }
 
-    public async Task<NotificationEventTypeDto> UpdateAsync(Guid id, UpdateNotificationEventTypeRequest request, CancellationToken ct = default)
+    public async Task<NotificationEventTypeDto> UpdateAsync(Guid id, UpdateNotificationEventTypeRequest request,
+        CancellationToken ct = default)
     {
         await _updateValidator.ValidateAndThrowAsync(request, ct);
 
@@ -112,7 +105,8 @@ public class NotificationEventTypeService : INotificationEventTypeService
         await _unitOfWork.SaveChangesAsync(ct);
     }
 
-    public async Task<IReadOnlyList<NotificationTemplateDto>> GetTemplatesAsync(Guid eventTypeId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<NotificationTemplateDto>> GetTemplatesAsync(Guid eventTypeId,
+        CancellationToken ct = default)
     {
         var entity = await _eventTypeRepository.GetByIdAsync(eventTypeId, ct);
         if (entity == null)
@@ -186,7 +180,8 @@ public class NotificationTriggerService : INotificationTriggerService
         return PaginationMapper.Map<NotificationTriggerBinding, NotificationTriggerBindingDto>(result, _mapper);
     }
 
-    public async Task<NotificationTriggerBindingDto> GetByTriggerKeyAsync(string triggerKey, CancellationToken ct = default)
+    public async Task<NotificationTriggerBindingDto> GetByTriggerKeyAsync(string triggerKey,
+        CancellationToken ct = default)
     {
         var entity = await _triggerRepository.GetByTriggerKeyWithEventTypeAsync(triggerKey, ct);
         if (entity == null)
@@ -264,7 +259,7 @@ public class UserNotificationService : IUserNotificationService
         CancellationToken ct = default)
     {
         var userId = _currentUserService.UserId
-            ?? throw new UnauthorizedAccessException("Người dùng chưa đăng nhập.");
+                     ?? throw new UnauthorizedAccessException("Người dùng chưa đăng nhập.");
 
         var result = await _userNotificationRepository.GetPagedForUserAsync(userId, query, isRead, ct);
         return PaginationMapper.Map<UserNotification, UserNotificationDto>(result, _mapper);
@@ -273,7 +268,7 @@ public class UserNotificationService : IUserNotificationService
     public async Task<UnreadNotificationCountDto> GetMyUnreadCountAsync(CancellationToken ct = default)
     {
         var userId = _currentUserService.UserId
-            ?? throw new UnauthorizedAccessException("Người dùng chưa đăng nhập.");
+                     ?? throw new UnauthorizedAccessException("Người dùng chưa đăng nhập.");
 
         var count = await _userNotificationRepository.GetUnreadCountAsync(userId, ct);
         return new UnreadNotificationCountDto { Count = count };
@@ -282,7 +277,7 @@ public class UserNotificationService : IUserNotificationService
     public async Task<UserNotificationDto> MarkReadAsync(Guid id, CancellationToken ct = default)
     {
         var userId = _currentUserService.UserId
-            ?? throw new UnauthorizedAccessException("Người dùng chưa đăng nhập.");
+                     ?? throw new UnauthorizedAccessException("Người dùng chưa đăng nhập.");
 
         var notification = await _userNotificationRepository.GetByIdForUserAsync(id, userId, ct);
         if (notification == null)
@@ -297,7 +292,7 @@ public class UserNotificationService : IUserNotificationService
     public async Task MarkAllReadAsync(CancellationToken ct = default)
     {
         var userId = _currentUserService.UserId
-            ?? throw new UnauthorizedAccessException("Người dùng chưa đăng nhập.");
+                     ?? throw new UnauthorizedAccessException("Người dùng chưa đăng nhập.");
 
         await _userNotificationRepository.MarkAllReadAsync(userId, ct);
         await _unitOfWork.SaveChangesAsync(ct);

@@ -1,6 +1,4 @@
-using Application.Common.Models;
-
-namespace Application.DTOs.JobLevels;
+namespace Application;
 
 public class JobLevelDto : IHasGuidId
 {

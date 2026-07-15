@@ -1,7 +1,4 @@
-using Application.DTOs.Roles;
-using AutoMapper;
-
-namespace Application.Mappings.Roles;
+namespace Application;
 
 public class RoleMappingProfile : Profile
 {

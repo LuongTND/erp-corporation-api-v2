@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Users;
 
-namespace Domain.Entities.Notifications;
-
+namespace Domain;
 public class UserNotification : BaseEntity
 {
     public Guid UserId { get; private set; }

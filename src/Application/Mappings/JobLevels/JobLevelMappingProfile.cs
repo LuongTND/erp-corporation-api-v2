@@ -1,8 +1,5 @@
-using Application.DTOs.JobLevels;
-using AutoMapper;
 
-namespace Application.Mappings.JobLevels;
-
+namespace Application;
 public class JobLevelMappingProfile : Profile
 {
     public JobLevelMappingProfile()

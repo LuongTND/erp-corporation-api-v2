@@ -1,9 +1,4 @@
-using Application.Interfaces.Repositories.Chat;
-using Domain.Entities.Chat;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Repositories.Chat;
+namespace Infrastructure;
 
 public class MessageRepository : GenericRepository<Message>, IMessageRepository
 {
@@ -11,14 +6,15 @@ public class MessageRepository : GenericRepository<Message>, IMessageRepository
     {
     }
 
-    public async Task<List<Message>> GetPagedMessagesAsync(Guid conversationId, int page, int pageSize, CancellationToken ct = default)
+    public async Task<List<Message>> GetPagedMessagesAsync(Guid conversationId, int page, int pageSize,
+        CancellationToken ct = default)
     {
         return await DbSet
             .AsNoTracking()
             .Include(m => m.User)
             .Include(m => m.Attachments)
             .Include(m => m.Reactions)
-                .ThenInclude(r => r.User)
+            .ThenInclude(r => r.User)
             .Include(m => m.MessageTasks)
             .Where(m => m.ConversationID == conversationId)
             .OrderByDescending(m => m.CreatedAt) // Mới nhất lên trước để phân trang

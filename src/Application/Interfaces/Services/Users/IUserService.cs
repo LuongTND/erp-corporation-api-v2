@@ -1,8 +1,5 @@
-using Application.Common.Models;
-using Application.DTOs.Users;
 
-namespace Application.Interfaces.Services.Users;
-
+namespace Application;
 public interface IUserService
 {
     Task<UserDto> GetByIdAsync(Guid id, CancellationToken ct = default);

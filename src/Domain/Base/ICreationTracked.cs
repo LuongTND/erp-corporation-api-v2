@@ -1,5 +1,4 @@
-namespace Domain.Base;
-
+namespace Domain;
 public interface ICreationTracked
 {
     Guid? CreatedBy { get; set; }

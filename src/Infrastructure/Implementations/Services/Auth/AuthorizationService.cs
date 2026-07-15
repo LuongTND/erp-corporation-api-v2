@@ -1,8 +1,4 @@
-using Application.Common.Exceptions;
-using Application.Interfaces.Repositories.Roles;
-using Application.Interfaces.Services.Auth;
-
-namespace Infrastructure.Implementations.Services.Auth;
+namespace Infrastructure;
 
 public class AuthorizationService : IAuthorizationService
 {

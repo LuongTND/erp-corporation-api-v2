@@ -1,11 +1,3 @@
-using API.Configuration;
-using API.Hubs;
-using API.Middlewares;
-using API.Services;
-using Application;
-using Application.Interfaces.Services.Notifications;
-using Infrastructure;
-using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

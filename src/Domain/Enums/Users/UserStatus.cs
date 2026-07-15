@@ -1,5 +1,4 @@
-namespace Domain.Enums.Users;
-
+namespace Domain;
 public enum UserStatus
 {
     Active = 1,

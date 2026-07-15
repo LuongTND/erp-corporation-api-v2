@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Roles;
 
-namespace Domain.Entities.Users;
-
+namespace Domain;
 public class UserRole : BaseEntity, IAuditable
 {
     public Guid UserId { get; private set; }

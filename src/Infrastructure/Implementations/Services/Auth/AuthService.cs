@@ -1,19 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Application.Common.Exceptions;
-using Application.DTOs.Auth;
-using Application.DTOs.Users;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Users;
-using Application.Interfaces.Repositories.Roles;
-using Application.Interfaces.Services.Auth;
-using AutoMapper;
 using Microsoft.Extensions.Configuration;
-using Infrastructure.Security;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Infrastructure.Implementations.Services.Auth;
+namespace Infrastructure;
 
 public class AuthService : IAuthService
 {
@@ -61,7 +52,8 @@ public class AuthService : IAuthService
             throw new ConflictException("Tài khoản này đã bị khóa. Vui lòng liên hệ quản trị viên.");
         }
 
-        if (string.IsNullOrEmpty(account.PasswordHash) || !PasswordHasher.Verify(account.PasswordHash, request.Password))
+        if (string.IsNullOrEmpty(account.PasswordHash) ||
+            !PasswordHasher.Verify(account.PasswordHash, request.Password))
         {
             account.RecordLoginFailure();
             await _unitOfWork.SaveChangesAsync(ct);
@@ -120,7 +112,7 @@ public class AuthService : IAuthService
     public async Task<UserDto> GetCurrentUserAsync(CancellationToken ct = default)
     {
         var userId = _currentUserService.UserId
-            ?? throw new ForbiddenException("Không xác định được người dùng hiện tại.");
+                     ?? throw new ForbiddenException("Không xác định được người dùng hiện tại.");
 
         return await GetMeAsync(userId, ct);
     }
@@ -142,10 +134,12 @@ public class AuthService : IAuthService
 
     private (string tokenString, DateTime expiry) GenerateAccessToken(UserAccount account)
     {
-        var key = _configuration["Jwt:SecretKey"] ?? _configuration["JWT_KEY"] ?? "SuperSecretKeyMustBeAtLeast32BytesLongForHmacSha256Signing!";
+        var key = _configuration["Jwt:SecretKey"] ??
+                  _configuration["JWT_KEY"] ?? "SuperSecretKeyMustBeAtLeast32BytesLongForHmacSha256Signing!";
         var issuer = _configuration["Jwt:Issuer"] ?? _configuration["JWT_ISSUER"] ?? "erp-corporation-api";
         var audience = _configuration["Jwt:Audience"] ?? _configuration["JWT_AUDIENCE"] ?? "erp-corporation-app";
-        var expiryMinutesStr = _configuration["Jwt:AccessTokenExpirationMinutes"] ?? _configuration["JWT_EXPIRY_MINUTES"] ?? "60";
+        var expiryMinutesStr = _configuration["Jwt:AccessTokenExpirationMinutes"] ??
+                               _configuration["JWT_EXPIRY_MINUTES"] ?? "60";
         if (!double.TryParse(expiryMinutesStr, out var expiryMinutes) || expiryMinutes <= 0)
         {
             expiryMinutes = 60;

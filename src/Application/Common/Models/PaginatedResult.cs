@@ -1,4 +1,4 @@
-namespace Application.Common.Models;
+namespace Application;
 
 public class PaginatedResult<T>
 {

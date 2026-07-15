@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Departments;
 
-namespace Domain.Entities.Users;
-
+namespace Domain;
 public class UserDepartment : BaseEntity, IAuditable
 {
     public Guid UserId { get; private set; }

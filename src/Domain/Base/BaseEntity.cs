@@ -1,7 +1,5 @@
-using Domain.Events;
 
-namespace Domain.Base;
-
+namespace Domain;
 public abstract class BaseEntity
 {
     public Guid Id { get; protected set; }

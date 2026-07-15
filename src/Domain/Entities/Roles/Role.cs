@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Users;
 
-namespace Domain.Entities.Roles;
-
+namespace Domain;
 public class Role : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public string RoleName { get; private set; } = null!;
