@@ -1,6 +1,4 @@
-using Application.Common.Models;
-
-namespace Application.DTOs.Notifications;
+namespace Application;
 
 public record NotificationEventTypeDto : IHasGuidId
 {

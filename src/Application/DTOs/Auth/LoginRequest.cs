@@ -1,3 +1,3 @@
-namespace Application.DTOs.Auth;
+namespace Application;
 
 public record LoginRequest(string Email, string Password);

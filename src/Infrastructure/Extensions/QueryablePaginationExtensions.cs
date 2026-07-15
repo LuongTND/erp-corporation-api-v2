@@ -1,7 +1,4 @@
-using Application.Common.Models;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Extensions;
+namespace Infrastructure;
 
 public static class QueryablePaginationExtensions
 {

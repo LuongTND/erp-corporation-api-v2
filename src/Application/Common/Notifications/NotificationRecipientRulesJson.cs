@@ -1,7 +1,4 @@
-using System.Text.Json;
-using Application.DTOs.Notifications;
-
-namespace Application.Common.Notifications;
+namespace Application;
 
 public static class NotificationRecipientRulesJson
 {
@@ -20,7 +17,7 @@ public static class NotificationRecipientRulesJson
             return new NotificationRecipientRulesDto();
 
         return JsonSerializer.Deserialize<NotificationRecipientRulesDto>(json, Options)
-            ?? new NotificationRecipientRulesDto();
+               ?? new NotificationRecipientRulesDto();
     }
 }
 

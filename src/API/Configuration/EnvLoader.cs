@@ -1,4 +1,4 @@
-namespace API.Configuration;
+namespace API;
 
 public static class EnvLoader
 {
@@ -82,6 +82,7 @@ public static class EnvLoader
         var candidates = new[]
         {
             Path.Combine(contentRoot, ".env"),
+            Path.Combine(contentRoot, "..", "..", ".env"), // solution root (src/API → erp-*-api-v2)
             Path.Combine(Directory.GetCurrentDirectory(), ".env"),
             Path.Combine(AppContext.BaseDirectory, ".env")
         };
@@ -157,7 +158,8 @@ public static class EnvLoader
         if (parts.Length == 0)
             return value;
 
-        return string.Concat(parts.Select(p => p.Length == 0 ? "" : char.ToUpperInvariant(p[0]) + p[1..].ToLowerInvariant()));
+        return string.Concat(parts.Select(p =>
+            p.Length == 0 ? "" : char.ToUpperInvariant(p[0]) + p[1..].ToLowerInvariant()));
     }
 
     private static void MapIfPresent(

@@ -1,7 +1,5 @@
-using Domain.Entities.Tasks;
 
-namespace Application.Interfaces.Repositories.Tasks;
-
+namespace Application;
 public interface ITaskRepository : IGenericRepository<TaskItem>
 {
     Task<TaskItem?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default);

@@ -1,12 +1,4 @@
-using Domain.Entities.Tasks;
-using Domain.Entities.Chat;
-using Domain.Base;
-using Domain.Events;
-using Infrastructure.Outbox;
-using Infrastructure.Persistence.Outbox;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Persistence;
+namespace Infrastructure;
 
 public class AppDbContext : DbContext
 {

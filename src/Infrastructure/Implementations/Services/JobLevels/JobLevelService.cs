@@ -1,19 +1,6 @@
-using Application.Common.Exceptions;
-using Application.Common.Mapping;
-using Application.Common.Models;
-using Application.Constants;
-using Application.DTOs.JobLevels;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.JobLevels;
-using Application.Interfaces.Repositories.Users;
-using Application.Interfaces.Services.JobLevels;
-using Application.Interfaces.Services.Notifications;
-using AutoMapper;
 using FluentValidation;
-using Infrastructure.Extensions;
-using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Implementations.Services.JobLevels;
+namespace Infrastructure;
 
 public class JobLevelService : IJobLevelService
 {
@@ -122,7 +109,8 @@ public class JobLevelService : IJobLevelService
         {
             var isUsed = await _userRepository.HasActiveUsersWithJobLevelAsync(id, ct);
             if (isUsed)
-                throw new ConflictException("Không thể vô hiệu hóa cấp bậc chức danh đang được gán cho nhân sự hoạt động.");
+                throw new ConflictException(
+                    "Không thể vô hiệu hóa cấp bậc chức danh đang được gán cho nhân sự hoạt động.");
         }
 
         jobLevel.Update(

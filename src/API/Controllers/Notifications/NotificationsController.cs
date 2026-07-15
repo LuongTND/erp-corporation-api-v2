@@ -1,12 +1,4 @@
-using API.Base;
-using API.Filters;
-using Application.Common.Models;
-using Application.DTOs.Notifications;
-using Application.Interfaces.Services.Notifications;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Controllers.Notifications;
+namespace API;
 
 [Route("api/notifications")]
 [Authorize]

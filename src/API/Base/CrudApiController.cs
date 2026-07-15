@@ -1,9 +1,4 @@
-using API.Filters;
-using Application.Common.Models;
-using Application.Interfaces.Services.Common;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Base;
+namespace API;
 
 /// <summary>
 /// Base CRUD: GET list/detail, POST, PUT, DELETE — gọi <see cref="ICrudService{TDto,TCreate,TUpdate}"/>.

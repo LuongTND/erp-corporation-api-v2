@@ -1,5 +1,4 @@
-namespace Domain.Entities.Tasks;
-
+namespace Domain;
 public class TaskKpi
 {
     public Guid TaskID { get; private set; }

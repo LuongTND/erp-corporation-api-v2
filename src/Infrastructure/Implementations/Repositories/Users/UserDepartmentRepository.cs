@@ -1,8 +1,4 @@
-using Application.Interfaces.Repositories.Users;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Repositories.Users;
+namespace Infrastructure;
 
 public class UserDepartmentRepository : GenericRepository<UserDepartment>, IUserDepartmentRepository
 {
@@ -10,7 +6,8 @@ public class UserDepartmentRepository : GenericRepository<UserDepartment>, IUser
     {
     }
 
-    public async Task<List<UserDepartment>> GetSecondaryDepartmentsByUserIdAsync(Guid userId, CancellationToken ct = default)
+    public async Task<List<UserDepartment>> GetSecondaryDepartmentsByUserIdAsync(Guid userId,
+        CancellationToken ct = default)
     {
         return await GetQueryable()
             .Include(ud => ud.Department)
@@ -18,16 +15,19 @@ public class UserDepartmentRepository : GenericRepository<UserDepartment>, IUser
             .ToListAsync(ct);
     }
 
-    public async Task<bool> ExistsActiveSecondaryDepartmentAsync(Guid userId, Guid departmentId, CancellationToken ct = default)
+    public async Task<bool> ExistsActiveSecondaryDepartmentAsync(Guid userId, Guid departmentId,
+        CancellationToken ct = default)
     {
         return await GetQueryable()
             .AnyAsync(ud => ud.UserId == userId && ud.DepartmentId == departmentId && ud.IsActive, ct);
     }
 
-    public async Task<UserDepartment?> GetActiveSecondaryDepartmentAsync(Guid userId, Guid departmentId, CancellationToken ct = default)
+    public async Task<UserDepartment?> GetActiveSecondaryDepartmentAsync(Guid userId, Guid departmentId,
+        CancellationToken ct = default)
     {
         return await GetQueryable()
-            .FirstOrDefaultAsync(ud => ud.UserId == userId && ud.DepartmentId == departmentId && !ud.IsPrimary && ud.IsActive, ct);
+            .FirstOrDefaultAsync(
+                ud => ud.UserId == userId && ud.DepartmentId == departmentId && !ud.IsPrimary && ud.IsActive, ct);
     }
 
     public async Task<bool> HasActiveSecondaryUsersInDepartmentAsync(Guid departmentId, CancellationToken ct = default)
@@ -36,13 +36,15 @@ public class UserDepartmentRepository : GenericRepository<UserDepartment>, IUser
             .AnyAsync(ud => ud.DepartmentId == departmentId && ud.IsActive, ct);
     }
 
-    public async Task<UserDepartment?> GetActivePrimaryDepartmentByUserIdAsync(Guid userId, CancellationToken ct = default)
+    public async Task<UserDepartment?> GetActivePrimaryDepartmentByUserIdAsync(Guid userId,
+        CancellationToken ct = default)
     {
         return await GetQueryable()
             .FirstOrDefaultAsync(ud => ud.UserId == userId && ud.IsPrimary && ud.IsActive, ct);
     }
 
-    public async Task<List<UserDepartment>> GetActiveDepartmentsByUserIdAsync(Guid userId, CancellationToken ct = default)
+    public async Task<List<UserDepartment>> GetActiveDepartmentsByUserIdAsync(Guid userId,
+        CancellationToken ct = default)
     {
         return await GetQueryable()
             .Where(ud => ud.UserId == userId && ud.IsActive)

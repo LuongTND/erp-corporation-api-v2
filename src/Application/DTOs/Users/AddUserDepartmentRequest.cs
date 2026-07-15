@@ -1,5 +1,4 @@
-namespace Application.DTOs.Users;
-
+namespace Application;
 public record AddUserDepartmentRequest(
     Guid DepartmentId,
     DateOnly StartDate,

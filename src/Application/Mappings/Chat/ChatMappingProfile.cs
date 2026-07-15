@@ -1,8 +1,4 @@
-using Application.DTOs.Chat;
-using AutoMapper;
-using Domain.Entities.Chat;
-
-namespace Application.Mappings.Chat;
+namespace Application;
 
 public class ChatMappingProfile : Profile
 {
@@ -15,7 +11,8 @@ public class ChatMappingProfile : Profile
 
         CreateMap<ConversationMember, ConversationMemberDto>()
             .ForMember(d => d.FullName, opt => opt.MapFrom(s => s.User != null ? s.User.FullName : string.Empty))
-            .ForMember(d => d.EmployeeCode, opt => opt.MapFrom(s => s.User != null ? s.User.EmployeeCode : string.Empty))
+            .ForMember(d => d.EmployeeCode,
+                opt => opt.MapFrom(s => s.User != null ? s.User.EmployeeCode : string.Empty))
             .ForMember(d => d.AvatarUrl, opt => opt.MapFrom(s => s.User != null ? s.User.AvatarUrl : null));
 
         CreateMap<Message, MessageDto>()
@@ -24,10 +21,11 @@ public class ChatMappingProfile : Profile
             .ForMember(d => d.SentAt, opt => opt.MapFrom(s => s.CreatedAt))
             .ForMember(d => d.Attachments, opt => opt.MapFrom(s => s.Attachments))
             .ForMember(d => d.Reactions, opt => opt.MapFrom(s => s.Reactions))
-            .ForMember(d => d.LinkedTaskId, opt => opt.MapFrom(s => s.MessageTasks.Select(mt => (Guid?)mt.TaskID).FirstOrDefault()));
+            .ForMember(d => d.LinkedTaskId,
+                opt => opt.MapFrom(s => s.MessageTasks.Select(mt => (Guid?)mt.TaskID).FirstOrDefault()));
 
         CreateMap<MessageAttachment, MessageAttachmentDto>();
-        
+
         CreateMap<MessageReaction, MessageReactionDto>()
             .ForMember(d => d.FullName, opt => opt.MapFrom(s => s.User != null ? s.User.FullName : string.Empty));
     }

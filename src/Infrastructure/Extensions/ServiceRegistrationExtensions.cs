@@ -1,56 +1,39 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.Extensions;
+namespace Infrastructure;
 
 internal static class ServiceRegistrationExtensions
 {
-    /// <summary>
-    /// Đăng ký thủ công các dịch vụ cốt lõi (ưu tiên trước scan).
-    /// </summary>
     public static IServiceCollection AddManualInfrastructureRegistrations(this IServiceCollection services)
     {
-        services.AddScoped(typeof(Application.Interfaces.Repositories.IGenericRepository<>),
-            typeof(Implementations.Repositories.GenericRepository<>));
-
-        services.AddScoped<Application.Interfaces.Services.Notifications.INotificationRealtimeSender,
-            Implementations.Services.Notifications.NoOpNotificationRealtimeSender>();
-
-        services.AddScoped<Application.Interfaces.Services.Notifications.INotificationActorResolver,
-            Implementations.Services.Notifications.NotificationActorResolver>();
-
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped<INotificationRealtimeSender, NoOpNotificationRealtimeSender>();
+        services.AddScoped<INotificationActorResolver, NotificationActorResolver>();
         return services;
     }
 
-    /// <summary>
-    /// Scan có kiểm soát: chỉ class trong <c>Infrastructure.Implementations</c>
-    /// implement interface thuộc <c>Application.Interfaces</c>.
-    /// </summary>
     public static IServiceCollection AddScannedInfrastructureImplementations(
         this IServiceCollection services,
         Assembly infrastructureAssembly)
     {
-        const string implementationsNamespace = "Infrastructure.Implementations";
-        const string interfacesNamespace = "Application.Interfaces";
-
         var implementationTypes = infrastructureAssembly
             .GetTypes()
-            .Where(t => t is { IsClass: true, IsAbstract: false })
-            .Where(t => t.Namespace?.StartsWith(implementationsNamespace, StringComparison.Ordinal) == true)
+            .Where(t => t is { IsClass: true, IsAbstract: false, Namespace: "Infrastructure" })
             .ToList();
 
         foreach (var implementation in implementationTypes)
         {
-            if (implementation == typeof(Implementations.Repositories.UnitOfWork))
+            if (implementation == typeof(UnitOfWork))
                 continue;
 
             if (implementation.IsGenericTypeDefinition &&
-                implementation.GetGenericTypeDefinition() == typeof(Implementations.Repositories.GenericRepository<>))
+                implementation.GetGenericTypeDefinition() == typeof(GenericRepository<>))
                 continue;
 
             var serviceInterfaces = implementation.GetInterfaces()
-                .Where(i => i.Namespace?.StartsWith(interfacesNamespace, StringComparison.Ordinal) == true)
-                .Where(i => i != typeof(Application.Interfaces.Repositories.IGenericRepository<>))
+                .Where(i => i.Namespace == "Application")
+                .Where(i => i != typeof(IGenericRepository<>))
                 .ToList();
 
             foreach (var serviceInterface in serviceInterfaces)

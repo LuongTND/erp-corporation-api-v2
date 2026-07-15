@@ -1,10 +1,4 @@
-using Application.Common.Models;
-using Application.Interfaces.Repositories.Users;
-using Infrastructure.Extensions;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Repositories.Users;
+namespace Infrastructure;
 
 public class UserRepository : GenericRepository<User>, IUserRepository
 {
@@ -19,18 +13,19 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             .Include(u => u.JobLevel)
             .Include(u => u.Manager)
             .Include(u => u.UserRoles)
-                .ThenInclude(ur => ur.Role)
+            .ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(u => u.Id == id, ct);
     }
 
-    public async Task<User?> GetByIdWithDetailsScopedAsync(Guid id, Guid currentUserId, ScopeType scope, IReadOnlyList<Guid> accessibleDeptIds, CancellationToken ct = default)
+    public async Task<User?> GetByIdWithDetailsScopedAsync(Guid id, Guid currentUserId, ScopeType scope,
+        IReadOnlyList<Guid> accessibleDeptIds, CancellationToken ct = default)
     {
         var query = DbSet
             .Include(u => u.Department)
             .Include(u => u.JobLevel)
             .Include(u => u.Manager)
             .Include(u => u.UserRoles)
-                .ThenInclude(ur => ur.Role)
+            .ThenInclude(ur => ur.Role)
             .Where(u => u.Id == id);
 
         query = scope switch
@@ -57,7 +52,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             .Include(u => u.JobLevel)
             .Include(u => u.Manager)
             .Include(u => u.UserRoles)
-                .ThenInclude(ur => ur.Role)
+            .ThenInclude(ur => ur.Role)
             .AsNoTracking();
 
         queryable = scope switch

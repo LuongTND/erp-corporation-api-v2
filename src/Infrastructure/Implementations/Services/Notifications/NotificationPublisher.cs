@@ -1,12 +1,6 @@
-using Application.Common.Notifications;
-using Application.DTOs.Notifications;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Notifications;
-using Application.Interfaces.Services.Notifications;
-using AutoMapper;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Implementations.Services.Notifications;
+namespace Infrastructure;
 
 public class NotificationPublisher : INotificationPublisher
 {
@@ -49,7 +43,8 @@ public class NotificationPublisher : INotificationPublisher
         var binding = await _triggerRepository.GetByTriggerKeyWithEventTypeAsync(triggerKey, cancellationToken);
         if (binding == null || !binding.IsActive || binding.EventTypeId == null || binding.EventType == null)
         {
-            _logger.LogDebug("Skip notification for trigger {TriggerKey}: binding missing, inactive, or unassigned.", triggerKey);
+            _logger.LogDebug("Skip notification for trigger {TriggerKey}: binding missing, inactive, or unassigned.",
+                triggerKey);
             return;
         }
 
@@ -101,7 +96,8 @@ public class NotificationPublisher : INotificationPublisher
 
         foreach (var notification in createdNotifications)
         {
-            var unreadCount = await _userNotificationRepository.GetUnreadCountAsync(notification.UserId, cancellationToken);
+            var unreadCount =
+                await _userNotificationRepository.GetUnreadCountAsync(notification.UserId, cancellationToken);
             var dto = _mapper.Map<UserNotificationDto>(notification);
             await _realtimeSender.SendToUserAsync(
                 notification.UserId,

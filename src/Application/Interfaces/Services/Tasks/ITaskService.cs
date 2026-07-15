@@ -1,8 +1,5 @@
-using Application.Common.Models;
-using Application.DTOs.Tasks;
 
-namespace Application.Interfaces.Services.Tasks;
-
+namespace Application;
 public class TaskQuery : PaginationQuery
 {
     public string? Search { get; set; }

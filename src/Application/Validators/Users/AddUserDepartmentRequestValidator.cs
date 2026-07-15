@@ -1,7 +1,4 @@
-using Application.DTOs.Users;
-using FluentValidation;
-
-namespace Application.Validators.Users;
+namespace Application;
 
 public class AddUserDepartmentRequestValidator : AbstractValidator<AddUserDepartmentRequest>
 {

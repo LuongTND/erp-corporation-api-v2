@@ -1,10 +1,4 @@
-using Application.Common.Models;
-using Application.Interfaces.Repositories.Permissions;
-using Infrastructure.Extensions;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Repositories.Permissions;
+namespace Infrastructure;
 
 public class PermissionRepository : GenericRepository<Permission>, IPermissionRepository
 {

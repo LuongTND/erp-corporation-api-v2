@@ -1,10 +1,4 @@
-using Domain.Base;
-using Domain.Entities.Users;
-using Domain.Enums.Tasks;
-using TaskStatus = Domain.Enums.Tasks.TaskStatus;
-
-namespace Domain.Entities.Tasks;
-
+namespace Domain;
 public class TaskItem : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public string TaskCode { get; private set; } = null!;

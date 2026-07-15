@@ -1,13 +1,8 @@
-using API.Base;
-using Application.DTOs.Permissions;
-using Application.DTOs.Roles;
-using Application.Interfaces.Services.Permissions;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Controllers.Permissions;
+namespace API;
 
 [Route("api/permissions")]
-public class PermissionsController : CrudApiController<IPermissionService, PermissionDto, CreatePermissionRequest, UpdatePermissionRequest>
+public class PermissionsController : CrudApiController<IPermissionService, PermissionDto, CreatePermissionRequest,
+    UpdatePermissionRequest>
 {
     public PermissionsController(IPermissionService permissionService)
         : base(permissionService, new CrudPermissions

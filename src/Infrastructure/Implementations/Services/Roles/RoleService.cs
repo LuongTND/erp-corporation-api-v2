@@ -1,16 +1,6 @@
-using Application.Common.Exceptions;
-using Application.Common.Mapping;
-using Application.Common.Models;
-using Application.Constants;
-using Application.DTOs.Roles;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Roles;
-using Application.Interfaces.Services.Notifications;
-using Application.Interfaces.Services.Roles;
-using AutoMapper;
 using FluentValidation;
 
-namespace Infrastructure.Implementations.Services.Roles;
+namespace Infrastructure;
 
 public class RoleService : IRoleService
 {
@@ -53,7 +43,8 @@ public class RoleService : IRoleService
         return PaginationMapper.Map<Role, RoleDto>(result, _mapper);
     }
 
-    public async Task<PaginatedResult<PermissionDto>> GetPagedPermissionsAsync(PaginationQuery query, CancellationToken ct = default)
+    public async Task<PaginatedResult<PermissionDto>> GetPagedPermissionsAsync(PaginationQuery query,
+        CancellationToken ct = default)
     {
         var result = await _roleRepository.GetPagedPermissionsAsync(query, ct);
         return PaginationMapper.Map<Permission, PermissionDto>(result, _mapper);
@@ -93,7 +84,8 @@ public class RoleService : IRoleService
         return await GetByIdAsync(role.Id, ct);
     }
 
-    public async Task UpdatePermissionsAsync(Guid id, UpdateRolePermissionsRequest request, CancellationToken ct = default)
+    public async Task UpdatePermissionsAsync(Guid id, UpdateRolePermissionsRequest request,
+        CancellationToken ct = default)
     {
         var role = await _roleRepository.GetByIdWithPermissionsAsync(id, ct);
 

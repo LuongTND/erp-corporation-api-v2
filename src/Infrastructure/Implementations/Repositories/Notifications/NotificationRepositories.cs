@@ -1,12 +1,7 @@
-using Application.Common.Models;
-using Application.Interfaces.Repositories.Notifications;
-using Infrastructure.Extensions;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+namespace Infrastructure;
 
-namespace Infrastructure.Implementations.Repositories.Notifications;
-
-public class NotificationEventTypeRepository : GenericRepository<NotificationEventType>, INotificationEventTypeRepository
+public class NotificationEventTypeRepository : GenericRepository<NotificationEventType>,
+    INotificationEventTypeRepository
 {
     public NotificationEventTypeRepository(AppDbContext context) : base(context)
     {
@@ -71,14 +66,16 @@ public class NotificationTemplateRepository : GenericRepository<NotificationTemp
         CancellationToken ct = default) =>
         DbSet.FirstOrDefaultAsync(x => x.EventTypeId == eventTypeId && x.Channel == channel, ct);
 
-    public async Task<IReadOnlyList<NotificationTemplate>> GetByEventTypeIdAsync(Guid eventTypeId, CancellationToken ct = default) =>
+    public async Task<IReadOnlyList<NotificationTemplate>> GetByEventTypeIdAsync(Guid eventTypeId,
+        CancellationToken ct = default) =>
         await DbSet.AsNoTracking()
             .Where(x => x.EventTypeId == eventTypeId)
             .OrderBy(x => x.Channel)
             .ToListAsync(ct);
 }
 
-public class NotificationTriggerBindingRepository : GenericRepository<NotificationTriggerBinding>, INotificationTriggerBindingRepository
+public class NotificationTriggerBindingRepository : GenericRepository<NotificationTriggerBinding>,
+    INotificationTriggerBindingRepository
 {
     public NotificationTriggerBindingRepository(AppDbContext context) : base(context)
     {
@@ -108,7 +105,8 @@ public class NotificationTriggerBindingRepository : GenericRepository<Notificati
         return DbSet.FirstOrDefaultAsync(x => x.TriggerKey == key, ct);
     }
 
-    public Task<NotificationTriggerBinding?> GetByTriggerKeyWithEventTypeAsync(string triggerKey, CancellationToken ct = default)
+    public Task<NotificationTriggerBinding?> GetByTriggerKeyWithEventTypeAsync(string triggerKey,
+        CancellationToken ct = default)
     {
         var key = triggerKey.ToLowerInvariant();
         return DbSet

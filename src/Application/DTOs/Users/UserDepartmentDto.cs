@@ -1,5 +1,4 @@
-namespace Application.DTOs.Users;
-
+namespace Application;
 public class UserDepartmentDto
 {
     public Guid Id { get; set; }

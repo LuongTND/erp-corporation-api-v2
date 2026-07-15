@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Enums.Tasks;
 
-namespace Domain.Entities.Tasks;
-
+namespace Domain;
 public class TaskTemplate : BaseEntity
 {
     public string TemplateName { get; private set; } = null!;

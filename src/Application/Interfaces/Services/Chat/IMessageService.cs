@@ -1,7 +1,5 @@
-using Application.DTOs.Chat;
 
-namespace Application.Interfaces.Services.Chat;
-
+namespace Application;
 public interface IMessageService
 {
     Task<List<MessageDto>> GetPagedMessagesAsync(Guid conversationId, int page, int pageSize, CancellationToken ct = default);

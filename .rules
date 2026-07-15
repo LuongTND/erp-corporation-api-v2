@@ -1,0 +1,112 @@
+# Project Rules
+
+## General
+- Language: **C# 14** (.NET 10). Use C# 14 features where appropriate.
+- Use string interpolation (`$"..."`) over concatenation (`+`) or `string.Format`.
+- Clean Architecture boundaries. Correctness over speed.
+- Add to existing files before creating new ones.
+- No generic names (`Service`, `Manager`, `Helper`) — use `AuthService`, `UserRepository`.
+- Primary constructor injection only. Never inject `IServiceProvider`.
+
+## Namespace Convention
+- **One flat namespace per layer.** No sub-namespaces.
+  - `API` — all files under `src/API/`
+  - `Application` — all files under `src/Application/`
+  - `Domain` — all files under `src/Domain/`
+  - `Infrastructure` — all files under `src/Infrastructure/`
+- Use file-scoped namespace syntax: `namespace API;`
+- Do **not** use `namespace API.Controllers.Tasks` or any sub-path.
+
+## Global Usings (do not repeat in individual files)
+Each project has `GlobalUsings.cs` that covers common imports:
+
+| Project | Global usings |
+|---|---|
+| `Domain` | *(none — ImplicitUsings covers System.\*)* |
+| `Application` | `Domain`, `AutoMapper`, `FluentValidation`, `MediatR` |
+| `Infrastructure` | `Domain`, `Application`, `AutoMapper`, `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.Metadata.Builders`, `Microsoft.EntityFrameworkCore.Migrations` |
+| `API` | `Domain`, `Application`, `Infrastructure`, `Microsoft.AspNetCore.Mvc`, `Microsoft.AspNetCore.Authorization` |
+
+## Layers
+| Layer | Contains |
+|---|---|
+| Domain | Entities, Enums, Value Objects |
+| Application | Command/Query Handlers, Validators, `IUnitOfWork`, `IGenericRepository<T>`, infrastructure contracts, business logic |
+| Infrastructure | `UnitOfWork`, `GenericRepository<T>`, DbContext, external provider implementations |
+| API | Controllers, Middlewares, Filters |
+
+**Dependency direction (one-way only):**
+```
+API → Application → Domain
+API → Infrastructure → Application → Domain
+```
+- Application must **not** reference Infrastructure.
+- Infrastructure references Application (to implement interfaces defined there).
+- Controllers inject `ISender` only — never Repositories, DbContext, or Services directly.
+
+## DI Registration
+Use `[RegisterService(typeof(IXxx))]` on the class. Never register manually in `Program.cs`.
+
+```csharp
+[RegisterService(typeof(IAuthService))]
+public sealed class AuthService(IUnitOfWork unitOfWork) : IAuthService { }
+```
+
+Manual registration allowed **only** for: `AddDbContext`, `AddMediatR`, `AddAuthentication`, `AddHttpClient`, `Configure<TOptions>`.
+
+| Lifetime | Use for |
+|---|---|
+| `Scoped` *(default)* | Services, Repositories, UnitOfWork, anything using DbContext |
+| `Singleton` | Stateless helpers — must not depend on DbContext |
+| `Transient` | Lightweight stateless classes |
+
+## CQRS (primary pattern)
+- **Command** = write → returns `Guid` or `Unit`. Never returns entity.
+- **Query** = read → returns DTO. Never returns entity.
+- Business logic lives in Handlers, not Controllers or Repositories.
+- Handler calls `IUnitOfWork`. Call `EnsureSaveAsync` once — not inside Repository.
+- Query handlers may use `DbContext` directly for `ProjectToType<TDto>()` projections.
+- Folder: `Application/Features/<Domain>/<Feature>/` — 1 feature per folder.
+
+## Services (shared infra only)
+Use Services **only** for cross-cutting concerns shared across Handlers: email, SMS, file storage, external APIs. Never use as a CRUD wrapper.
+
+## Controllers
+- Inject `ISender` only. No business logic.
+- Return `ActionResult<ApiResponse<T>>`. Use `Ok(ApiResponse<T>.Ok(result))`.
+- Never catch exceptions — global middleware handles all errors.
+
+```csharp
+[HttpPost]
+public async Task<ActionResult<ApiResponse<Guid>>> Create(CreateXxxCommand cmd, CancellationToken ct)
+    => Ok(ApiResponse<Guid>.Ok(await sender.Send(cmd, ct)));
+```
+
+## Mapping
+- Mapster only. Config in Application layer.
+- Use `entity.Adapt<TDto>()` or `queryable.ProjectToType<TDto>()`.
+- Never map manually in Controllers or Repositories.
+
+## Async
+- `async/await` + `CancellationToken` on all DB and external calls.
+- Method names end with `Async`. Never `.Result` or `.Wait()`.
+
+## Error Handling
+Throw custom exceptions only — never `Exception`.
+
+| Exception | Status |
+|---|---|
+| `BadRequestException` | 400 |
+| `UnauthorizedException` | 401 |
+| `ForbiddenException` | 403 |
+| `NotFoundException` | 404 |
+| `ConflictException` | 409 |
+| `TooManyRequestException` | 429 |
+| `DatabaseOperationException` | 500 |
+
+All inherit `AppException` in `Application/Common/Exceptions/`.
+
+## Validation
+- FluentValidation validators in Application layer.
+- `ValidationPipelineBehavior` auto-runs via MediatR pipeline — throws on failure.
+- Business validation requiring DB checks goes in Command Handlers.

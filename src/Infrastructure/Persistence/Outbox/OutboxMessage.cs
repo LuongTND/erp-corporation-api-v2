@@ -1,4 +1,4 @@
-namespace Infrastructure.Persistence.Outbox;
+namespace Infrastructure;
 
 public class OutboxMessage
 {

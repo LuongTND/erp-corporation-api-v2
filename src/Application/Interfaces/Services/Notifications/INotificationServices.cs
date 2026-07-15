@@ -1,10 +1,5 @@
-using Application.Common.Models;
-using Application.DTOs.Notifications;
-using Application.Interfaces.Services.Common;
-using Domain.Enums.Notifications;
 
-namespace Application.Interfaces.Services.Notifications;
-
+namespace Application;
 public interface INotificationEventTypeService : ICrudService<NotificationEventTypeDto, CreateNotificationEventTypeRequest, UpdateNotificationEventTypeRequest>
 {
     Task<IReadOnlyList<NotificationTemplateDto>> GetTemplatesAsync(Guid eventTypeId, CancellationToken ct = default);

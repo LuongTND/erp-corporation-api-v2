@@ -1,5 +1,4 @@
-namespace Domain.Enums.JobLevels;
-
+namespace Domain;
 public enum ScopeType
 {
     Own = 1,

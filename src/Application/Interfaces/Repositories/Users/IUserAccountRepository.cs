@@ -1,6 +1,5 @@
 
-namespace Application.Interfaces.Repositories.Users;
-
+namespace Application;
 public interface IUserAccountRepository : IGenericRepository<UserAccount>
 {
     Task<UserAccount?> GetByEmailWithUserAsync(string email, CancellationToken ct = default);

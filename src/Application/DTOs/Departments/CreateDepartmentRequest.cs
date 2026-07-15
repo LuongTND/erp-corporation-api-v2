@@ -1,4 +1,4 @@
-namespace Application.DTOs.Departments;
+namespace Application;
 
 public record CreateDepartmentRequest(
     string DepartmentName,

@@ -1,8 +1,3 @@
-using Application.Common.Models;
-using Application.DTOs.Permissions;
-using Application.DTOs.Roles;
-using Application.Interfaces.Services.Common;
 
-namespace Application.Interfaces.Services.Permissions;
-
+namespace Application;
 public interface IPermissionService : ICrudService<PermissionDto, CreatePermissionRequest, UpdatePermissionRequest>;

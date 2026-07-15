@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Infrastructure.Persistence;
+namespace Infrastructure;
 
 public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
@@ -10,8 +9,8 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
         LoadEnvFile();
 
         var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
-            ?? throw new InvalidOperationException(
-                "CONNECTION_STRING is not set. Add it to API/.env before running EF migrations.");
+                               ?? throw new InvalidOperationException(
+                                   "CONNECTION_STRING is not set. Add it to API/.env before running EF migrations.");
 
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseSqlServer(connectionString)

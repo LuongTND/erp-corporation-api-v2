@@ -1,8 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Users;
 
-namespace Domain.Entities.Departments;
-
+namespace Domain;
 public class Department : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public string DepartmentName { get; private set; } = null!;

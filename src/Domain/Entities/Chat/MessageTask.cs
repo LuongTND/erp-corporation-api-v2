@@ -1,7 +1,5 @@
-using Domain.Entities.Tasks;
 
-namespace Domain.Entities.Chat;
-
+namespace Domain;
 public class MessageTask
 {
     public Guid MessageID { get; private set; }

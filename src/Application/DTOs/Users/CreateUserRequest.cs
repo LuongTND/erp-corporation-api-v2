@@ -1,6 +1,5 @@
 
-namespace Application.DTOs.Users;
-
+namespace Application;
 public record CreateUserRequest(
     string EmployeeCode,
     string FullName,

@@ -1,17 +1,6 @@
-using Application.Common.Exceptions;
-using Application.Common.Mapping;
-using Application.Common.Models;
-using Application.Constants;
-using Application.DTOs.Permissions;
-using Application.DTOs.Roles;
-using Application.Interfaces.Repositories;
-using Application.Interfaces.Repositories.Permissions;
-using Application.Interfaces.Services.Notifications;
-using Application.Interfaces.Services.Permissions;
-using AutoMapper;
 using FluentValidation;
 
-namespace Infrastructure.Implementations.Services.Permissions;
+namespace Infrastructure;
 
 public class PermissionService : IPermissionService
 {
@@ -41,7 +30,8 @@ public class PermissionService : IPermissionService
         _mapper = mapper;
     }
 
-    public async Task<PaginatedResult<PermissionDto>> GetPagedAsync(PaginationQuery query, CancellationToken ct = default)
+    public async Task<PaginatedResult<PermissionDto>> GetPagedAsync(PaginationQuery query,
+        CancellationToken ct = default)
     {
         var result = await _permissionRepository.GetPagedAsync(query, ct);
         return PaginationMapper.Map<Permission, PermissionDto>(result, _mapper);
@@ -91,7 +81,8 @@ public class PermissionService : IPermissionService
         return _mapper.Map<PermissionDto>(permission);
     }
 
-    public async Task<PermissionDto> UpdateAsync(Guid id, UpdatePermissionRequest request, CancellationToken ct = default)
+    public async Task<PermissionDto> UpdateAsync(Guid id, UpdatePermissionRequest request,
+        CancellationToken ct = default)
     {
         await _updateValidator.ValidateAndThrowAsync(request, ct);
 

@@ -1,11 +1,4 @@
-using API.Base;
-using API.Filters;
-using Application.Common.Models;
-using Application.DTOs.Users;
-using Application.Interfaces.Services.Users;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Controllers.Users;
+namespace API;
 
 public class UsersController : BaseApiController
 {
@@ -19,7 +12,8 @@ public class UsersController : BaseApiController
     // API lấy danh sách tất cả người dùng, sau khi lấy về thì dùng filter để lọc các người dùng cần hiển thị
     [HttpGet]
     [AuthorizePermission("hrm.employee.read")]
-    public async Task<ActionResult<PaginatedResult<UserDto>>> GetAll([FromQuery] PaginationQuery query, CancellationToken ct)
+    public async Task<ActionResult<PaginatedResult<UserDto>>> GetAll([FromQuery] PaginationQuery query,
+        CancellationToken ct)
     {
         var result = await _userService.GetPagedAsync(query, ct);
         return Ok(result);
@@ -82,7 +76,8 @@ public class UsersController : BaseApiController
     // API lấy danh sách phòng ban kiêm nhiệm của người dùng
     [HttpGet("{id:guid}/departments")]
     [AuthorizePermission("hrm.employee.read")]
-    public async Task<ActionResult<IReadOnlyList<UserDepartmentDto>>> GetSecondaryDepartments(Guid id, CancellationToken ct)
+    public async Task<ActionResult<IReadOnlyList<UserDepartmentDto>>> GetSecondaryDepartments(Guid id,
+        CancellationToken ct)
     {
         var list = await _userService.GetSecondaryDepartmentsAsync(id, ct);
         return Ok(list);
@@ -91,7 +86,8 @@ public class UsersController : BaseApiController
     // API gán phòng ban kiêm nhiệm cho người dùng
     [HttpPost("{id:guid}/departments")]
     [AuthorizePermission("hrm.employee.update")]
-    public async Task<ActionResult<UserDepartmentDto>> AddSecondaryDepartment(Guid id, [FromBody] AddUserDepartmentRequest request, CancellationToken ct)
+    public async Task<ActionResult<UserDepartmentDto>> AddSecondaryDepartment(Guid id,
+        [FromBody] AddUserDepartmentRequest request, CancellationToken ct)
     {
         var userDept = await _userService.AddSecondaryDepartmentAsync(id, request, ct);
         return Ok(userDept);

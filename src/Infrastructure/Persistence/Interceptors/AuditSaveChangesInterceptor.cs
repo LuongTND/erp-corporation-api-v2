@@ -1,9 +1,6 @@
-using Application.Interfaces.Services.Auth;
-using Domain.Base;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Infrastructure.Persistence.Interceptors;
+namespace Infrastructure;
 
 public class AuditSaveChangesInterceptor : SaveChangesInterceptor
 {

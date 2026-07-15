@@ -1,7 +1,5 @@
-using Domain.Entities.Users;
 
-namespace Domain.Entities.Tasks;
-
+namespace Domain;
 public class TaskAssignee
 {
     public Guid TaskID { get; private set; }

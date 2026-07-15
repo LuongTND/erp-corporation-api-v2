@@ -1,8 +1,4 @@
-using Application.Interfaces.Repositories.Users;
-using Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
-namespace Infrastructure.Implementations.Repositories.Users;
+namespace Infrastructure;
 
 public class UserAccountRepository : GenericRepository<UserAccount>, IUserAccountRepository
 {

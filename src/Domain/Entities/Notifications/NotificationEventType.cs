@@ -1,7 +1,5 @@
-using Domain.Base;
 
-namespace Domain.Entities.Notifications;
-
+namespace Domain;
 public class NotificationEventType : BaseEntity, IAuditable
 {
     public string EventCode { get; private set; } = null!;

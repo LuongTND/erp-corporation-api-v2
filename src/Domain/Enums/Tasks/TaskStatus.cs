@@ -1,5 +1,4 @@
-namespace Domain.Enums.Tasks;
-
+namespace Domain;
 public enum TaskStatus
 {
     ToDo = 1,

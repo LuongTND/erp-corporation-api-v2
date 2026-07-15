@@ -1,8 +1,4 @@
-using Application.DTOs.Tasks;
-using AutoMapper;
-using Domain.Entities.Tasks;
-
-namespace Application.Mappings.Tasks;
+namespace Application;
 
 public class TaskMappingProfile : Profile
 {
@@ -19,11 +15,13 @@ public class TaskMappingProfile : Profile
 
         CreateMap<TaskAssignee, TaskAssigneeDto>()
             .ForMember(d => d.FullName, opt => opt.MapFrom(s => s.User != null ? s.User.FullName : string.Empty))
-            .ForMember(d => d.EmployeeCode, opt => opt.MapFrom(s => s.User != null ? s.User.EmployeeCode : string.Empty));
+            .ForMember(d => d.EmployeeCode,
+                opt => opt.MapFrom(s => s.User != null ? s.User.EmployeeCode : string.Empty));
 
         CreateMap<TaskFollower, TaskFollowerDto>()
             .ForMember(d => d.FullName, opt => opt.MapFrom(s => s.User != null ? s.User.FullName : string.Empty))
-            .ForMember(d => d.EmployeeCode, opt => opt.MapFrom(s => s.User != null ? s.User.EmployeeCode : string.Empty));
+            .ForMember(d => d.EmployeeCode,
+                opt => opt.MapFrom(s => s.User != null ? s.User.EmployeeCode : string.Empty));
 
         CreateMap<TaskComment, TaskCommentDto>()
             .ForMember(d => d.FullName, opt => opt.MapFrom(s => s.User != null ? s.User.FullName : string.Empty))

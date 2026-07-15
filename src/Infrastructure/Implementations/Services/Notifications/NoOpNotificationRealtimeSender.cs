@@ -1,13 +1,11 @@
-using Application.DTOs.Notifications;
-using Application.Interfaces.Services.Notifications;
-
-namespace Infrastructure.Implementations.Services.Notifications;
+namespace Infrastructure;
 
 /// <summary>
 /// Fallback khi SignalR chưa được đăng ký (tests). API ghi đè bằng <see cref="API.Services.SignalRNotificationSender"/>.
 /// </summary>
 public class NoOpNotificationRealtimeSender : INotificationRealtimeSender
 {
-    public Task SendToUserAsync(Guid userId, RealtimeNotificationPayload payload, CancellationToken cancellationToken = default) =>
+    public Task SendToUserAsync(Guid userId, RealtimeNotificationPayload payload,
+        CancellationToken cancellationToken = default) =>
         Task.CompletedTask;
 }

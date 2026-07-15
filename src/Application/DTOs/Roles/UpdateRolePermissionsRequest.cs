@@ -1,3 +1,3 @@
-namespace Application.DTOs.Roles;
+namespace Application;
 
 public record UpdateRolePermissionsRequest(List<Guid> PermissionIds);

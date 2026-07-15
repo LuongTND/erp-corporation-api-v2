@@ -1,11 +1,4 @@
-using API.Base;
-using API.Filters;
-using Application.DTOs.Notifications;
-using Application.Interfaces.Services.Notifications;
-using Domain.Enums.Notifications;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API.Controllers.Notifications;
+namespace API;
 
 [Route("api/notification-event-types")]
 public class NotificationEventTypesController : CrudApiController<

@@ -1,9 +1,5 @@
-using Domain.Base;
-using Domain.Entities.Users;
-using Domain.Enums.Tasks;
 
-namespace Domain.Entities.Tasks;
-
+namespace Domain;
 public class TaskActivityLog : BaseEntity
 {
     public Guid TaskID { get; private set; }

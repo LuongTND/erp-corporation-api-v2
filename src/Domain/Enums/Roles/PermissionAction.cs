@@ -1,5 +1,4 @@
-namespace Domain.Enums.Roles;
-
+namespace Domain;
 public enum PermissionAction
 {
     Create = 1,
