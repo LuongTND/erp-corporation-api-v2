@@ -1,5 +1,6 @@
 namespace Infrastructure;
 
+[RegisterService(typeof(IMessageService))]
 public class MessageService : IMessageService
 {
     private readonly IMessageRepository _messageRepository;

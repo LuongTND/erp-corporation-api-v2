@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "document", "document", "{83
 		C:\Users\Admin\Downloads\tang4.png = C:\Users\Admin\Downloads\tang4.png
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contract", "src\Contract\Contract.csproj", "{586678B0-CE54-4700-81AA-8B2F379863B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{0D33EDE6-40EE-4453-9AF2-A9114DCB9C93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D33EDE6-40EE-4453-9AF2-A9114DCB9C93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D33EDE6-40EE-4453-9AF2-A9114DCB9C93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{586678B0-CE54-4700-81AA-8B2F379863B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{586678B0-CE54-4700-81AA-8B2F379863B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{586678B0-CE54-4700-81AA-8B2F379863B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{586678B0-CE54-4700-81AA-8B2F379863B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,6 +62,7 @@ Global
 		{90C9805C-2467-4D8E-AC11-D8CF9810E29F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{0D33EDE6-40EE-4453-9AF2-A9114DCB9C93} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{83838A4C-0F78-4D87-A609-BA7652923DAE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{586678B0-CE54-4700-81AA-8B2F379863B8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {41DCDB2F-3224-4CFE-8F35-5427C312F8A3}

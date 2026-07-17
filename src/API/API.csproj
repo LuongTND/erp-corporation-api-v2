@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Contract\Contract.csproj" />
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
@@ -34,6 +35,8 @@
     <Folder Include="Base\" />
     <Folder Include="Configuration\" />
     <Folder Include="Controllers\" />
+    <Folder Include="DependencyInjections\Extensions\" />
+    <Folder Include="DependencyInjections\Options\" />
     <Folder Include="Filters\" />
     <Folder Include="Middlewares\" />
   </ItemGroup>

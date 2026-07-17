@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure;
 
+[RegisterService(typeof(IAuthService))]
 public class AuthService : IAuthService
 {
     private readonly IUserAccountRepository _userAccountRepository;

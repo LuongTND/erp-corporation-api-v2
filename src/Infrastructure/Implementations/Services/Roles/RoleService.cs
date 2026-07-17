@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace Infrastructure;
 
+[RegisterService(typeof(IRoleService))]
 public class RoleService : IRoleService
 {
     private readonly IRoleRepository _roleRepository;

@@ -1,5 +1,6 @@
 namespace Infrastructure;
 
+[RegisterService(typeof(IDepartmentService))]
 public class DepartmentService : IDepartmentService
 {
     private readonly IDepartmentRepository _departmentRepository;

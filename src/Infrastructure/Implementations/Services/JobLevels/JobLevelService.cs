@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace Infrastructure;
 
+[RegisterService(typeof(IJobLevelService))]
 public class JobLevelService : IJobLevelService
 {
     private readonly IJobLevelRepository _jobLevelRepository;
