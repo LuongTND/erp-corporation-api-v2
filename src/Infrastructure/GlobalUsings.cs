@@ -1,7 +1,7 @@
 global using Domain;
 global using Application;
-global using System.Reflection;
 global using Contract;
+global using System.Reflection;
 global using AutoMapper;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;

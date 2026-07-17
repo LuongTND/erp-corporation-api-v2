@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class TaskComment : BaseEntity
 {
     public Guid TaskID { get; private set; }

@@ -1,5 +1,4 @@
 namespace Domain;
-
 public enum TaskActivityAction
 {
     Created = 1,

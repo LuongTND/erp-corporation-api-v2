@@ -1,5 +1,4 @@
 namespace Domain;
-
 public enum PermissionAction
 {
     Create = 1,

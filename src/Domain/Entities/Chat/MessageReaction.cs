@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class MessageReaction : BaseEntity
 {
     public Guid MessageID { get; private set; }

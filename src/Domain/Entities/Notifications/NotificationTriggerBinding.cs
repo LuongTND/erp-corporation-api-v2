@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class NotificationTriggerBinding : BaseEntity
 {
     public string TriggerKey { get; private set; } = null!;

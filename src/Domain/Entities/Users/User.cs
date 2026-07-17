@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public string EmployeeCode { get; private set; } = null!;

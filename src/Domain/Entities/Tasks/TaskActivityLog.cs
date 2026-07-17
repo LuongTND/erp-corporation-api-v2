@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class TaskActivityLog : BaseEntity
 {
     public Guid TaskID { get; private set; }
@@ -16,8 +16,7 @@ public class TaskActivityLog : BaseEntity
     {
     }
 
-    public static TaskActivityLog Create(Guid taskId, Guid userId, TaskActivityAction action, string? oldValue = null,
-        string? newValue = null)
+    public static TaskActivityLog Create(Guid taskId, Guid userId, TaskActivityAction action, string? oldValue = null, string? newValue = null)
     {
         return new TaskActivityLog
         {

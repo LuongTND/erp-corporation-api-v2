@@ -1,5 +1,4 @@
 namespace Domain;
-
 public enum ScopeType
 {
     Own = 1,

@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class Permission : BaseEntity, IAuditable
 {
     public string PermissionCode { get; private set; } = null!;

@@ -1,5 +1,4 @@
 namespace Domain;
-
 public enum UserStatus
 {
     Active = 1,

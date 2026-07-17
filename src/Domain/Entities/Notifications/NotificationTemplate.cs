@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class NotificationTemplate : BaseEntity, IAuditable
 {
     public Guid EventTypeId { get; private set; }

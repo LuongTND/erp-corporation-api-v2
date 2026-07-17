@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class UserRole : BaseEntity, IAuditable
 {
     public Guid UserId { get; private set; }

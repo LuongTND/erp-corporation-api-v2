@@ -1,5 +1,4 @@
 namespace Domain;
-
 public enum TaskPriority
 {
     Low = 1,

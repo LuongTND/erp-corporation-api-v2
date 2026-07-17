@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 
 namespace Domain;
-
 public class UserAccount : BaseEntity
 {
     public Guid UserId { get; private set; }
@@ -86,7 +85,7 @@ public class UserAccount : BaseEntity
     public bool IsRefreshTokenValid(string token)
     {
         return RefreshToken == token
-               && RefreshTokenExpiresAt.HasValue
-               && RefreshTokenExpiresAt.Value > DateTime.UtcNow;
+            && RefreshTokenExpiresAt.HasValue
+            && RefreshTokenExpiresAt.Value > DateTime.UtcNow;
     }
 }

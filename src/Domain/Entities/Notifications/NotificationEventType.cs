@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class NotificationEventType : BaseEntity, IAuditable
 {
     public string EventCode { get; private set; } = null!;

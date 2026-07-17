@@ -1,5 +1,5 @@
-namespace Domain;
 
+namespace Domain;
 public class Role : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public string RoleName { get; private set; } = null!;

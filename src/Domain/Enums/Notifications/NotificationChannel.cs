@@ -1,5 +1,4 @@
 namespace Domain;
-
 public enum NotificationChannel
 {
     InApp = 1,
