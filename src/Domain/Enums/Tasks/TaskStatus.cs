@@ -1,4 +1,5 @@
 namespace Domain;
+
 public enum TaskStatus
 {
     ToDo = 1,

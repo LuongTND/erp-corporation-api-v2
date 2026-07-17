@@ -1,4 +1,5 @@
 namespace Domain;
+
 public enum ConversationType
 {
     Direct = 1,

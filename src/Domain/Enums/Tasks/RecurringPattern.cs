@@ -1,4 +1,5 @@
 namespace Domain;
+
 public enum RecurringPattern
 {
     None = 1,

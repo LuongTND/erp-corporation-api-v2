@@ -1,5 +1,5 @@
-
 namespace Domain;
+
 public class UserNotification : BaseEntity
 {
     public Guid UserId { get; private set; }

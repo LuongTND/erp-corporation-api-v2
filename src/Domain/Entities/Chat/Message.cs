@@ -1,5 +1,5 @@
-
 namespace Domain;
+
 public class Message : BaseEntity
 {
     public Guid ConversationID { get; private set; }

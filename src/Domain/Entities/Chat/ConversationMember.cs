@@ -1,5 +1,5 @@
-
 namespace Domain;
+
 public class ConversationMember
 {
     public Guid ConversationID { get; private set; }
@@ -10,7 +10,7 @@ public class ConversationMember
 
     public RoleInConversation? RoleInConversation { get; private set; }
     public DateTime JoinedAt { get; private set; }
-    
+
     public Guid? LastReadMessageID { get; private set; }
     public virtual Message? LastReadMessage { get; private set; }
 
@@ -22,8 +22,8 @@ public class ConversationMember
     }
 
     public static ConversationMember Create(
-        Guid conversationId, 
-        Guid userId, 
+        Guid conversationId,
+        Guid userId,
         global::Domain.RoleInConversation? role = global::Domain.RoleInConversation.Member)
     {
         return new ConversationMember

@@ -1,5 +1,5 @@
-
 namespace Domain;
+
 public class Conversation : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public ConversationType ConversationType { get; private set; }
@@ -7,7 +7,7 @@ public class Conversation : BaseEntity, IAuditable, ICreationTracked, IModificat
     public string? Description { get; private set; }
     public bool IsPrivate { get; private set; }
     public bool IsArchived { get; private set; }
-    
+
     public Guid? CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }
     public bool IsActive { get; set; } = true;

@@ -1,4 +1,5 @@
 namespace Domain;
+
 public class TaskItem : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public string TaskCode { get; private set; } = null!;
@@ -17,7 +18,7 @@ public class TaskItem : BaseEntity, IAuditable, ICreationTracked, IModificationT
     public RecurringPattern? RecurringPattern { get; private set; }
     public Guid? ParentTaskID { get; private set; }
     public virtual TaskItem? ParentTask { get; private set; }
-    
+
     public Guid? CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }
     public bool IsActive { get; set; } = true;

@@ -1,5 +1,5 @@
-
 namespace Domain;
+
 public class TaskTemplate : BaseEntity
 {
     public string TemplateName { get; private set; } = null!;

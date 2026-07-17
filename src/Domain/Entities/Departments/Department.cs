@@ -1,5 +1,5 @@
-
 namespace Domain;
+
 public class Department : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public string DepartmentName { get; private set; } = null!;

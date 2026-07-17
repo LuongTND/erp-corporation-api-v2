@@ -1,5 +1,5 @@
-
 namespace Domain;
+
 public class JobLevel : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
 {
     public string LevelName { get; private set; } = null!;

@@ -1,4 +1,5 @@
 namespace Domain;
+
 public class TaskKpi
 {
     public Guid TaskID { get; private set; }

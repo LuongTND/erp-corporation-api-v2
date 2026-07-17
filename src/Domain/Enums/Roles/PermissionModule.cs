@@ -1,4 +1,5 @@
 namespace Domain;
+
 public enum PermissionModule
 {
     Hrm = 1,

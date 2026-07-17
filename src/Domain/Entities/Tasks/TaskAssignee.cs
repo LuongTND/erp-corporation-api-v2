@@ -1,10 +1,10 @@
-
 namespace Domain;
+
 public class TaskAssignee
 {
     public Guid TaskID { get; private set; }
     public virtual TaskItem Task { get; private set; } = null!;
-    
+
     public Guid UserID { get; private set; }
     public virtual User User { get; private set; } = null!;
 

@@ -1,4 +1,5 @@
 namespace Domain;
+
 public enum TaskType
 {
     Normal = 1,

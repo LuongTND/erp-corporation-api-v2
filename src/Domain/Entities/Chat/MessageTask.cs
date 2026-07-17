@@ -1,5 +1,5 @@
-
 namespace Domain;
+
 public class MessageTask
 {
     public Guid MessageID { get; private set; }

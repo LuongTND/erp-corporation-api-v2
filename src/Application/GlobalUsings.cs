@@ -2,7 +2,8 @@ global using Domain;
 global using AutoMapper;
 global using FluentValidation;
 global using MediatR;
+global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
+global using System.Reflection;
 global using System.Text.Json;
-
-
+global using Contract;
