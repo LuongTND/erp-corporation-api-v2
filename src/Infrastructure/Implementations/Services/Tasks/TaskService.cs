@@ -2,6 +2,7 @@ using TaskStatus = global::Domain.TaskStatus;
 
 namespace Infrastructure;
 
+[RegisterService(typeof(ITaskService))]
 public class TaskService : ITaskService
 {
     private readonly ITaskRepository _taskRepository;

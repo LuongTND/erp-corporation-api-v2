@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure;
 
+[RegisterService(typeof(INotificationPublisher))]
 public class NotificationPublisher : INotificationPublisher
 {
     private readonly INotificationTriggerBindingRepository _triggerRepository;

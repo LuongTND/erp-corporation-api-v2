@@ -1,5 +1,6 @@
 namespace Infrastructure;
 
+[RegisterService(typeof(INotificationActorResolver))]
 public class NotificationActorResolver : INotificationActorResolver
 {
     private readonly ICurrentUserService _currentUserService;

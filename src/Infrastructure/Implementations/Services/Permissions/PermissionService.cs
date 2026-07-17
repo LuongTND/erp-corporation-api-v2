@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace Infrastructure;
 
+[RegisterService(typeof(IPermissionService))]
 public class PermissionService : IPermissionService
 {
     private readonly IPermissionRepository _permissionRepository;

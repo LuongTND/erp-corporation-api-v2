@@ -1,5 +1,6 @@
 namespace Infrastructure;
 
+[RegisterService(typeof(INotificationRecipientResolver))]
 public class NotificationRecipientResolver : INotificationRecipientResolver
 {
     private const string SuperAdminRoleName = "ROLE_SUPER_ADMIN";

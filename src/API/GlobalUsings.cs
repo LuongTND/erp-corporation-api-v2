@@ -1,5 +1,6 @@
 global using API;
 global using Domain;
+global using Contract;
 global using Application;
 global using Infrastructure;
 global using Microsoft.AspNetCore.Mvc;
@@ -7,3 +8,4 @@ global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.SignalR;
 global using System.Security.Claims;
 global using Microsoft.AspNetCore.Mvc.Filters;
+global using Microsoft.EntityFrameworkCore;

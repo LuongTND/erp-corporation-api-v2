@@ -1,5 +1,6 @@
 namespace Infrastructure;
 
+[RegisterService(typeof(IConversationService))]
 public class ConversationService : IConversationService
 {
     private readonly IConversationRepository _conversationRepository;

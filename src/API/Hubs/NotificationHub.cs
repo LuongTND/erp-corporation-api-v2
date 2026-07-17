@@ -1,6 +1,3 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.SignalR;
-
 namespace API;
 
 [Authorize]

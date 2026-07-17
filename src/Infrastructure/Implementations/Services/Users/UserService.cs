@@ -2,6 +2,7 @@ using FluentValidation;
 
 namespace Infrastructure;
 
+[RegisterService(typeof(IUserService))]
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
