@@ -10,14 +10,14 @@ public class UserAccountRepository : GenericRepository<UserAccount>, IUserAccoun
     public async Task<UserAccount?> GetByEmailWithUserAsync(string email, CancellationToken ct = default)
     {
         return await DbSet
-            .Include(a => a.User)
+            .Include(a => a.User).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(a => a.LoginEmail == email, ct);
     }
 
     public async Task<UserAccount?> GetByRefreshTokenWithUserAsync(string refreshToken, CancellationToken ct = default)
     {
         return await DbSet
-            .Include(a => a.User)
+            .Include(a => a.User).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(a => a.RefreshToken == refreshToken, ct);
     }
 
