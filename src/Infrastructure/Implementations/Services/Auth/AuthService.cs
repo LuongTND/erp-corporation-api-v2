@@ -153,13 +153,19 @@ public class AuthService : IAuthService
         var utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         var expiry = utcNow.AddMinutes(expiryMinutes);
 
-        var claims = new[]
+        var roleClaims = account.User.UserRoles
+            .Where(ur => ur.IsActive)
+            .Select(ur => new Claim(ClaimTypes.Role, ur.Role.RoleName))
+            .ToList();
+
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, account.UserId.ToString()),
             new Claim("AccountId", account.Id.ToString()),
             new Claim(ClaimTypes.Email, account.LoginEmail),
             new Claim(ClaimTypes.Name, account.User.FullName)
         };
+        claims.AddRange(roleClaims);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
