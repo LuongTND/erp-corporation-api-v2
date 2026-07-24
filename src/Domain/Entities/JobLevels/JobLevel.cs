@@ -1,57 +1,17 @@
-
 namespace Domain;
-public class JobLevel : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
+
+public class JobLevel : AuditableEntityBase<Guid>, ISoftDeletable
 {
-    public string LevelName { get; private set; } = null!;
-    public int LevelOrder { get; private set; }
-    public ScopeType DefaultScopeType { get; private set; }
-    public string? Description { get; private set; }
-    public decimal? BaseSalaryMin { get; private set; }
-    public decimal? BaseSalaryMax { get; private set; }
+    public string LevelName { get; set; } = string.Empty;
+    public int LevelOrder { get; set; }
+    public ScopeType DefaultScopeType { get; set; }
+    public string? Description { get; set; }
+    public decimal? BaseSalaryMin { get; set; }
+    public decimal? BaseSalaryMax { get; set; }
 
-    public bool IsActive { get; set; } = true;
-    public Guid? CreatedBy { get; set; }
-    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
-    public virtual ICollection<User> Users { get; private set; } = [];
-
-    private JobLevel() : base()
-    {
-    }
-
-    public static JobLevel Create(
-        string levelName,
-        int levelOrder,
-        ScopeType defaultScopeType,
-        string? description = null,
-        decimal? baseSalaryMin = null,
-        decimal? baseSalaryMax = null)
-    {
-        return new JobLevel
-        {
-            LevelName = levelName,
-            LevelOrder = levelOrder,
-            DefaultScopeType = defaultScopeType,
-            Description = description,
-            BaseSalaryMin = baseSalaryMin,
-            BaseSalaryMax = baseSalaryMax,
-            IsActive = true
-        };
-    }
-
-    public void Update(
-        string levelName,
-        int levelOrder,
-        ScopeType defaultScopeType,
-        string? description = null,
-        decimal? baseSalaryMin = null,
-        decimal? baseSalaryMax = null)
-    {
-        LevelName = levelName;
-        LevelOrder = levelOrder;
-        DefaultScopeType = defaultScopeType;
-        Description = description;
-        BaseSalaryMin = baseSalaryMin;
-        BaseSalaryMax = baseSalaryMax;
-    }
+    public ICollection<User> Users { get; set; } = [];
 }

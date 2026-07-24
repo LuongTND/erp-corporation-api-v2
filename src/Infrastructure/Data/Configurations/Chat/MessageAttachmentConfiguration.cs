@@ -1,37 +1,21 @@
 namespace Infrastructure;
 
-public class MessageAttachmentConfiguration : IEntityTypeConfiguration<MessageAttachment>
+public class MessageAttachmentConfiguration : BaseEntityConfiguration<MessageAttachment, Guid>
 {
-    public void Configure(EntityTypeBuilder<MessageAttachment> builder)
+    public override void Configure(EntityTypeBuilder<MessageAttachment> builder)
     {
-        builder.ToTable("Message_Attachments");
+        base.Configure(builder);
 
-        builder.HasKey(x => x.Id);
+        builder.ToTable("MessageAttachments");
 
-        builder.Property(x => x.Id)
-            .HasColumnName("AttachmentID");
+        builder.Property(a => a.FileName).IsRequired().HasMaxLength(500);
+        builder.Property(a => a.FileURL).IsRequired().HasMaxLength(2000);
+        builder.Property(a => a.FileType).IsRequired().HasMaxLength(100);
+        builder.Property(a => a.ThumbnailURL).HasMaxLength(2000);
 
-        builder.Property(x => x.FileName)
-            .HasMaxLength(255)
-            .IsRequired();
-
-        builder.Property(x => x.FileURL)
-            .HasMaxLength(1000)
-            .IsRequired();
-
-        builder.Property(x => x.FileType)
-            .HasMaxLength(50)
-            .IsRequired();
-
-        builder.Property(x => x.FileSize)
-            .IsRequired();
-
-        builder.Property(x => x.ThumbnailURL)
-            .HasMaxLength(1000);
-
-        builder.HasOne(x => x.Message)
+        builder.HasOne(a => a.Message)
             .WithMany(m => m.Attachments)
-            .HasForeignKey(x => x.MessageID)
+            .HasForeignKey(a => a.MessageID)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

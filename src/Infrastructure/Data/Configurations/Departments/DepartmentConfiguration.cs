@@ -1,35 +1,27 @@
 namespace Infrastructure;
 
-public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
+public class DepartmentConfiguration : AuditableEntityConfiguration<Department, Guid>
 {
-    public void Configure(EntityTypeBuilder<Department> builder)
+    public override void Configure(EntityTypeBuilder<Department> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("Departments");
 
-        builder.HasKey(x => x.Id);
+        builder.HasIndex(d => d.DepartmentCode).IsUnique();
 
-        builder.Property(x => x.DepartmentName)
-            .HasMaxLength(200)
-            .IsRequired();
+        builder.Property(d => d.DepartmentName).IsRequired().HasMaxLength(255);
+        builder.Property(d => d.DepartmentCode).IsRequired().HasMaxLength(50);
+        builder.Property(d => d.Description).HasMaxLength(1000);
 
-        builder.Property(x => x.DepartmentCode)
-            .HasMaxLength(50)
-            .IsRequired();
+        builder.HasOne(d => d.ParentDepartment)
+            .WithMany(d => d.ChildDepartments)
+            .HasForeignKey(d => d.ParentDepartmentId)
+            .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasIndex(x => x.DepartmentCode)
-            .IsUnique();
-
-        builder.HasOne(x => x.ParentDepartment)
-            .WithMany(x => x.ChildDepartments)
-            .HasForeignKey(x => x.ParentDepartmentId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(x => x.Manager)
+        builder.HasOne(d => d.Manager)
             .WithMany()
-            .HasForeignKey(x => x.ManagerId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(x => x.IsActive)
-            .IsRequired();
+            .HasForeignKey(d => d.ManagerId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

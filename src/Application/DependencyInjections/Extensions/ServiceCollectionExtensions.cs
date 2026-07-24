@@ -1,18 +1,24 @@
-namespace Application;
+﻿namespace Application;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
     {
-        var assembly = AssemblyReference.Assembly;
+        var appAssembly = AssemblyReference.Assembly;
 
-        services.AddAutoMapper(cfg => cfg.AddMaps(assembly));
-        services.AddValidatorsFromAssembly(assembly);
-        services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(assembly);
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        });
+        TypeAdapterConfig.GlobalSettings.Scan(appAssembly);
+        services.AddSingleton(TypeAdapterConfig.GlobalSettings);
+        services.AddScoped<IMapper, ServiceMapper>();
+
+        services.AddValidatorsFromAssembly(appAssembly);
+
+        services.AddServicesFromAssembly(appAssembly)
+                .AddMediatR(cfg =>
+                {
+                    cfg.RegisterServicesFromAssembly(appAssembly);
+                    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(PerformancePipelineBehavior<,>));
+                    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
+                });
 
         return services;
     }

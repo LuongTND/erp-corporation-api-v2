@@ -1,62 +1,40 @@
-
 namespace Domain;
-public class Message : BaseEntity
+
+public class Message : SoftDeletableEntityBase<Guid>
 {
-    public Guid ConversationID { get; private set; }
-    public virtual Conversation Conversation { get; private set; } = null!;
+    public Guid ConversationID { get; set; }
+    public Conversation? Conversation { get; set; }
 
-    public Guid UserID { get; private set; }
-    public virtual User User { get; private set; } = null!;
+    public Guid UserID { get; set; }
+    public User? User { get; set; }
 
-    public string? Content { get; private set; }
-    public MessageType MessageType { get; private set; }
+    public string? Content { get; set; }
+    public MessageType MessageType { get; set; }
 
-    public Guid? ParentMessageID { get; private set; }
-    public virtual Message? ParentMessage { get; private set; }
+    public Guid? ParentMessageID { get; set; }
+    public Message? ParentMessage { get; set; }
 
-    public bool IsEdited { get; private set; }
-    public bool IsDeleted { get; private set; }
-    public DateTime? EditedAt { get; private set; }
+    public bool IsEdited { get; set; }
+    public DateTimeOffset? EditedAt { get; set; }
 
-    public virtual ICollection<Message> Replies { get; private set; } = [];
-    public virtual ICollection<MessageAttachment> Attachments { get; private set; } = [];
-    public virtual ICollection<MessageReaction> Reactions { get; private set; } = [];
-    public virtual ICollection<MessageReadStatus> ReadStatuses { get; private set; } = [];
-    public virtual ICollection<MessageTask> MessageTasks { get; private set; } = [];
-
-    private Message() : base()
-    {
-    }
-
-    public static Message Create(
-        Guid conversationId,
-        Guid userId,
-        string? content,
-        MessageType messageType,
-        Guid? parentMessageId = null)
-    {
-        return new Message
-        {
-            ConversationID = conversationId,
-            UserID = userId,
-            Content = content?.Trim(),
-            MessageType = messageType,
-            ParentMessageID = parentMessageId,
-            IsEdited = false,
-            IsDeleted = false
-        };
-    }
+    public ICollection<Message> Replies { get; set; } = [];
+    public ICollection<MessageAttachment> Attachments { get; set; } = [];
+    public ICollection<MessageReaction> Reactions { get; set; } = [];
+    public ICollection<MessageReadStatus> ReadStatuses { get; set; } = [];
+    public ICollection<MessageTask> MessageTasks { get; set; } = [];
 
     public void Edit(string newContent)
     {
         Content = newContent.Trim();
         IsEdited = true;
-        EditedAt = DateTime.UtcNow;
+        EditedAt = DateTimeOffset.UtcNow;
     }
 
-    public void Delete()
+    public void Delete(Guid deletedBy)
     {
         IsDeleted = true;
-        Content = null; // Clear content for safety when message is deleted/recalled
+        DeletedAt = DateTimeOffset.UtcNow;
+        DeletedBy = deletedBy;
+        Content = null;
     }
 }

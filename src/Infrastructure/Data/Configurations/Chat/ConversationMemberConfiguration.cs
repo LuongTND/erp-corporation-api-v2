@@ -1,39 +1,31 @@
 namespace Infrastructure;
 
-public class ConversationMemberConfiguration : IEntityTypeConfiguration<ConversationMember>
+public class ConversationMemberConfiguration : BaseEntityConfiguration<ConversationMember, Guid>
 {
-    public void Configure(EntityTypeBuilder<ConversationMember> builder)
+    public override void Configure(EntityTypeBuilder<ConversationMember> builder)
     {
-        builder.ToTable("Conversation_Members");
+        base.Configure(builder);
 
-        builder.HasKey(x => new { x.ConversationID, x.UserID });
+        builder.ToTable("ConversationMembers");
 
-        builder.HasOne(x => x.Conversation)
+        builder.HasIndex(m => new { m.ConversationID, m.UserID }).IsUnique();
+
+        builder.Property(m => m.RoleInConversation).HasConversion<string>().HasMaxLength(30);
+
+        builder.HasOne(m => m.Conversation)
             .WithMany(c => c.Members)
-            .HasForeignKey(x => x.ConversationID)
+            .HasForeignKey(m => m.ConversationID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(m => m.User)
             .WithMany()
-            .HasForeignKey(x => x.UserID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(m => m.UserID)
+            .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasOne(x => x.LastReadMessage)
+        // NoAction: avoid multiple cascade paths (Conversation → Message AND Conversation → Member → Message)
+        builder.HasOne(m => m.LastReadMessage)
             .WithMany()
-            .HasForeignKey(x => x.LastReadMessageID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(x => x.RoleInConversation)
-            .HasMaxLength(50)
-            .HasConversion<string>();
-
-        builder.Property(x => x.JoinedAt)
-            .IsRequired();
-
-        builder.Property(x => x.IsMuted)
-            .IsRequired();
-
-        builder.Property(x => x.IsActive)
-            .IsRequired();
+            .HasForeignKey(m => m.LastReadMessageID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

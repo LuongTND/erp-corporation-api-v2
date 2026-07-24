@@ -1,35 +1,28 @@
-namespace Infrastructure;
+﻿namespace Infrastructure;
 
-public static class ServiceCollectionExtensions
+public static class ServiceCollectionExtensions 
 {
-    public static IServiceCollection AddInfrastructureServices(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        var appConfig = new AppConfiguration(configuration);
+        var jwtOptions = appConfig.GetJwtOptions();
 
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException(
-                "ConnectionStrings:DefaultConnection is not configured. Set CONNECTION_STRING in API/.env (mapped by EnvLoader).");
-        }
+        services.AddSingleton<IAppConfiguration>(appConfig);
+        services.Configure<EmailOptions>(configuration.GetSection("EmailSettings"));
 
-        services.AddSingleton(TimeProvider.System);
-        services.AddScoped<AuditSaveChangesInterceptor>();
+        services.AddSingleton(Options.Create(jwtOptions));
 
-        services.AddDbContext<AppDbContext>((sp, options) =>
-        {
-            var interceptor = sp.GetRequiredService<AuditSaveChangesInterceptor>();
-            options.UseSqlServer(connectionString)
-                .AddInterceptors(interceptor);
-        });
+        services.AddHttpContextAccessor();
+        services.AddHttpClient();
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-        services.AddServicesFromAssembly(AssemblyReference.Assembly);
+        services.AddInfrastructureDbContext(configuration)
+                .AddJwtService(jwtOptions)
+                .AddRedisCache(configuration)
+                .AddQuartzService()
+                .AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
 
         services.AddHostedService<OutboxProcessorHostedService>();
+
 
         return services;
     }

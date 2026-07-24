@@ -1,104 +1,53 @@
 namespace Domain;
-public class TaskItem : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
+
+public class TaskItem : AuditableEntityBase<Guid>, ISoftDeletable
 {
-    public string TaskCode { get; private set; } = null!;
-    public string Title { get; private set; } = null!;
-    public string? Description { get; private set; }
-    public TaskType TaskType { get; private set; }
-    public TaskStatus Status { get; private set; }
-    public TaskPriority Priority { get; private set; }
-    public int Progress { get; private set; }
-    public DateTime? StartDate { get; private set; }
-    public DateTime? DueDate { get; private set; }
-    public DateTime? CompletedDate { get; private set; }
-    public decimal? EstimatedHours { get; private set; }
-    public decimal? ActualHours { get; private set; }
-    public bool IsRecurring { get; private set; }
-    public RecurringPattern? RecurringPattern { get; private set; }
-    public Guid? ParentTaskID { get; private set; }
-    public virtual TaskItem? ParentTask { get; private set; }
-    
-    public Guid? CreatedBy { get; set; }
-    public Guid? UpdatedBy { get; set; }
-    public bool IsActive { get; set; } = true;
+    public string TaskCode { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public TaskType TaskType { get; set; }
 
-    public virtual ICollection<TaskItem> Subtasks { get; private set; } = [];
-    public virtual ICollection<TaskAssignee> Assignees { get; private set; } = [];
-    public virtual ICollection<TaskFollower> Followers { get; private set; } = [];
-    public virtual ICollection<TaskComment> Comments { get; private set; } = [];
-    public virtual ICollection<TaskActivityLog> ActivityLogs { get; private set; } = [];
-    public virtual ICollection<TaskKpi> TaskKpis { get; private set; } = [];
-    public virtual ICollection<TaskLmsCourse> TaskLmsCourses { get; private set; } = [];
+    public Guid StatusId { get; set; }
+    public TaskItemStatus? Status { get; set; }
 
-    private TaskItem() : base()
+    public Guid PriorityId { get; set; }
+    public TaskPriority? Priority { get; set; }
+
+    public int Progress { get; set; }
+    public DateTimeOffset? StartDate { get; set; }
+    public DateTimeOffset? DueDate { get; set; }
+    public DateTimeOffset? CompletedDate { get; set; }
+    public decimal? EstimatedHours { get; set; }
+    public decimal? ActualHours { get; set; }
+    public RecurringPattern? RecurringPattern { get; set; }
+    public Guid? ParentTaskId { get; set; }
+    public TaskItem? ParentTask { get; set; }
+
+    public bool IsDeleted { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
+
+    public ICollection<TaskItem> Subtasks { get; set; } = [];
+    public ICollection<TaskAssignee> Assignees { get; set; } = [];
+    public ICollection<TaskFollower> Followers { get; set; } = [];
+    public ICollection<TaskComment> Comments { get; set; } = [];
+    public ICollection<TaskActivityLog> ActivityLogs { get; set; } = [];
+    public ICollection<TaskKpi> TaskKpis { get; set; } = [];
+    public ICollection<TaskLmsCourse> TaskLmsCourses { get; set; } = [];
+    public ICollection<TaskAttachment> Attachments { get; set; } = [];
+    public ICollection<TaskDependency> BlockingTasks { get; set; } = [];
+    public ICollection<TaskDependency> BlockedByTasks { get; set; } = [];
+
+    public void UpdateStatus(TaskItemStatus status)
     {
-    }
-
-    public static TaskItem Create(
-        string taskCode,
-        string title,
-        string? description,
-        TaskType taskType,
-        TaskPriority priority,
-        DateTime? startDate = null,
-        DateTime? dueDate = null,
-        decimal? estimatedHours = null,
-        bool isRecurring = false,
-        RecurringPattern? recurringPattern = null,
-        Guid? parentTaskId = null)
-    {
-        return new TaskItem
-        {
-            TaskCode = taskCode.Trim(),
-            Title = title.Trim(),
-            Description = description,
-            TaskType = taskType,
-            Status = TaskStatus.ToDo,
-            Priority = priority,
-            Progress = 0,
-            StartDate = startDate,
-            DueDate = dueDate,
-            EstimatedHours = estimatedHours,
-            IsRecurring = isRecurring,
-            RecurringPattern = recurringPattern,
-            ParentTaskID = parentTaskId,
-            IsActive = true
-        };
-    }
-
-    public void Update(
-        string title,
-        string? description,
-        TaskType taskType,
-        TaskPriority priority,
-        DateTime? startDate = null,
-        DateTime? dueDate = null,
-        decimal? estimatedHours = null,
-        bool isRecurring = false,
-        RecurringPattern? recurringPattern = null,
-        Guid? parentTaskId = null)
-    {
-        Title = title.Trim();
-        Description = description;
-        TaskType = taskType;
-        Priority = priority;
-        StartDate = startDate;
-        DueDate = dueDate;
-        EstimatedHours = estimatedHours;
-        IsRecurring = isRecurring;
-        RecurringPattern = recurringPattern;
-        ParentTaskID = parentTaskId;
-    }
-
-    public void UpdateStatus(TaskStatus status)
-    {
+        StatusId = status.Id;
         Status = status;
-        if (status == TaskStatus.Done)
+        if (status.IsFinalState)
         {
             Progress = 100;
-            CompletedDate = DateTime.UtcNow;
+            CompletedDate = DateTimeOffset.UtcNow;
         }
-        else if (status == TaskStatus.ToDo)
+        else if (status.IsInitialState)
         {
             Progress = 0;
             CompletedDate = null;
@@ -108,20 +57,15 @@ public class TaskItem : BaseEntity, IAuditable, ICreationTracked, IModificationT
     public void UpdateProgress(int progress)
     {
         Progress = Math.Clamp(progress, 0, 100);
-        if (Progress == 100)
+        if (Progress == 100 && Status?.IsFinalState == false)
         {
-            Status = TaskStatus.Done;
-            CompletedDate = DateTime.UtcNow;
+            CompletedDate = DateTimeOffset.UtcNow;
         }
-        else if (Progress > 0 && Status == TaskStatus.ToDo)
+        else if (Progress > 0 && Status?.IsInitialState == true)
         {
-            Status = TaskStatus.InProgress;
             CompletedDate = null;
         }
     }
 
-    public void SetActualHours(decimal? actualHours)
-    {
-        ActualHours = actualHours;
-    }
+    public void SetActualHours(decimal? actualHours) => ActualHours = actualHours;
 }

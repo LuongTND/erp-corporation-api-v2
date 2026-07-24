@@ -1,4 +1,4 @@
-namespace Contract;
+﻿namespace Contract;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public class RegisterServiceAttribute : Attribute

@@ -1,24 +1,20 @@
 namespace Domain;
-public class TaskLmsCourse
+
+public class TaskLmsCourse : EntityBase<Guid>
 {
-    public Guid TaskID { get; private set; }
-    public virtual TaskItem Task { get; private set; } = null!;
+    public Guid TaskID { get; set; }
+    public TaskItem? Task { get; set; }
 
-    public Guid CourseID { get; private set; } // Liên kết logic với LMS Course
+    // Cross-module reference — LMS module quản lý entity này
+    public Guid CourseId { get; set; }
 
-    public bool RequiredForCompletion { get; private set; }
+    public bool RequiredForCompletion { get; set; }
+    public CourseCompletionStatus CompletionStatus { get; set; } = CourseCompletionStatus.NotStarted;
+    public DateTimeOffset? CompletedAt { get; set; }
 
-    private TaskLmsCourse()
+    public void MarkCompleted()
     {
-    }
-
-    public static TaskLmsCourse Create(Guid taskId, Guid courseId, bool requiredForCompletion = false)
-    {
-        return new TaskLmsCourse
-        {
-            TaskID = taskId,
-            CourseID = courseId,
-            RequiredForCompletion = requiredForCompletion
-        };
+        CompletionStatus = CourseCompletionStatus.Completed;
+        CompletedAt = DateTimeOffset.UtcNow;
     }
 }

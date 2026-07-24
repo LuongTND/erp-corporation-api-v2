@@ -1,26 +1,12 @@
-
 namespace Domain;
-public class MessageReaction : BaseEntity
+
+public class MessageReaction : EntityBase<Guid>
 {
-    public Guid MessageID { get; private set; }
-    public virtual Message Message { get; private set; } = null!;
+    public Guid MessageID { get; set; }
+    public Message? Message { get; set; }
 
-    public Guid UserID { get; private set; }
-    public virtual User User { get; private set; } = null!;
+    public Guid UserID { get; set; }
+    public User? User { get; set; }
 
-    public string ReactionType { get; private set; } = null!;
-
-    private MessageReaction() : base()
-    {
-    }
-
-    public static MessageReaction Create(Guid messageId, Guid userId, string reactionType)
-    {
-        return new MessageReaction
-        {
-            MessageID = messageId,
-            UserID = userId,
-            ReactionType = reactionType.Trim()
-        };
-    }
+    public string ReactionType { get; set; } = string.Empty;
 }

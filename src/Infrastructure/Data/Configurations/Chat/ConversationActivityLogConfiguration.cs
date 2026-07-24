@@ -1,32 +1,24 @@
 namespace Infrastructure;
 
-public class ConversationActivityLogConfiguration : IEntityTypeConfiguration<ConversationActivityLog>
+public class ConversationActivityLogConfiguration : BaseEntityConfiguration<ConversationActivityLog, Guid>
 {
-    public void Configure(EntityTypeBuilder<ConversationActivityLog> builder)
+    public override void Configure(EntityTypeBuilder<ConversationActivityLog> builder)
     {
-        builder.ToTable("Conversation_Activity_Log");
+        base.Configure(builder);
 
-        builder.HasKey(x => x.Id);
+        builder.ToTable("ConversationActivityLogs");
 
-        builder.Property(x => x.Id)
-            .HasColumnName("LogID");
+        builder.Property(l => l.Action).HasConversion<string>().HasMaxLength(50);
+        builder.Property(l => l.Description).HasMaxLength(1000);
 
-        builder.Property(x => x.Action)
-            .HasMaxLength(100)
-            .HasConversion<string>()
-            .IsRequired();
-
-        builder.Property(x => x.Description)
-            .HasMaxLength(500);
-
-        builder.HasOne(x => x.Conversation)
+        builder.HasOne(l => l.Conversation)
             .WithMany(c => c.ActivityLogs)
-            .HasForeignKey(x => x.ConversationID)
+            .HasForeignKey(l => l.ConversationID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(l => l.User)
             .WithMany()
-            .HasForeignKey(x => x.UserID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(l => l.UserID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -1,43 +1,29 @@
 namespace Infrastructure;
 
-public class MessageConfiguration : IEntityTypeConfiguration<Message>
+public class MessageConfiguration : SoftDeleteEntityConfiguration<Message, Guid>
 {
-    public void Configure(EntityTypeBuilder<Message> builder)
+    public override void Configure(EntityTypeBuilder<Message> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("Messages");
 
-        builder.HasKey(x => x.Id);
+        builder.Property(m => m.Content).HasMaxLength(4000);
+        builder.Property(m => m.MessageType).HasConversion<string>().HasMaxLength(30);
 
-        builder.Property(x => x.Id)
-            .HasColumnName("MessageID");
-
-        builder.Property(x => x.Content)
-            .HasColumnType("nvarchar(max)");
-
-        builder.Property(x => x.MessageType)
-            .HasMaxLength(50)
-            .HasConversion<string>()
-            .IsRequired();
-
-        builder.HasOne(x => x.Conversation)
+        builder.HasOne(m => m.Conversation)
             .WithMany(c => c.Messages)
-            .HasForeignKey(x => x.ConversationID)
+            .HasForeignKey(m => m.ConversationID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(m => m.User)
             .WithMany()
-            .HasForeignKey(x => x.UserID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(m => m.UserID)
+            .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasOne(x => x.ParentMessage)
+        builder.HasOne(m => m.ParentMessage)
             .WithMany(m => m.Replies)
-            .HasForeignKey(x => x.ParentMessageID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(x => x.IsEdited)
-            .IsRequired();
-
-        builder.Property(x => x.IsDeleted)
-            .IsRequired();
+            .HasForeignKey(m => m.ParentMessageID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

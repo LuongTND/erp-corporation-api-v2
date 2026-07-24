@@ -1,58 +1,36 @@
 namespace Infrastructure;
 
-public class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
+public class TaskItemConfiguration : AuditableEntityConfiguration<TaskItem, Guid>
 {
-    public void Configure(EntityTypeBuilder<TaskItem> builder)
+    public override void Configure(EntityTypeBuilder<TaskItem> builder)
     {
-        builder.ToTable("Tasks");
+        base.Configure(builder);
 
-        builder.HasKey(x => x.Id);
+        builder.ToTable("TaskItems");
 
-        builder.Property(x => x.Id)
-            .HasColumnName("TaskID");
+        builder.HasIndex(t => t.TaskCode).IsUnique();
 
-        builder.Property(x => x.TaskCode)
-            .HasMaxLength(50)
-            .IsRequired();
+        builder.Property(t => t.TaskCode).IsRequired().HasMaxLength(50);
+        builder.Property(t => t.Title).IsRequired().HasMaxLength(500);
+        builder.Property(t => t.Description).HasMaxLength(4000);
+        builder.Property(t => t.TaskType).HasConversion<string>().HasMaxLength(30);
+        builder.Property(t => t.RecurringPattern).HasConversion<string>().HasMaxLength(30);
+        builder.Property(t => t.EstimatedHours).HasPrecision(10, 2);
+        builder.Property(t => t.ActualHours).HasPrecision(10, 2);
 
-        builder.HasIndex(x => x.TaskCode)
-            .IsUnique();
-
-        builder.Property(x => x.Title)
-            .HasMaxLength(255)
-            .IsRequired();
-
-        builder.Property(x => x.Description)
-            .HasColumnType("nvarchar(max)");
-
-        builder.Property(x => x.TaskType)
-            .HasMaxLength(50)
-            .HasConversion<string>()
-            .IsRequired();
-
-        builder.Property(x => x.Status)
-            .HasMaxLength(50)
-            .HasConversion<string>()
-            .IsRequired();
-
-        builder.Property(x => x.Priority)
-            .HasMaxLength(50)
-            .HasConversion<string>()
-            .IsRequired();
-
-        builder.Property(x => x.Progress)
-            .IsRequired();
-
-        builder.Property(x => x.RecurringPattern)
-            .HasMaxLength(100)
-            .HasConversion<string>();
-
-        builder.HasOne(x => x.ParentTask)
-            .WithMany(t => t.Subtasks)
-            .HasForeignKey(x => x.ParentTaskID)
+        builder.HasOne(t => t.Status)
+            .WithMany(s => s.Tasks)
+            .HasForeignKey(t => t.StatusId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Property(x => x.IsActive)
-            .IsRequired();
+        builder.HasOne(t => t.Priority)
+            .WithMany(p => p.Tasks)
+            .HasForeignKey(t => t.PriorityId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(t => t.ParentTask)
+            .WithMany(t => t.Subtasks)
+            .HasForeignKey(t => t.ParentTaskId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

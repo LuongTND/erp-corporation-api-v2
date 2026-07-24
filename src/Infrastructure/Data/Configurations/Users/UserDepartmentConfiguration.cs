@@ -1,33 +1,23 @@
 namespace Infrastructure;
 
-public class UserDepartmentConfiguration : IEntityTypeConfiguration<UserDepartment>
+public class UserDepartmentConfiguration : BaseEntityConfiguration<UserDepartment, Guid>
 {
-    public void Configure(EntityTypeBuilder<UserDepartment> builder)
+    public override void Configure(EntityTypeBuilder<UserDepartment> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("UserDepartments");
 
-        builder.HasKey(x => x.Id);
+        builder.HasIndex(ud => new { ud.UserId, ud.DepartmentId }).IsUnique();
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(ud => ud.User)
             .WithMany(u => u.UserDepartments)
-            .HasForeignKey(x => x.UserId)
+            .HasForeignKey(ud => ud.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.Department)
+        builder.HasOne(ud => ud.Department)
             .WithMany(d => d.UserDepartments)
-            .HasForeignKey(x => x.DepartmentId)
+            .HasForeignKey(ud => ud.DepartmentId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Property(x => x.IsPrimary)
-            .IsRequired();
-
-        builder.Property(x => x.StartDate)
-            .IsRequired();
-
-        builder.Property(x => x.IsActive)
-            .IsRequired();
-
-        // Index for performance
-        builder.HasIndex(x => new { x.UserId, x.DepartmentId });
     }
 }

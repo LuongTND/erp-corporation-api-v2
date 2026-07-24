@@ -1,0 +1,15 @@
+global using API;
+global using Contract;
+global using Application;
+global using MediatR;
+global using Infrastructure;
+global using Microsoft.AspNetCore.Diagnostics;
+global using AspNetCoreRateLimit;
+global using System.Security.Claims;
+global using Microsoft.AspNetCore.Mvc;
+global using System.Reflection;
+global using Microsoft.AspNetCore.Authorization;
+global using Serilog;
+global using System.Text.Json;
+global using Microsoft.AspNetCore.SignalR;
+global using Microsoft.OpenApi;

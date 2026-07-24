@@ -1,19 +1,20 @@
 namespace Infrastructure;
 
-public class TaskKpiConfiguration : IEntityTypeConfiguration<TaskKpi>
+public class TaskKpiConfiguration : BaseEntityConfiguration<TaskKpi, Guid>
 {
-    public void Configure(EntityTypeBuilder<TaskKpi> builder)
+    public override void Configure(EntityTypeBuilder<TaskKpi> builder)
     {
-        builder.ToTable("Task_KPIs");
+        base.Configure(builder);
 
-        builder.HasKey(x => new { x.TaskID, x.KPIID });
+        builder.ToTable("TaskKpis");
 
-        builder.HasOne(x => x.Task)
+        builder.HasIndex(k => new { k.TaskID, k.KpiId }).IsUnique();
+
+        builder.Property(k => k.Weight).HasPrecision(5, 4);
+
+        builder.HasOne(k => k.Task)
             .WithMany(t => t.TaskKpis)
-            .HasForeignKey(x => x.TaskID)
+            .HasForeignKey(k => k.TaskID)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Property(x => x.Weight)
-            .HasPrecision(5, 2);
     }
 }

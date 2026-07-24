@@ -1,24 +1,23 @@
 namespace Infrastructure;
 
-public class MessageReadStatusConfiguration : IEntityTypeConfiguration<MessageReadStatus>
+public class MessageReadStatusConfiguration : BaseEntityConfiguration<MessageReadStatus, Guid>
 {
-    public void Configure(EntityTypeBuilder<MessageReadStatus> builder)
+    public override void Configure(EntityTypeBuilder<MessageReadStatus> builder)
     {
-        builder.ToTable("Message_Read_Status");
+        base.Configure(builder);
 
-        builder.HasKey(x => new { x.MessageID, x.UserID });
+        builder.ToTable("MessageReadStatuses");
 
-        builder.HasOne(x => x.Message)
+        builder.HasIndex(s => new { s.MessageID, s.UserID }).IsUnique();
+
+        builder.HasOne(s => s.Message)
             .WithMany(m => m.ReadStatuses)
-            .HasForeignKey(x => x.MessageID)
+            .HasForeignKey(s => s.MessageID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(s => s.User)
             .WithMany()
-            .HasForeignKey(x => x.UserID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(x => x.IsRead)
-            .IsRequired();
+            .HasForeignKey(s => s.UserID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
