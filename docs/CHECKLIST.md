@@ -1,6 +1,6 @@
 # ERP BaHungBakery — Development Checklist
 > Dựa trên SRS_HRM v1.0 + SRS_LMS v1.0 · Cập nhật: 2026-07-24  
-> Source: `Ver-2/BaHungERP-API` · Stack: .NET 10, Clean Architecture, EF Core, Redis, Quartz
+> Source: `Ver-2/erp-corporation-api-v2` · Stack: .NET 10, Clean Architecture, EF Core, Redis, Quartz
 
 **Ký hiệu:** `[ ]` chưa làm · `[x]` xong · `[~]` có 1 phần · `[!]` blocker
 

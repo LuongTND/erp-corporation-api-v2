@@ -1,4 +1,4 @@
-# Entity Audit — WMS-API Domain Layer
+# Entity Audit — ERP Corporation API v2 Domain Layer
 
 > Audited: 2026-07-22 | Scope: Task, Chat, Notification, User/Org, Roles
 
