@@ -1,32 +1,13 @@
-
 namespace Domain;
-public class ConversationActivityLog : BaseEntity
+
+public class ConversationActivityLog : EntityBase<Guid>
 {
-    public Guid ConversationID { get; private set; }
-    public virtual Conversation Conversation { get; private set; } = null!;
+    public Guid ConversationID { get; set; }
+    public Conversation? Conversation { get; set; }
 
-    public Guid? UserID { get; private set; }
-    public virtual User? User { get; private set; }
+    public Guid? UserID { get; set; }
+    public User? User { get; set; }
 
-    public ConversationActivityAction Action { get; private set; }
-    public string? Description { get; private set; }
-
-    private ConversationActivityLog() : base()
-    {
-    }
-
-    public static ConversationActivityLog Create(
-        Guid conversationId,
-        Guid? userId,
-        ConversationActivityAction action,
-        string? description = null)
-    {
-        return new ConversationActivityLog
-        {
-            ConversationID = conversationId,
-            UserID = userId,
-            Action = action,
-            Description = description?.Trim()
-        };
-    }
+    public ConversationActivityAction Action { get; set; }
+    public string? Description { get; set; }
 }

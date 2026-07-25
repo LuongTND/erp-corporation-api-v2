@@ -1,24 +1,19 @@
 namespace Domain;
-public class TaskKpi
+
+public class TaskKpi : EntityBase<Guid>
 {
-    public Guid TaskID { get; private set; }
-    public virtual TaskItem Task { get; private set; } = null!;
+    public Guid TaskID { get; set; }
+    public TaskItem? Task { get; set; }
 
-    public Guid KPIID { get; private set; } // Liên kết logic với bảng KPI
+    // Cross-module reference — KPI module quản lý entity này
+    public Guid KpiId { get; set; }
 
-    public decimal? Weight { get; private set; }
+    private decimal? _weight;
 
-    private TaskKpi()
+    // Weight theo thang 0-1 (0% → 1.0 = 100%)
+    public decimal? Weight
     {
-    }
-
-    public static TaskKpi Create(Guid taskId, Guid kpiId, decimal? weight = null)
-    {
-        return new TaskKpi
-        {
-            TaskID = taskId,
-            KPIID = kpiId,
-            Weight = weight
-        };
+        get => _weight;
+        set => _weight = value is null ? null : Math.Clamp(value.Value, 0m, 1m);
     }
 }

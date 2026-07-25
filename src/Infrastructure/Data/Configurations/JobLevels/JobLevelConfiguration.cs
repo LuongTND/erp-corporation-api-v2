@@ -1,31 +1,17 @@
 namespace Infrastructure;
 
-public class JobLevelConfiguration : IEntityTypeConfiguration<JobLevel>
+public class JobLevelConfiguration : AuditableEntityConfiguration<JobLevel, Guid>
 {
-    public void Configure(EntityTypeBuilder<JobLevel> builder)
+    public override void Configure(EntityTypeBuilder<JobLevel> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("JobLevels");
 
-        builder.HasKey(x => x.Id);
-
-        builder.Property(x => x.LevelName)
-            .HasMaxLength(100)
-            .IsRequired();
-
-        builder.Property(x => x.LevelOrder)
-            .IsRequired();
-
-        builder.Property(x => x.DefaultScopeType)
-            .HasConversion<int>()
-            .IsRequired();
-
-        builder.Property(x => x.BaseSalaryMin)
-            .HasColumnType("decimal(18,2)");
-
-        builder.Property(x => x.BaseSalaryMax)
-            .HasColumnType("decimal(18,2)");
-
-        builder.Property(x => x.IsActive)
-            .IsRequired();
+        builder.Property(j => j.LevelName).IsRequired().HasMaxLength(100);
+        builder.Property(j => j.DefaultScopeType).HasConversion<string>().HasMaxLength(30);
+        builder.Property(j => j.Description).HasMaxLength(500);
+        builder.Property(j => j.BaseSalaryMin).HasPrecision(18, 2);
+        builder.Property(j => j.BaseSalaryMax).HasPrecision(18, 2);
     }
 }

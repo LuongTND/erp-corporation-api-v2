@@ -1,19 +1,20 @@
-
 namespace Infrastructure;
-public class TaskLmsCourseConfiguration : IEntityTypeConfiguration<TaskLmsCourse>
+
+public class TaskLmsCourseConfiguration : BaseEntityConfiguration<TaskLmsCourse, Guid>
 {
-    public void Configure(EntityTypeBuilder<TaskLmsCourse> builder)
+    public override void Configure(EntityTypeBuilder<TaskLmsCourse> builder)
     {
-        builder.ToTable("Task_LMS_Courses");
+        base.Configure(builder);
 
-        builder.HasKey(x => new { x.TaskID, x.CourseID });
+        builder.ToTable("TaskLmsCourses");
 
-        builder.HasOne(x => x.Task)
+        builder.HasIndex(l => new { l.TaskID, l.CourseId }).IsUnique();
+
+        builder.Property(l => l.CompletionStatus).HasConversion<string>().HasMaxLength(30);
+
+        builder.HasOne(l => l.Task)
             .WithMany(t => t.TaskLmsCourses)
-            .HasForeignKey(x => x.TaskID)
+            .HasForeignKey(l => l.TaskID)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Property(x => x.RequiredForCompletion)
-            .IsRequired();
     }
 }

@@ -2,32 +2,40 @@ namespace Contract;
 
 public static class AutoInjectionExtensions
 {
-    public static IServiceCollection AddServicesFromAssembly(this IServiceCollection services,
-        params Assembly[] assemblies)
+    public static IServiceCollection AddServicesFromAssembly(this IServiceCollection services, params Assembly[] assemblies)
     {
         foreach (var assembly in assemblies)
         {
             if (assembly == null) continue;
 
             var types = assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && t.GetCustomAttribute<RegisterServiceAttribute>() != null);
+                .Where(type => type.IsClass
+                            && !type.IsAbstract
+                            && type.GetCustomAttribute<RegisterServiceAttribute>() != null);
 
             foreach (var type in types)
             {
-                var attr = type.GetCustomAttribute<RegisterServiceAttribute>()!;
+                var attribute = type.GetCustomAttribute<RegisterServiceAttribute>();
+                if (attribute == null) continue;
 
-                if (!attr.ServiceType.IsAssignableFrom(type))
-                    throw new InvalidOperationException($"{type.Name} does not implement {attr.ServiceType.Name}");
+                if (!attribute.ServiceType.IsAssignableFrom(type))
+                    throw new InvalidOperationException(
+                        $"{type.Name} does not implement {attribute.ServiceType.Name}");
 
-                switch (attr.Lifetime)
+                switch (attribute.Lifetime)
                 {
-                    case ServiceLifetime.Transient: services.AddTransient(attr.ServiceType, type); break;
-                    case ServiceLifetime.Scoped: services.AddScoped(attr.ServiceType, type); break;
-                    case ServiceLifetime.Singleton: services.AddSingleton(attr.ServiceType, type); break;
+                    case ServiceLifetime.Transient:
+                        services.AddTransient(attribute.ServiceType, type);
+                        break;
+                    case ServiceLifetime.Scoped:
+                        services.AddScoped(attribute.ServiceType, type);
+                        break;
+                    case ServiceLifetime.Singleton:
+                        services.AddSingleton(attribute.ServiceType, type);
+                        break;
                 }
             }
         }
-
         return services;
     }
 }

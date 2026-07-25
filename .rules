@@ -8,25 +8,6 @@
 - No generic names (`Service`, `Manager`, `Helper`) — use `AuthService`, `UserRepository`.
 - Primary constructor injection only. Never inject `IServiceProvider`.
 
-## Namespace Convention
-- **One flat namespace per layer.** No sub-namespaces.
-  - `API` — all files under `src/API/`
-  - `Application` — all files under `src/Application/`
-  - `Domain` — all files under `src/Domain/`
-  - `Infrastructure` — all files under `src/Infrastructure/`
-- Use file-scoped namespace syntax: `namespace API;`
-- Do **not** use `namespace API.Controllers.Tasks` or any sub-path.
-
-## Global Usings (do not repeat in individual files)
-Each project has `GlobalUsings.cs` that covers common imports:
-
-| Project | Global usings |
-|---|---|
-| `Domain` | *(none — ImplicitUsings covers System.\*)* |
-| `Application` | `Domain`, `AutoMapper`, `FluentValidation`, `MediatR` |
-| `Infrastructure` | `Domain`, `Application`, `AutoMapper`, `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.Metadata.Builders`, `Microsoft.EntityFrameworkCore.Migrations` |
-| `API` | `Domain`, `Application`, `Infrastructure`, `Microsoft.AspNetCore.Mvc`, `Microsoft.AspNetCore.Authorization` |
-
 ## Layers
 | Layer | Contains |
 |---|---|
@@ -34,12 +15,15 @@ Each project has `GlobalUsings.cs` that covers common imports:
 | Application | Command/Query Handlers, Validators, `IUnitOfWork`, `IGenericRepository<T>`, infrastructure contracts, business logic |
 | Infrastructure | `UnitOfWork`, `GenericRepository<T>`, DbContext, external provider implementations |
 | API | Controllers, Middlewares, Filters |
+| Contract | Shared types: `ApiResponse<T>`, Exceptions, `RegisterServiceAttribute`, `AutoInjectionExtensions` |
 
 **Dependency direction (one-way only):**
 ```
 API → Application → Domain
 API → Infrastructure → Application → Domain
+Contract ← all layers
 ```
+
 - Application must **not** reference Infrastructure.
 - Infrastructure references Application (to implement interfaces defined there).
 - Controllers inject `ISender` only — never Repositories, DbContext, or Services directly.
@@ -56,8 +40,8 @@ Manual registration allowed **only** for: `AddDbContext`, `AddMediatR`, `AddAuth
 
 | Lifetime | Use for |
 |---|---|
-| `Scoped` *(default)* | Services, Repositories, UnitOfWork, anything using DbContext |
-| `Singleton` | Stateless helpers — must not depend on DbContext |
+| `Scoped` *(default)* | Services, Repositories, UnitOfWork, anything using `DbContext` |
+| `Singleton` | Stateless helpers — must not depend on `DbContext` |
 | `Transient` | Lightweight stateless classes |
 
 ## CQRS (primary pattern)
@@ -104,7 +88,7 @@ Throw custom exceptions only — never `Exception`.
 | `TooManyRequestException` | 429 |
 | `DatabaseOperationException` | 500 |
 
-All inherit `AppException` in `Application/Common/Exceptions/`.
+All inherit `AppException` in `Contract/Exceptions/`.
 
 ## Validation
 - FluentValidation validators in Application layer.

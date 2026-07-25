@@ -1,35 +1,25 @@
 namespace Infrastructure;
 
-public class TaskActivityLogConfiguration : IEntityTypeConfiguration<TaskActivityLog>
+public class TaskActivityLogConfiguration : BaseEntityConfiguration<TaskActivityLog, Guid>
 {
-    public void Configure(EntityTypeBuilder<TaskActivityLog> builder)
+    public override void Configure(EntityTypeBuilder<TaskActivityLog> builder)
     {
-        builder.ToTable("Task_Activity_Log");
+        base.Configure(builder);
 
-        builder.HasKey(x => x.Id);
+        builder.ToTable("TaskActivityLogs");
 
-        builder.Property(x => x.Id)
-            .HasColumnName("LogID");
+        builder.Property(l => l.Action).HasConversion<string>().HasMaxLength(50);
+        builder.Property(l => l.OldValue).HasMaxLength(1000);
+        builder.Property(l => l.NewValue).HasMaxLength(1000);
 
-        builder.Property(x => x.Action)
-            .HasMaxLength(100)
-            .HasConversion<string>()
-            .IsRequired();
-
-        builder.Property(x => x.OldValue)
-            .HasColumnType("nvarchar(max)");
-
-        builder.Property(x => x.NewValue)
-            .HasColumnType("nvarchar(max)");
-
-        builder.HasOne(x => x.Task)
+        builder.HasOne(l => l.Task)
             .WithMany(t => t.ActivityLogs)
-            .HasForeignKey(x => x.TaskID)
+            .HasForeignKey(l => l.TaskID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(l => l.User)
             .WithMany()
-            .HasForeignKey(x => x.UserID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(l => l.UserID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

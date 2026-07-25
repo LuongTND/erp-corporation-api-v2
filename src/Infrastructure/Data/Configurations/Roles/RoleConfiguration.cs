@@ -1,31 +1,18 @@
+using Role = Domain.Role;
+
 namespace Infrastructure;
 
-public class RoleConfiguration : IEntityTypeConfiguration<Role>
+public class RoleConfiguration : BaseEntityConfiguration<Role, Guid>
 {
-    public void Configure(EntityTypeBuilder<Role> builder)
+    public override void Configure(EntityTypeBuilder<Role> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("Roles");
 
-        builder.HasKey(x => x.Id);
+        builder.HasIndex(r => r.RoleName).IsUnique();
 
-        builder.Property(x => x.RoleName)
-            .HasMaxLength(100)
-            .IsRequired();
-
-        builder.HasIndex(x => x.RoleName)
-            .IsUnique();
-
-        builder.Property(x => x.DisplayName)
-            .HasMaxLength(200)
-            .IsRequired();
-
-        builder.Property(x => x.IsSystemRole)
-            .IsRequired();
-
-        builder.Property(x => x.BypassDataScope)
-            .IsRequired();
-
-        builder.Property(x => x.IsActive)
-            .IsRequired();
+        builder.Property(r => r.RoleName).IsRequired().HasMaxLength(100);
+        builder.Property(r => r.Description).HasMaxLength(500);
     }
 }

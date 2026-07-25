@@ -1,37 +1,16 @@
 namespace Infrastructure;
 
-public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
+public class PermissionConfiguration : BaseEntityConfiguration<Permission, Guid>
 {
-    public void Configure(EntityTypeBuilder<Permission> builder)
+    public override void Configure(EntityTypeBuilder<Permission> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("Permissions");
 
-        builder.HasKey(x => x.Id);
-
-        builder.Property(x => x.PermissionCode)
-            .HasMaxLength(200)
-            .IsRequired();
-
-        builder.HasIndex(x => x.PermissionCode)
-            .IsUnique();
-
-        builder.Property(x => x.PermissionName)
-            .HasMaxLength(200)
-            .IsRequired();
-
-        builder.Property(x => x.Module)
-            .HasConversion<int>()
-            .IsRequired();
-
-        builder.Property(x => x.Action)
-            .HasConversion<int>()
-            .IsRequired();
-
-        builder.Property(x => x.Resource)
-            .HasMaxLength(100)
-            .IsRequired();
-
-        builder.Property(x => x.IsActive)
-            .IsRequired();
+        builder.HasIndex(p => p.PermissionCode).IsUnique();
+        builder.Property(p => p.PermissionCode).IsRequired().HasMaxLength(100);
+        builder.Property(p => p.Module).HasConversion<string>().HasMaxLength(100);
+        builder.Property(p => p.Description).HasMaxLength(500);
     }
 }

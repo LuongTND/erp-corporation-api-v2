@@ -1,24 +1,23 @@
 namespace Infrastructure;
 
-public class TaskFollowerConfiguration : IEntityTypeConfiguration<TaskFollower>
+public class TaskFollowerConfiguration : BaseEntityConfiguration<TaskFollower, Guid>
 {
-    public void Configure(EntityTypeBuilder<TaskFollower> builder)
+    public override void Configure(EntityTypeBuilder<TaskFollower> builder)
     {
-        builder.ToTable("Task_Followers");
+        base.Configure(builder);
 
-        builder.HasKey(x => new { x.TaskID, x.UserID });
+        builder.ToTable("TaskFollowers");
 
-        builder.HasOne(x => x.Task)
+        builder.HasIndex(f => new { f.TaskID, f.UserID }).IsUnique();
+
+        builder.HasOne(f => f.Task)
             .WithMany(t => t.Followers)
-            .HasForeignKey(x => x.TaskID)
+            .HasForeignKey(f => f.TaskID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(f => f.User)
             .WithMany()
-            .HasForeignKey(x => x.UserID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(x => x.FollowedAt)
-            .IsRequired();
+            .HasForeignKey(f => f.UserID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

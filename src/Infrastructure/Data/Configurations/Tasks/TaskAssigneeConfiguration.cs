@@ -1,27 +1,23 @@
 namespace Infrastructure;
 
-public class TaskAssigneeConfiguration : IEntityTypeConfiguration<TaskAssignee>
+public class TaskAssigneeConfiguration : BaseEntityConfiguration<TaskAssignee, Guid>
 {
-    public void Configure(EntityTypeBuilder<TaskAssignee> builder)
+    public override void Configure(EntityTypeBuilder<TaskAssignee> builder)
     {
-        builder.ToTable("Task_Assignees");
+        base.Configure(builder);
 
-        builder.HasKey(x => new { x.TaskID, x.UserID });
+        builder.ToTable("TaskAssignees");
 
-        builder.HasOne(x => x.Task)
+        builder.HasIndex(a => new { a.TaskID, a.UserID }).IsUnique();
+
+        builder.HasOne(a => a.Task)
             .WithMany(t => t.Assignees)
-            .HasForeignKey(x => x.TaskID)
+            .HasForeignKey(a => a.TaskID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(a => a.User)
             .WithMany()
-            .HasForeignKey(x => x.UserID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(x => x.AssignedAt)
-            .IsRequired();
-
-        builder.Property(x => x.IsPrimaryAssignee)
-            .IsRequired();
+            .HasForeignKey(a => a.UserID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

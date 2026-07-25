@@ -1,44 +1,16 @@
-
 namespace Domain;
-public class UserDepartment : BaseEntity, IAuditable
+
+public class UserDepartment : EntityBase<Guid>
 {
-    public Guid UserId { get; private set; }
-    public virtual User User { get; private set; } = null!;
+    public Guid UserId { get; set; }
+    public User? User { get; set; }
 
-    public Guid DepartmentId { get; private set; }
-    public virtual Department Department { get; private set; } = null!;
+    public Guid DepartmentId { get; set; }
+    public Department? Department { get; set; }
 
-    public bool IsPrimary { get; private set; }
-    public DateOnly StartDate { get; private set; }
-    public DateOnly? EndDate { get; private set; }
+    public bool IsPrimary { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
 
     public bool IsActive { get; set; } = true;
-
-    private UserDepartment() : base()
-    {
-    }
-
-    public static UserDepartment Create(
-        Guid userId,
-        Guid departmentId,
-        bool isPrimary,
-        DateOnly startDate,
-        DateOnly? endDate = null)
-    {
-        return new UserDepartment
-        {
-            UserId = userId,
-            DepartmentId = departmentId,
-            IsPrimary = isPrimary,
-            StartDate = startDate,
-            EndDate = endDate,
-            IsActive = true
-        };
-    }
-
-    public void Terminate(DateOnly endDate)
-    {
-        EndDate = endDate;
-        IsActive = false;
-    }
 }

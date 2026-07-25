@@ -1,53 +1,19 @@
-
 namespace Domain;
-public class Conversation : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
+
+public class Conversation : AuditableEntityBase<Guid>, ISoftDeletable
 {
-    public ConversationType ConversationType { get; private set; }
-    public string? Title { get; private set; }
-    public string? Description { get; private set; }
-    public bool IsPrivate { get; private set; }
-    public bool IsArchived { get; private set; }
-    
-    public Guid? CreatedBy { get; set; }
-    public Guid? UpdatedBy { get; set; }
-    public bool IsActive { get; set; } = true;
+    public ConversationType ConversationType { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public bool IsPrivate { get; set; }
+    public bool IsArchived { get; set; }
+    public DateTimeOffset? LastMessageAt { get; set; }
 
-    public virtual ICollection<ConversationMember> Members { get; private set; } = [];
-    public virtual ICollection<Message> Messages { get; private set; } = [];
-    public virtual ICollection<ConversationActivityLog> ActivityLogs { get; private set; } = [];
+    public bool IsDeleted { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
-    private Conversation() : base()
-    {
-    }
-
-    public static Conversation Create(
-        ConversationType conversationType,
-        string? title,
-        string? description,
-        bool isPrivate,
-        Guid createdBy)
-    {
-        return new Conversation
-        {
-            ConversationType = conversationType,
-            Title = title?.Trim(),
-            Description = description?.Trim(),
-            IsPrivate = isPrivate,
-            IsArchived = false,
-            CreatedBy = createdBy,
-            IsActive = true
-        };
-    }
-
-    public void Update(string? title, string? description, bool isPrivate)
-    {
-        Title = title?.Trim();
-        Description = description?.Trim();
-        IsPrivate = isPrivate;
-    }
-
-    public void SetArchived(bool isArchived)
-    {
-        IsArchived = isArchived;
-    }
+    public ICollection<ConversationMember> Members { get; set; } = [];
+    public ICollection<Message> Messages { get; set; } = [];
+    public ICollection<ConversationActivityLog> ActivityLogs { get; set; } = [];
 }

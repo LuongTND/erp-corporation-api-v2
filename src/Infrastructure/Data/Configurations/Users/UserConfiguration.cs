@@ -1,57 +1,35 @@
 namespace Infrastructure;
 
-public class UserConfiguration : IEntityTypeConfiguration<User>
+public class UserConfiguration : AuditableEntityConfiguration<User, Guid>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public override void Configure(EntityTypeBuilder<User> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("Users");
 
-        builder.HasKey(x => x.Id);
+        builder.HasIndex(u => u.Email).IsUnique();
+        builder.HasIndex(u => u.EmployeeCode).IsUnique();
 
-        builder.Property(x => x.EmployeeCode)
-            .HasMaxLength(50)
-            .IsRequired();
+        builder.Property(u => u.FullName).IsRequired().HasMaxLength(255);
+        builder.Property(u => u.Email).IsRequired().HasMaxLength(255);
+        builder.Property(u => u.EmployeeCode).IsRequired().HasMaxLength(50);
+        builder.Property(u => u.AvatarUrl).HasMaxLength(1000);
+        builder.Property(u => u.Status).HasConversion<string>().HasMaxLength(30);
 
-        builder.HasIndex(x => x.EmployeeCode)
-            .IsUnique();
-
-        builder.Property(x => x.FullName)
-            .HasMaxLength(200)
-            .IsRequired();
-
-        builder.Property(x => x.Email)
-            .HasMaxLength(256)
-            .IsRequired();
-
-        builder.HasIndex(x => x.Email)
-            .IsUnique();
-
-        builder.Property(x => x.AvatarUrl)
-            .HasMaxLength(500);
-
-        builder.HasOne(x => x.Department)
-            .WithMany(d => d.Users)
-            .HasForeignKey(x => x.DepartmentId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(x => x.JobLevel)
+        builder.HasOne(u => u.JobLevel)
             .WithMany(j => j.Users)
-            .HasForeignKey(x => x.JobLevelId)
+            .HasForeignKey(u => u.JobLevelId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.Manager)
-            .WithMany(m => m.DirectReports)
-            .HasForeignKey(x => x.ManagerId)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(u => u.Manager)
+            .WithMany(u => u.DirectReports)
+            .HasForeignKey(u => u.ManagerId)
+            .OnDelete(DeleteBehavior.NoAction);
 
-        builder.Property(x => x.DateOfJoin)
-            .IsRequired();
-
-        builder.Property(x => x.Status)
-            .HasConversion<int>()
-            .IsRequired();
-
-        builder.Property(x => x.IsActive)
-            .IsRequired();
+        builder.HasOne(u => u.UserAccount)
+            .WithOne(a => a.User)
+            .HasForeignKey<UserAccount>(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

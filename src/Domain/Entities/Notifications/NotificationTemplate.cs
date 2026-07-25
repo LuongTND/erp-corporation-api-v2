@@ -1,40 +1,12 @@
-
 namespace Domain;
-public class NotificationTemplate : BaseEntity, IAuditable
+
+public class NotificationTemplate : EntityBase<Guid>
 {
-    public Guid EventTypeId { get; private set; }
-    public NotificationChannel Channel { get; private set; }
-    public string TitleTemplate { get; private set; } = null!;
-    public string BodyTemplate { get; private set; } = null!;
+    public Guid EventTypeId { get; set; }
+    public NotificationChannel Channel { get; set; }
+    public string TitleTemplate { get; set; } = string.Empty;
+    public string BodyTemplate { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
 
-    public virtual NotificationEventType EventType { get; private set; } = null!;
-
-    private NotificationTemplate() : base()
-    {
-    }
-
-    public static NotificationTemplate Create(
-        Guid eventTypeId,
-        NotificationChannel channel,
-        string titleTemplate,
-        string bodyTemplate)
-    {
-        return new NotificationTemplate
-        {
-            EventTypeId = eventTypeId,
-            Channel = channel,
-            TitleTemplate = titleTemplate,
-            BodyTemplate = bodyTemplate,
-            IsActive = true
-        };
-    }
-
-    public void Update(string titleTemplate, string bodyTemplate, bool isActive)
-    {
-        TitleTemplate = titleTemplate;
-        BodyTemplate = bodyTemplate;
-        IsActive = isActive;
-        UpdatedAt = DateTime.UtcNow;
-    }
+    public NotificationEventType? EventType { get; set; }
 }

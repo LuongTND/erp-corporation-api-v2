@@ -1,4 +1,6 @@
-@API_HostAddress = https://localhost:7001
+@API_HostAddress = http://localhost:5070
 
-### Health check via Swagger
-GET {{API_HostAddress}}/swagger/index.html
+GET {{API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

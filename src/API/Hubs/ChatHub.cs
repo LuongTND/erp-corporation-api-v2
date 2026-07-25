@@ -1,28 +1,23 @@
 namespace API;
 
 [Authorize]
-public class ChatHub : Hub
+public sealed class ChatHub : Hub
 {
     public const string HubPath = "/hubs/chat";
 
     public async Task JoinConversation(string conversationId)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, conversationId);
-    }
+        => await Groups.AddToGroupAsync(Context.ConnectionId, conversationId);
 
     public async Task LeaveConversation(string conversationId)
-    {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, conversationId);
-    }
+        => await Groups.RemoveFromGroupAsync(Context.ConnectionId, conversationId);
 
     public async Task SendTypingStatus(string conversationId, bool isTyping)
     {
-        var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var fullName = Context.User?.FindFirst(ClaimTypes.Name)?.Value;
-        if (!string.IsNullOrEmpty(userId))
-        {
-            await Clients.Group(conversationId)
-                .SendAsync("ReceiveTypingStatus", conversationId, userId, fullName, isTyping);
-        }
+        var userId   = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        var fullName = Context.User?.FindFirstValue(ClaimTypes.Name);
+        if (string.IsNullOrEmpty(userId)) return;
+
+        await Clients.Group(conversationId)
+            .SendAsync("ReceiveTypingStatus", conversationId, userId, fullName, isTyping);
     }
 }

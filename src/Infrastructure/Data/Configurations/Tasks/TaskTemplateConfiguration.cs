@@ -1,30 +1,19 @@
 namespace Infrastructure;
 
-public class TaskTemplateConfiguration : IEntityTypeConfiguration<TaskTemplate>
+public class TaskTemplateConfiguration : AuditableEntityConfiguration<TaskTemplate, Guid>
 {
-    public void Configure(EntityTypeBuilder<TaskTemplate> builder)
+    public override void Configure(EntityTypeBuilder<TaskTemplate> builder)
     {
-        builder.ToTable("Task_Templates");
+        base.Configure(builder);
 
-        builder.HasKey(x => x.Id);
+        builder.ToTable("TaskTemplates");
 
-        builder.Property(x => x.Id)
-            .HasColumnName("TemplateID");
+        builder.Property(t => t.TemplateName).IsRequired().HasMaxLength(255);
+        builder.Property(t => t.Description).HasMaxLength(1000);
 
-        builder.Property(x => x.TemplateName)
-            .HasMaxLength(255)
-            .IsRequired();
-
-        builder.Property(x => x.Description)
-            .HasColumnType("nvarchar(max)");
-
-        builder.Property(x => x.DefaultPriority)
-            .HasMaxLength(50)
-            .HasConversion<string>();
-
-        builder.HasOne<User>()
+        builder.HasOne(t => t.DefaultPriority)
             .WithMany()
-            .HasForeignKey(x => x.CreatedBy)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(t => t.DefaultPriorityId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

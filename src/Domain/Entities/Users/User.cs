@@ -1,97 +1,30 @@
-
 namespace Domain;
-public class User : BaseEntity, IAuditable, ICreationTracked, IModificationTracked
+
+public class User : AuditableEntityBase<Guid>
 {
-    public string EmployeeCode { get; private set; } = null!;
-    public string FullName { get; private set; } = null!;
-    public string Email { get; private set; } = null!;
-    public string? AvatarUrl { get; private set; }
+    public string EmployeeCode { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
 
-    public Guid DepartmentId { get; private set; }
-    public virtual Department Department { get; private set; } = null!;
+    public Guid JobLevelId { get; set; }
+    public JobLevel? JobLevel { get; set; }
 
-    public Guid JobLevelId { get; private set; }
-    public virtual JobLevel JobLevel { get; private set; } = null!;
+    public Guid? ManagerId { get; set; }
+    public User? Manager { get; set; }
+    public ICollection<User> DirectReports { get; set; } = [];
 
-    public Guid? ManagerId { get; private set; }
-    public virtual User? Manager { get; private set; }
-    public virtual ICollection<User> DirectReports { get; private set; } = [];
-
-    public DateOnly DateOfJoin { get; private set; }
+    public DateOnly DateOfJoin { get; set; }
     public UserStatus Status { get; private set; }
-    public bool IsActive { get; set; } = true;
-    public Guid? CreatedBy { get; set; }
-    public Guid? UpdatedBy { get; set; }
+    public bool IsActive { get; private set; }
 
-    public virtual UserAccount? UserAccount { get; private set; }
-    public virtual ICollection<UserDepartment> UserDepartments { get; private set; } = [];
-    public virtual ICollection<UserRole> UserRoles { get; private set; } = [];
+    public UserAccount? UserAccount { get; set; }
+    public ICollection<UserDepartment> UserDepartments { get; set; } = [];
+    public ICollection<UserRole> UserRoles { get; set; } = [];
 
-    private User() : base()
+    public void ChangeStatus(UserStatus newStatus)
     {
-    }
-
-    public static User Create(
-        string employeeCode,
-        string fullName,
-        string email,
-        Guid departmentId,
-        Guid jobLevelId,
-        DateOnly dateOfJoin,
-        UserStatus status,
-        Guid? managerId = null,
-        string? avatarUrl = null)
-    {
-        return new User
-        {
-            EmployeeCode = employeeCode.Trim(),
-            FullName = fullName,
-            Email = email.ToLowerInvariant(),
-            DepartmentId = departmentId,
-            JobLevelId = jobLevelId,
-            DateOfJoin = dateOfJoin,
-            Status = status,
-            ManagerId = managerId,
-            AvatarUrl = avatarUrl,
-            IsActive = IsStatusActive(status)
-        };
-    }
-
-    public void UpdateProfile(
-        string fullName,
-        string email,
-        Guid departmentId,
-        Guid jobLevelId,
-        DateOnly dateOfJoin,
-        UserStatus status,
-        Guid? managerId = null,
-        string? avatarUrl = null)
-    {
-        FullName = fullName;
-        Email = email.ToLowerInvariant();
-        DepartmentId = departmentId;
-        JobLevelId = jobLevelId;
-        DateOfJoin = dateOfJoin;
-        Status = status;
-        ManagerId = managerId;
-        AvatarUrl = avatarUrl;
-        IsActive = IsStatusActive(status);
-    }
-
-    public void SetStatus(UserStatus status)
-    {
-        Status = status;
-        IsActive = IsStatusActive(status);
-    }
-
-    private static bool IsStatusActive(UserStatus status)
-    {
-        return status switch
-        {
-            UserStatus.Active => true,
-            UserStatus.Probation => true,
-            UserStatus.MaternityLeave => true,
-            _ => false
-        };
+        Status = newStatus;
+        IsActive = newStatus is UserStatus.Active or UserStatus.Probation;
     }
 }

@@ -1,0 +1,12 @@
+global using Contract;
+global using Domain;
+global using Application;
+global using Microsoft.Extensions.DependencyInjection;
+global using System.Reflection;
+global using Microsoft.Extensions.Configuration;
+global using System.Diagnostics;
+global using MediatR;
+global using Microsoft.Extensions.Logging;
+global using FluentValidation;
+global using MapsterMapper;
+global using Mapster;

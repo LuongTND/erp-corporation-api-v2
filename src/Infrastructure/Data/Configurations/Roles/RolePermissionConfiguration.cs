@@ -1,24 +1,16 @@
 namespace Infrastructure;
 
-public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermission>
+public class RolePermissionConfiguration : BaseEntityConfiguration<RolePermission, Guid>
 {
-    public void Configure(EntityTypeBuilder<RolePermission> builder)
+    public override void Configure(EntityTypeBuilder<RolePermission> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("RolePermissions");
 
-        builder.HasKey(x => new { x.RoleId, x.PermissionId });
+        builder.HasIndex(rp => new { rp.RoleId, rp.PermissionId }).IsUnique();
 
-        builder.HasOne(x => x.Role)
-            .WithMany(x => x.RolePermissions)
-            .HasForeignKey(x => x.RoleId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasOne(x => x.Permission)
-            .WithMany(x => x.RolePermissions)
-            .HasForeignKey(x => x.PermissionId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Property(x => x.AssignedAt)
-            .IsRequired();
+        builder.HasOne(rp => rp.Role).WithMany().HasForeignKey(rp => rp.RoleId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(rp => rp.Permission).WithMany(p => p.RolePermissions).HasForeignKey(rp => rp.PermissionId).OnDelete(DeleteBehavior.Cascade);
     }
 }

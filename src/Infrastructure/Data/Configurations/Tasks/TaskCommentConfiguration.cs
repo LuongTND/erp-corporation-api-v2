@@ -1,33 +1,28 @@
 namespace Infrastructure;
 
-public class TaskCommentConfiguration : IEntityTypeConfiguration<TaskComment>
+public class TaskCommentConfiguration : BaseEntityConfiguration<TaskComment, Guid>
 {
-    public void Configure(EntityTypeBuilder<TaskComment> builder)
+    public override void Configure(EntityTypeBuilder<TaskComment> builder)
     {
-        builder.ToTable("Task_Comments");
+        base.Configure(builder);
 
-        builder.HasKey(x => x.Id);
+        builder.ToTable("TaskComments");
 
-        builder.Property(x => x.Id)
-            .HasColumnName("CommentID");
+        builder.Property(c => c.Content).IsRequired().HasMaxLength(4000);
 
-        builder.Property(x => x.Content)
-            .HasColumnType("nvarchar(max)")
-            .IsRequired();
-
-        builder.HasOne(x => x.Task)
+        builder.HasOne(c => c.Task)
             .WithMany(t => t.Comments)
-            .HasForeignKey(x => x.TaskID)
+            .HasForeignKey(c => c.TaskID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(c => c.User)
             .WithMany()
-            .HasForeignKey(x => x.UserID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(c => c.UserID)
+            .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasOne(x => x.ParentComment)
+        builder.HasOne(c => c.ParentComment)
             .WithMany(c => c.Replies)
-            .HasForeignKey(x => x.ParentCommentID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(c => c.ParentCommentID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

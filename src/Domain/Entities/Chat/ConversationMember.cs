@@ -1,65 +1,26 @@
-
 namespace Domain;
-public class ConversationMember
+
+public class ConversationMember : EntityBase<Guid>
 {
-    public Guid ConversationID { get; private set; }
-    public virtual Conversation Conversation { get; private set; } = null!;
+    public Guid ConversationID { get; set; }
+    public Conversation? Conversation { get; set; }
 
-    public Guid UserID { get; private set; }
-    public virtual User User { get; private set; } = null!;
+    public Guid UserID { get; set; }
+    public User? User { get; set; }
 
-    public RoleInConversation? RoleInConversation { get; private set; }
-    public DateTime JoinedAt { get; private set; }
-    
-    public Guid? LastReadMessageID { get; private set; }
-    public virtual Message? LastReadMessage { get; private set; }
+    public RoleInConversation RoleInConversation { get; set; } = RoleInConversation.Member;
+    public DateTimeOffset JoinedAt { get; set; }
+    public DateTimeOffset? LeftAt { get; set; }
 
-    public bool IsMuted { get; private set; }
-    public bool IsActive { get; private set; }
+    public Guid? LastReadMessageID { get; set; }
+    public Message? LastReadMessage { get; set; }
 
-    private ConversationMember()
-    {
-    }
+    public bool IsMuted { get; set; }
+    public bool IsActive { get; set; }
 
-    public static ConversationMember Create(
-        Guid conversationId, 
-        Guid userId, 
-        global::Domain.RoleInConversation? role = global::Domain.RoleInConversation.Member)
-    {
-        return new ConversationMember
-        {
-            ConversationID = conversationId,
-            UserID = userId,
-            RoleInConversation = role,
-            JoinedAt = DateTime.UtcNow,
-            IsMuted = false,
-            IsActive = true
-        };
-    }
-
-    public void UpdateRole(RoleInConversation role)
-    {
-        RoleInConversation = role;
-    }
-
-    public void SetMuted(bool isMuted)
-    {
-        IsMuted = isMuted;
-    }
-
-    public void Deactivate()
+    public void Leave()
     {
         IsActive = false;
-    }
-
-    public void Reactivate()
-    {
-        IsActive = true;
-        JoinedAt = DateTime.UtcNow;
-    }
-
-    public void UpdateLastReadMessage(Guid messageId)
-    {
-        LastReadMessageID = messageId;
+        LeftAt = DateTimeOffset.UtcNow;
     }
 }

@@ -1,32 +1,25 @@
 namespace Infrastructure;
 
-public class MessageReactionConfiguration : IEntityTypeConfiguration<MessageReaction>
+public class MessageReactionConfiguration : BaseEntityConfiguration<MessageReaction, Guid>
 {
-    public void Configure(EntityTypeBuilder<MessageReaction> builder)
+    public override void Configure(EntityTypeBuilder<MessageReaction> builder)
     {
-        builder.ToTable("Message_Reactions");
+        base.Configure(builder);
 
-        builder.HasKey(x => x.Id);
+        builder.ToTable("MessageReactions");
 
-        builder.Property(x => x.Id)
-            .HasColumnName("ReactionID");
+        builder.HasIndex(r => new { r.MessageID, r.UserID, r.ReactionType }).IsUnique();
 
-        builder.Property(x => x.ReactionType)
-            .HasMaxLength(50)
-            .IsRequired();
+        builder.Property(r => r.ReactionType).IsRequired().HasMaxLength(50);
 
-        builder.HasOne(x => x.Message)
+        builder.HasOne(r => r.Message)
             .WithMany(m => m.Reactions)
-            .HasForeignKey(x => x.MessageID)
+            .HasForeignKey(r => r.MessageID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.User)
+        builder.HasOne(r => r.User)
             .WithMany()
-            .HasForeignKey(x => x.UserID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // A user can react with one specific reaction type once per message
-        builder.HasIndex(x => new { x.MessageID, x.UserID, x.ReactionType })
-            .IsUnique();
+            .HasForeignKey(r => r.UserID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

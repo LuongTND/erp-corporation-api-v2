@@ -1,24 +1,23 @@
 namespace Infrastructure;
 
-public class MessageTaskConfiguration : IEntityTypeConfiguration<MessageTask>
+public class MessageTaskConfiguration : BaseEntityConfiguration<MessageTask, Guid>
 {
-    public void Configure(EntityTypeBuilder<MessageTask> builder)
+    public override void Configure(EntityTypeBuilder<MessageTask> builder)
     {
-        builder.ToTable("Message_Tasks");
+        base.Configure(builder);
 
-        builder.HasKey(x => new { x.MessageID, x.TaskID });
+        builder.ToTable("MessageTasks");
 
-        builder.HasOne(x => x.Message)
+        builder.HasIndex(mt => new { mt.MessageID, mt.TaskID }).IsUnique();
+
+        builder.HasOne(mt => mt.Message)
             .WithMany(m => m.MessageTasks)
-            .HasForeignKey(x => x.MessageID)
+            .HasForeignKey(mt => mt.MessageID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.Task)
+        builder.HasOne(mt => mt.Task)
             .WithMany()
-            .HasForeignKey(x => x.TaskID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(x => x.LinkedAt)
-            .IsRequired();
+            .HasForeignKey(mt => mt.TaskID)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -1,36 +1,13 @@
-
 namespace Domain;
-public class MessageAttachment : BaseEntity
+
+public class MessageAttachment : EntityBase<Guid>
 {
-    public Guid MessageID { get; private set; }
-    public virtual Message Message { get; private set; } = null!;
+    public Guid MessageID { get; set; }
+    public Message? Message { get; set; }
 
-    public string FileName { get; private set; } = null!;
-    public string FileURL { get; private set; } = null!;
-    public string FileType { get; private set; } = null!;
-    public int FileSize { get; private set; }
-    public string? ThumbnailURL { get; private set; }
-
-    private MessageAttachment() : base()
-    {
-    }
-
-    public static MessageAttachment Create(
-        Guid messageId,
-        string fileName,
-        string fileUrl,
-        string fileType,
-        int fileSize,
-        string? thumbnailUrl = null)
-    {
-        return new MessageAttachment
-        {
-            MessageID = messageId,
-            FileName = fileName.Trim(),
-            FileURL = fileUrl.Trim(),
-            FileType = fileType.Trim().ToLowerInvariant(),
-            FileSize = fileSize,
-            ThumbnailURL = thumbnailUrl?.Trim()
-        };
-    }
+    public string FileName { get; set; } = string.Empty;
+    public string FileURL { get; set; } = string.Empty;
+    public string FileType { get; set; } = string.Empty;
+    public int FileSize { get; set; }
+    public string? ThumbnailURL { get; set; }
 }

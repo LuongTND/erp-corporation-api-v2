@@ -1,41 +1,23 @@
-
 namespace Domain;
-public class UserRole : BaseEntity, IAuditable
+
+public class UserRole : EntityBase<Guid>
 {
-    public Guid UserId { get; private set; }
-    public virtual User User { get; private set; } = null!;
+    public Guid UserId { get; set; }
+    public User? User { get; set; }
 
-    public Guid RoleId { get; private set; }
-    public virtual Role Role { get; private set; } = null!;
+    public Guid RoleId { get; set; }
+    public Role? Role { get; set; }
 
-    public DateTime AssignedAt { get; private set; }
-    public Guid? AssignedBy { get; private set; }
+    public DateTimeOffset AssignedAt { get; set; }
+    public Guid? AssignedBy { get; set; }
 
-    public DateTime? RevokedAt { get; private set; }
-    public Guid? RevokedBy { get; private set; }
+    public DateTimeOffset? ExpiresAt { get; set; }
+
+    public DateTimeOffset? RevokedAt { get; set; }
+    public Guid? RevokedBy { get; set; }
 
     public bool IsActive { get; set; } = true;
 
-    private UserRole() : base()
-    {
-    }
-
-    public static UserRole Create(Guid userId, Guid roleId, Guid? assignedBy = null)
-    {
-        return new UserRole
-        {
-            UserId = userId,
-            RoleId = roleId,
-            AssignedAt = DateTime.UtcNow,
-            AssignedBy = assignedBy,
-            IsActive = true
-        };
-    }
-
-    public void Revoke(Guid? revokedBy = null)
-    {
-        RevokedAt = DateTime.UtcNow;
-        RevokedBy = revokedBy;
-        IsActive = false;
-    }
+    public bool IsValid() =>
+        IsActive && RevokedAt == null && (ExpiresAt == null || ExpiresAt > DateTimeOffset.UtcNow);
 }

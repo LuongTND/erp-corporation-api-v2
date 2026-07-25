@@ -1,27 +1,13 @@
 namespace Domain;
-public class RolePermission
+
+public class RolePermission : EntityBase<Guid>
 {
-    public Guid RoleId { get; private set; }
-    public virtual Role Role { get; private set; } = null!;
+    public Guid RoleId { get; set; }
+    public Role? Role { get; set; }
 
-    public Guid PermissionId { get; private set; }
-    public virtual Permission Permission { get; private set; } = null!;
+    public Guid PermissionId { get; set; }
+    public Permission? Permission { get; set; }
 
-    public DateTime AssignedAt { get; private set; }
-    public Guid? AssignedBy { get; private set; }
-
-    private RolePermission()
-    {
-    }
-
-    public static RolePermission Create(Guid roleId, Guid permissionId, Guid? assignedBy = null)
-    {
-        return new RolePermission
-        {
-            RoleId = roleId,
-            PermissionId = permissionId,
-            AssignedAt = DateTime.UtcNow,
-            AssignedBy = assignedBy
-        };
-    }
+    public DateTimeOffset AssignedAt { get; set; }
+    public Guid? AssignedBy { get; set; }
 }
