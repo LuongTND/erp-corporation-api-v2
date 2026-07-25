@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class GetPermissionsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+public sealed class GetPermissionsQueryHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<GetPermissionsQuery, IEnumerable<PermissionResponse>>
 {
     public async Task<IEnumerable<PermissionResponse>> Handle(GetPermissionsQuery query, CancellationToken ct)
