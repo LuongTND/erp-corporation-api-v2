@@ -5,7 +5,7 @@ namespace Infrastructure;
 
 public static class ApplicationBuilderExtensions
 {
-    public static async Task ApplyMigrationsAndSeedAsync(this WebApplication app)
+    public static async Task ApplyMigrationsAndSeedAsync(this WebApplication app, Assembly apiAssembly)
     {
         await using var scope = app.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -20,7 +20,7 @@ public static class ApplicationBuilderExtensions
             Console.WriteLine(">>> >>> Seeding completed!");
         }
 
-        await AppData.SyncPermissionsAsync(db);
+        await AppData.SyncPermissionsAsync(db, apiAssembly);
         Console.WriteLine("Permissions synced.");
 
         // await AppData.SyncRoleHierarchyAsync(db);

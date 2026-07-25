@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
         services.AddInfrastructureDbContext(configuration)
                 .AddJwtService(jwtOptions)
                 .AddRedisCache(configuration)
-                .AddQuartzService()
+                // .AddQuartzService() // uncomment khi có scheduled jobs
                 .AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
 
         services.AddHostedService<OutboxProcessorHostedService>();

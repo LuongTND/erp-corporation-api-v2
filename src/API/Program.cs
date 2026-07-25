@@ -17,7 +17,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
-await app.ApplyMigrationsAndSeedAsync();
+await app.ApplyMigrationsAndSeedAsync(typeof(Program).Assembly);
 
 app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();

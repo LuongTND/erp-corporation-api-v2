@@ -10,10 +10,9 @@ public class AppData
         await context.SaveChangesAsync();
     }
 
-    public static async Task SyncPermissionsAsync(ApplicationDbContext context)
+    public static async Task SyncPermissionsAsync(ApplicationDbContext context, Assembly assembly)
     {
-        // Scan [HasPermission] attrs from API assembly — dev adds attr, admin sees it in UI after restart
-        var allKeys = Assembly.GetEntryAssembly()!
+        var allKeys = assembly
             .GetTypes()
             .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             .SelectMany(m => m.GetCustomAttributes<HasPermissionAttribute>())

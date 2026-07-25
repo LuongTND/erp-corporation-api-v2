@@ -5,6 +5,14 @@ public class CustomJwtBearerEvents : JwtBearerEvents
 {
     public override Task MessageReceived(MessageReceivedContext context)
     {
+        // SignalR sends token via query string (WebSocket doesn't support headers)
+        var accessToken = context.Request.Query["access_token"];
+        if (!string.IsNullOrEmpty(accessToken) && context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+        {
+            context.Token = accessToken;
+            return Task.CompletedTask;
+        }
+
         if (context.Request.Cookies.TryGetValue("access_token", out var cookieToken))
         {
             context.Token = cookieToken;

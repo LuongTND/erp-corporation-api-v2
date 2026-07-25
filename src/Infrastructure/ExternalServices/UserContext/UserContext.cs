@@ -5,7 +5,7 @@ namespace Infrastructure;
 [RegisterService(typeof(IUserContext))]
 public class UserContext(IHttpContextAccessor httpContextAccessor) : IUserContext
 {
-    private const string UserIdClaim = "user_id";
+    private const string UserIdClaim = "sub";
 
     public Guid UserId => GetGuidClaim(UserIdClaim);
 

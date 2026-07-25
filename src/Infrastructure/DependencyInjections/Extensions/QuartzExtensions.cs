@@ -12,7 +12,6 @@ internal static class QuartzExtensions
             q.UseInMemoryStore();
         });
 
-        // Đăng ký Quartz Hosted Service để chạy scheduler
         services.AddQuartzHostedService(options =>
         {
             options.WaitForJobsToComplete = true;

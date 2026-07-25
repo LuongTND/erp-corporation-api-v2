@@ -9,7 +9,7 @@ internal static class OutboxSerializer
 
     public static (string Type, string Payload) Serialize(IDomainEvent domainEvent)
     {
-        var type = domainEvent.GetType().AssemblyQualifiedName
+        var type = domainEvent.GetType().FullName
                    ?? throw new InvalidOperationException($"Cannot resolve type for {domainEvent.GetType().Name}.");
 
         var payload = JsonSerializer.Serialize(domainEvent, domainEvent.GetType(), Options);

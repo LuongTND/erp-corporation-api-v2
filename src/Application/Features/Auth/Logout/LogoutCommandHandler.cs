@@ -13,7 +13,7 @@ public sealed class LogoutCommandHandler(
         if (account is not null)
         {
             account.ClearRefreshToken();
-            await unitOfWork.SaveChangesAsync(ct);
+            await unitOfWork.EnsureSaveAsync(ct);
         }
 
         return MediatR.Unit.Value;

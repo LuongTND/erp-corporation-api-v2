@@ -53,19 +53,8 @@ public class JwtTokenService : IJwtTokensService
         };
     }
 
-    public string GenerateEmailVerifyToken() 
+    public string GenerateEmailVerifyToken()
         => TokenHelper.GenerateToken();
-
-    public string GenerateRefreshToken()
-    {
-        var token = new JwtSecurityToken(
-            issuer: _jwt.Issuer,
-            audience: _jwt.Audience,
-            expires: DateTime.UtcNow.AddSeconds(_jwt.RefreshTokenLifetime),
-            signingCredentials: _signingCredentials);
-
-        return _handler.WriteToken(token);
-    }
 
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
