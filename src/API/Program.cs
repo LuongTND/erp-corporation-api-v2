@@ -9,14 +9,10 @@ builder.Services
     .AddApplicationServices(builder.Configuration)
     .AddApiServices(builder.Configuration);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
-    app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
