@@ -82,14 +82,4 @@ public partial class ApplicationDbContext
 
         return await base.SaveChangesAsync(cancellationToken);
     }
-<<<<<<<< HEAD:src/Infrastructure/Data/ApplicationDbContext.cs
 }
-========
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(AssemblyReference.Assembly);
-        base.OnModelCreating(modelBuilder);
-    }
-}
->>>>>>>> origin/dev-v1:src/Infrastructure/Data/AppDbContext.cs
