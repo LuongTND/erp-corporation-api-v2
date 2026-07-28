@@ -11,6 +11,6 @@ public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage(ValidationMessages.Required)
-            .MinimumLength(8).WithMessage(ValidationMessages.MinLength);
+            .MinimumLength(6).WithMessage(ValidationMessages.MinLength);
     }
 }

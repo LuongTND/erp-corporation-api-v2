@@ -1,9 +1,9 @@
 namespace Application;
 
 public sealed class AssignPermissionsCommandHandler(IUnitOfWork unitOfWork)
-    : IRequestHandler<AssignPermissionsCommand, MediatR.Unit>
+    : IRequestHandler<AssignPermissionsCommand, Unit>
 {
-    public async Task<MediatR.Unit> Handle(AssignPermissionsCommand cmd, CancellationToken ct)
+    public async Task<Unit> Handle(AssignPermissionsCommand cmd, CancellationToken ct)
     {
         var role = await unitOfWork.Repository<Role>()
             .FindAsync(r => r.Id == cmd.RoleId, ct)
@@ -30,6 +30,6 @@ public sealed class AssignPermissionsCommandHandler(IUnitOfWork unitOfWork)
             });
 
         await unitOfWork.EnsureSaveAsync(ct);
-        return MediatR.Unit.Value;
+        return Unit.Value;
     }
 }

@@ -2,12 +2,14 @@ namespace Infrastructure;
 
 public class AppData
 {
-    public static async Task SeedAsync(ApplicationDbContext context)
+    public static async Task SeedAsync(ApplicationDbContext context, IPasswordHasher hasher)
     {
         if (!await context.Roles.AnyAsync())
             await context.Roles.AddRangeAsync(RoleData.GetRoles());
 
         await context.SaveChangesAsync();
+
+        await UserData.SeedAdminAsync(context, hasher);
     }
 
     public static async Task SyncPermissionsAsync(ApplicationDbContext context, Assembly assembly)

@@ -63,7 +63,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase<G
 
         var total = query.NeedTotalCount ? await q.CountAsync(ct) : 0;
 
-        if (orderBy != null) q = orderBy(q);
+        q = orderBy != null ? orderBy(q) : q.OrderBy(e => e.Id);
 
         var items = await q.Skip(query.Skip).Take(Math.Min(query.Top, AppConstants.MaxPageSize)).ToListAsync(ct);
 

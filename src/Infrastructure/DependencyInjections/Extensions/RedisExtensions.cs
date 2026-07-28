@@ -1,5 +1,3 @@
-using StackExchange.Redis;
-
 namespace Infrastructure;
 
 internal static class RedisExtensions
