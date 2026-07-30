@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 
 namespace Infrastructure;
 
@@ -9,21 +8,22 @@ public static class ApplicationBuilderExtensions
     {
         await using var scope = app.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var log = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
 
-        Console.WriteLine("Applying migrations...");
+        log.LogInformation("Applying migrations...");
         await db.Database.MigrateAsync();
+        log.LogInformation("Migrations applied");
 
         if (app.Environment.IsDevelopment())
         {
-            Console.WriteLine(">>> [[[Seeding development data]]]");
-            await AppData.SeedAsync(db);
-            Console.WriteLine(">>> >>> Seeding completed!");
+            log.LogInformation("Seeding development data...");
+            var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+            await AppData.SeedAsync(db, hasher);
+            log.LogInformation("Seeding completed");
         }
 
+        log.LogInformation("Syncing permissions...");
         await AppData.SyncPermissionsAsync(db, apiAssembly);
-        Console.WriteLine("Permissions synced.");
-
-        // await AppData.SyncRoleHierarchyAsync(db);
-        Console.WriteLine("Role hierarchy synced.");
+        log.LogInformation("Permissions synced");
     }
 }

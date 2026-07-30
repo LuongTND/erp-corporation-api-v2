@@ -4,9 +4,9 @@ public sealed class ChangePasswordCommandHandler(
     IUnitOfWork unitOfWork,
     IPasswordHasher passwordHasher,
     IUserContext userContext)
-    : IRequestHandler<ChangePasswordCommand, MediatR.Unit>
+    : IRequestHandler<ChangePasswordCommand, Unit>
 {
-    public async Task<MediatR.Unit> Handle(ChangePasswordCommand cmd, CancellationToken ct)
+    public async Task<Unit> Handle(ChangePasswordCommand cmd, CancellationToken ct)
     {
         var account = await unitOfWork.Repository<UserAccount>()
             .FindTrackedAsync(a => a.UserId == userContext.UserId, ct)
@@ -18,6 +18,6 @@ public sealed class ChangePasswordCommandHandler(
         account.PasswordHash = passwordHasher.Hash(cmd.NewPassword);
         await unitOfWork.EnsureSaveAsync(ct);
 
-        return MediatR.Unit.Value;
+        return Unit.Value;
     }
 }
