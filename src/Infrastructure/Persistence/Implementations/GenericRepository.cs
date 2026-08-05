@@ -48,6 +48,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase<G
     public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
         => await _dbSet.AnyAsync(predicate, ct);
 
+    public async Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+        => await _dbSet.AsNoTracking().Where(predicate).ToListAsync(ct);
+
+    public async Task<IReadOnlyList<T>> GetAllTrackedAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+        => await _dbSet.Where(predicate).ToListAsync(ct);
+
     public IQueryable<T> Query(bool tracking = false)
         => tracking ? _dbSet : _dbSet.AsNoTracking();
 

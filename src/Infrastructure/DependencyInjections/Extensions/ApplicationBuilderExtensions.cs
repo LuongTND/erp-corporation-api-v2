@@ -25,5 +25,11 @@ public static class ApplicationBuilderExtensions
         log.LogInformation("Syncing permissions...");
         await AppData.SyncPermissionsAsync(db, apiAssembly);
         log.LogInformation("Permissions synced");
+
+        // Invalidate permission cache for all users so new permissions take effect immediately
+        var permissionService = scope.ServiceProvider.GetRequiredService<IPermissionService>();
+        var adminRole = await db.Roles.FirstOrDefaultAsync(r => r.RoleName == RoleConstants.Admin);
+        if (adminRole is not null)
+            await permissionService.InvalidateCacheAsync(adminRole.Id);
     }
 }
