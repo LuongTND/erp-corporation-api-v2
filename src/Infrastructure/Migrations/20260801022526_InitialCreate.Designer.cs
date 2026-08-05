@@ -4,6 +4,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260801022526_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1461,9 +1464,6 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("JobLevelId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -1476,8 +1476,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
-
-                    b.HasIndex("JobLevelId");
 
                     b.HasIndex("UserId", "DepartmentId")
                         .IsUnique();
@@ -1623,9 +1621,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedAt", "RetryCount")
-                        .HasDatabaseName("IX_OutboxMessages_Pending")
-                        .HasFilter("\"ProcessedAt\" IS NULL");
+                    b.HasIndex("ProcessedAt");
+
+                    b.HasIndex("ProcessedAt", "CreatedAt");
 
                     b.ToTable("OutboxMessages", (string)null);
                 });
@@ -2033,11 +2031,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.JobLevel", "JobLevel")
-                        .WithMany()
-                        .HasForeignKey("JobLevelId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("Domain.User", "User")
                         .WithMany("UserDepartments")
                         .HasForeignKey("UserId")
@@ -2045,8 +2038,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Department");
-
-                    b.Navigation("JobLevel");
 
                     b.Navigation("User");
                 });
