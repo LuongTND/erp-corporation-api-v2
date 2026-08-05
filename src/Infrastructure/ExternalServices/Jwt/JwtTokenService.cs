@@ -32,7 +32,12 @@ public class JwtTokenService : IJwtTokensService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
             new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(),
                 ClaimValueTypes.Integer64),
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.Name, user.FullName),
         };
+
+        if (!string.IsNullOrWhiteSpace(user.Role))
+            claims.Add(new Claim(ClaimTypes.Role, user.Role));
 
         var token = new JwtSecurityToken(
             issuer: _jwt.Issuer,
