@@ -5,6 +5,12 @@ namespace API;
 [Route("api/users")]
 public sealed class UsersController(ISender sender) : ControllerBase
 {
+    [HasPermission("users:create")]
+    [HttpPost]
+    public async Task<ActionResult<ApiResponse<Guid>>> CreateEmployee(
+        [FromBody] CreateEmployeeCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Guid>.Ok(await sender.Send(cmd, ct)));
+
     [HasPermission("users:view")]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IEnumerable<UserSummaryResponse>>>> GetUsers(
