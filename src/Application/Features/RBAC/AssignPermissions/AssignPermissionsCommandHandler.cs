@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class AssignPermissionsCommandHandler(IUnitOfWork unitOfWork)
+public sealed class AssignPermissionsCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService)
     : IRequestHandler<AssignPermissionsCommand, Unit>
 {
     public async Task<Unit> Handle(AssignPermissionsCommand cmd, CancellationToken ct)
@@ -30,6 +30,7 @@ public sealed class AssignPermissionsCommandHandler(IUnitOfWork unitOfWork)
             });
 
         await unitOfWork.EnsureSaveAsync(ct);
+        await permissionService.InvalidateCacheAsync(cmd.RoleId);
         return Unit.Value;
     }
 }

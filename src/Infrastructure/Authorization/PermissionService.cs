@@ -45,4 +45,7 @@ public sealed class PermissionService(ApplicationDbContext db, IRedisCacheServic
         if (userIds.Count == 0) return;
         await cache.RemoveManyAsync(userIds.Select(id => CacheKey(id)).ToArray());
     }
+
+    public Task InvalidateCacheForUserAsync(Guid userId)
+        => cache.RemoveRecordAsync(CacheKey(userId));
 }

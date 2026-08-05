@@ -10,6 +10,7 @@ public class AppData
         await context.SaveChangesAsync();
 
         await UserData.SeedAdminAsync(context, hasher);
+        await StaffData.SeedAsync(context, hasher);
     }
 
     public static async Task SyncPermissionsAsync(ApplicationDbContext context, Assembly assembly)

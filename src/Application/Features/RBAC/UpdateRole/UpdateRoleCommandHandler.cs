@@ -15,7 +15,7 @@ public sealed class UpdateRoleCommandHandler(IUnitOfWork unitOfWork)
         role.DisplayName = cmd.DisplayName;
         role.Description = cmd.Description;
 
-        await unitOfWork.EnsureSaveAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
         return Unit.Value;
     }
 }

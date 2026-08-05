@@ -40,6 +40,7 @@ public sealed class GetRolesQueryHandler(IUnitOfWork unitOfWork)
         {
             Id = r.Id,
             RoleName = r.RoleName,
+            DisplayName = r.DisplayName,
             Description = r.Description,
             IsSystemRole = r.IsSystemRole,
             Permissions = rolePermMap.TryGetValue(r.Id, out var perms) ? perms : []
