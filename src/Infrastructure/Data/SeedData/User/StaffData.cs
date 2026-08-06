@@ -42,10 +42,16 @@ public static class StaffData
                 FullName = username,
                 Email = email,
                 JobLevelId = jobLevelId,
-                DateOfJoin = DateOnly.FromDateTime(DateTime.UtcNow),
             };
             user.ChangeStatus(UserStatus.Active);
             context.Set<User>().Add(user);
+
+            context.Set<EmploymentInfo>().Add(new EmploymentInfo
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                DateOfJoin = DateOnly.FromDateTime(DateTime.UtcNow),
+            });
 
             context.Set<UserAccount>().Add(new UserAccount
             {

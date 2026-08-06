@@ -29,10 +29,16 @@ public static class UserData
             FullName = "System Admin",
             Email = adminEmail,
             JobLevelId = jobLevelId,
-            DateOfJoin = DateOnly.FromDateTime(DateTime.UtcNow),
         };
         user.ChangeStatus(UserStatus.Active);
         context.Set<User>().Add(user);
+
+        context.Set<EmploymentInfo>().Add(new EmploymentInfo
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            DateOfJoin = DateOnly.FromDateTime(DateTime.UtcNow),
+        });
 
         context.Set<UserAccount>().Add(new UserAccount
         {
