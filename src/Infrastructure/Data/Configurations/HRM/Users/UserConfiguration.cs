@@ -16,14 +16,6 @@ public class UserConfiguration : AuditableEntityConfiguration<User, Guid>
         builder.Property(u => u.EmployeeCode).IsRequired().HasMaxLength(50);
         builder.Property(u => u.AvatarUrl).HasMaxLength(1000);
         builder.Property(u => u.Status).HasConversion<string>().HasMaxLength(30);
-        builder.Property(u => u.Gender).HasConversion<string>().HasMaxLength(10);
-        builder.Property(u => u.IdentityCardNumber).HasMaxLength(20);
-        builder.Property(u => u.IdentityCardIssuedPlace).HasMaxLength(255);
-        builder.Property(u => u.PhoneNumber).HasMaxLength(20);
-        builder.Property(u => u.PermanentAddress).HasMaxLength(500);
-        builder.Property(u => u.CurrentAddress).HasMaxLength(500);
-        builder.Property(u => u.TaxCode).HasMaxLength(20);
-        builder.Property(u => u.SocialInsuranceCode).HasMaxLength(20);
 
         builder.HasOne(u => u.JobLevel)
             .WithMany(j => j.Users)
@@ -38,6 +30,21 @@ public class UserConfiguration : AuditableEntityConfiguration<User, Guid>
         builder.HasOne(u => u.UserAccount)
             .WithOne(a => a.User)
             .HasForeignKey<UserAccount>(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(u => u.Profile)
+            .WithOne(p => p.User)
+            .HasForeignKey<EmployeeProfile>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(u => u.Identity)
+            .WithOne(i => i.User)
+            .HasForeignKey<EmployeeIdentity>(i => i.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(u => u.EmploymentInfo)
+            .WithOne(e => e.User)
+            .HasForeignKey<EmploymentInfo>(e => e.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
