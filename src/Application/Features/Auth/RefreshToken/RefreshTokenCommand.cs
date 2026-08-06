@@ -1,3 +1,3 @@
 namespace Application;
 
-public sealed record RefreshTokenCommand(string AccessToken, string RefreshToken) : IRequest<SignInResponse>;
+public sealed record RefreshTokenCommand(string RefreshToken) : IRequest<SignInResponse>;

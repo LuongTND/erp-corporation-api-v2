@@ -16,5 +16,7 @@ public interface IGenericRepository<T> where T : EntityBase<Guid>
         Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
         CancellationToken ct = default);
+    Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
+    Task<IReadOnlyList<T>> GetAllTrackedAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
     IQueryable<T> Query(bool tracking = false);
 }

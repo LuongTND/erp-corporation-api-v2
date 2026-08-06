@@ -22,6 +22,14 @@ public sealed class ApplicationDbContext(
     public DbSet<UserAccount> UserAccounts => Set<UserAccount>();
     public DbSet<UserDepartment> UserDepartments => Set<UserDepartment>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<EmployeeProfile> EmployeeProfiles => Set<EmployeeProfile>();
+    public DbSet<EmployeeIdentity> EmployeeIdentities => Set<EmployeeIdentity>();
+    public DbSet<EmploymentInfo> EmploymentInfos => Set<EmploymentInfo>();
+
+    // Custom Fields
+    public DbSet<CustomFieldDefinition> CustomFieldDefinitions => Set<CustomFieldDefinition>();
+    public DbSet<CustomFieldOption> CustomFieldOptions => Set<CustomFieldOption>();
+    public DbSet<UserCustomFieldValue> UserCustomFieldValues => Set<UserCustomFieldValue>();
 
     // Org
     public DbSet<Department> Departments => Set<Department>();

@@ -9,7 +9,9 @@ public sealed class OutboxMessageConfiguration : IEntityTypeConfiguration<Outbox
         builder.Property(x => x.Type).HasMaxLength(500).IsRequired();
         builder.Property(x => x.Payload).IsRequired();
         builder.Property(x => x.Error).HasMaxLength(4000);
-        builder.HasIndex(x => x.ProcessedAt);
-        builder.HasIndex(x => new { x.ProcessedAt, x.CreatedAt });
+        // Filtered index: chỉ cover rows chưa xử lý → tiny, query nhanh dù table lớn
+        builder.HasIndex(x => new { x.CreatedAt, x.RetryCount })
+            .HasFilter("\"ProcessedAt\" IS NULL")
+            .HasDatabaseName("IX_OutboxMessages_Pending");
     }
 }

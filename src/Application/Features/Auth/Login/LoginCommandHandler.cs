@@ -21,6 +21,10 @@ public sealed class LoginCommandHandler(
             .FindAsync(u => u.Id == account.UserId && u.IsActive, ct, u => u.UserRoles)
             ?? throw new UnauthorizedException("Tài khoản không hoạt động.");
 
+        // Load Role nav for each active UserRole (FindAsync doesn't support ThenInclude)
+        foreach (var ur in user.UserRoles.Where(ur => ur.IsActive))
+            ur.Role = await unitOfWork.Repository<Role>().FindAsync(r => r.Id == ur.RoleId, ct);
+
         var jwtOptions = appConfiguration.GetJwtOptions();
         var refreshToken = account.SetRefreshToken(jwtOptions.RefreshTokenLifetime);
         account.RecordLoginSuccess();
