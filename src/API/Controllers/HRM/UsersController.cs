@@ -17,6 +17,24 @@ public sealed class UsersController(ISender sender) : ControllerBase
         [FromQuery] string? search, CancellationToken ct)
         => Ok(ApiResponse<IEnumerable<UserSummaryResponse>>.Ok(await sender.Send(new GetUsersQuery(search), ct)));
 
+    [HasPermission("users:view")]
+    [HttpGet("{userId:guid}")]
+    public async Task<ActionResult<ApiResponse<UserDetailResponse>>> GetUserDetail(
+        Guid userId, CancellationToken ct)
+        => Ok(ApiResponse<UserDetailResponse>.Ok(await sender.Send(new GetUserDetailQuery(userId), ct)));
+
+    [HasPermission("users:edit")]
+    [HttpPut("{userId:guid}")]
+    public async Task<ActionResult<ApiResponse<Unit>>> UpdateEmployee(
+        Guid userId, [FromBody] UpdateEmployeeCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { UserId = userId }, ct)));
+
+    [HasPermission("users:edit")]
+    [HttpPatch("{userId:guid}/custom-fields")]
+    public async Task<ActionResult<ApiResponse<Unit>>> UpsertCustomFields(
+        Guid userId, [FromBody] IEnumerable<CustomFieldValueInput> values, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new UpsertUserCustomFieldValuesCommand(userId, values), ct)));
+
     // --- Department ---
 
     [HasPermission("users:assign-department")]

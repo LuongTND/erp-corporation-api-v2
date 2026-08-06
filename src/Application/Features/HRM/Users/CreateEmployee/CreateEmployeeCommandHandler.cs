@@ -32,35 +32,53 @@ public sealed class CreateEmployeeCommandHandler(
         if (codeTaken)
             throw new ConflictException($"Mã nhân viên '{employeeCode}' đã tồn tại.");
 
+        var userId = Guid.NewGuid();
+
         var user = new User
         {
-            Id = Guid.NewGuid(),
+            Id = userId,
             EmployeeCode = employeeCode,
             FullName = cmd.FullName,
             Email = cmd.Email,
             AvatarUrl = cmd.AvatarUrl,
             JobLevelId = cmd.JobLevelId,
             ManagerId = cmd.ManagerId,
-            DateOfJoin = cmd.DateOfJoin,
+        };
+        user.ChangeStatus(UserStatus.Active);
+
+        var profile = new EmployeeProfile
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
             Gender = cmd.Gender,
             DateOfBirth = cmd.DateOfBirth,
-            IdentityCardNumber = cmd.IdentityCardNumber,
-            IdentityCardIssuedDate = cmd.IdentityCardIssuedDate,
-            IdentityCardIssuedPlace = cmd.IdentityCardIssuedPlace,
             PhoneNumber = cmd.PhoneNumber,
             PermanentAddress = cmd.PermanentAddress,
             CurrentAddress = cmd.CurrentAddress,
-            TaxCode = cmd.TaxCode,
-            SocialInsuranceCode = cmd.SocialInsuranceCode
         };
 
-        // ponytail: ChangeStatus sets IsActive, but User needs method call to init Status
-        user.ChangeStatus(UserStatus.Active);
+        var identity = new EmployeeIdentity
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            IdentityCardNumber = cmd.IdentityCardNumber,
+            IdentityCardIssuedDate = cmd.IdentityCardIssuedDate,
+            IdentityCardIssuedPlace = cmd.IdentityCardIssuedPlace,
+        };
+
+        var employment = new EmploymentInfo
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            DateOfJoin = cmd.DateOfJoin,
+            TaxCode = cmd.TaxCode,
+            SocialInsuranceCode = cmd.SocialInsuranceCode,
+        };
 
         var account = new UserAccount
         {
             Id = Guid.NewGuid(),
-            UserId = user.Id,
+            UserId = userId,
             LoginEmail = cmd.Email,
             // Default password = "Bahung@2025" — admin must reset after first login
             PasswordHash = passwordHasher.Hash("Bahung@2025"),
@@ -68,6 +86,9 @@ public sealed class CreateEmployeeCommandHandler(
         };
 
         await unitOfWork.Repository<User>().AddAsync(user);
+        await unitOfWork.Repository<EmployeeProfile>().AddAsync(profile);
+        await unitOfWork.Repository<EmployeeIdentity>().AddAsync(identity);
+        await unitOfWork.Repository<EmploymentInfo>().AddAsync(employment);
         await unitOfWork.Repository<UserAccount>().AddAsync(account);
         await unitOfWork.EnsureSaveAsync(ct);
 
