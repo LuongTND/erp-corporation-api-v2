@@ -13,7 +13,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<SignInResponse>>> Refresh(
         RefreshTokenCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<SignInResponse>.Ok(await sender.Send(cmd, ct)));
-
+    
     [Authorize]
     [HttpPost("logout")]
     public async Task<ActionResult<ApiResponse<Unit>>> Logout(CancellationToken ct)

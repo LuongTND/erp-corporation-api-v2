@@ -14,8 +14,9 @@ public sealed class UsersController(ISender sender) : ControllerBase
     [HasPermission("users:view")]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IEnumerable<UserSummaryResponse>>>> GetUsers(
-        [FromQuery] string? search, CancellationToken ct)
-        => Ok(ApiResponse<IEnumerable<UserSummaryResponse>>.Ok(await sender.Send(new GetUsersQuery(search), ct)));
+        [FromQuery] string? search, [FromQuery] Guid? jobLevelId, [FromQuery] UserStatus? status, [FromQuery] Guid? departmentId, CancellationToken ct)
+        => Ok(ApiResponse<IEnumerable<UserSummaryResponse>>.Ok(
+            await sender.Send(new GetUsersQuery(search, jobLevelId, status, departmentId), ct)));
 
     [HasPermission("users:view")]
     [HttpGet("{userId:guid}")]
@@ -30,10 +31,27 @@ public sealed class UsersController(ISender sender) : ControllerBase
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { UserId = userId }, ct)));
 
     [HasPermission("users:edit")]
+    [HttpPost("{userId:guid}/avatar")]
+    [RequestSizeLimit(5 * 1024 * 1024)] // 5MB
+    public async Task<ActionResult<ApiResponse<string>>> UploadAvatar(
+        Guid userId, [FromForm] IFormFile file, CancellationToken ct)
+    {
+        using var stream = file.OpenReadStream();
+        var url = await sender.Send(new UploadAvatarCommand(userId, stream, file.ContentType, file.FileName), ct);
+        return Ok(ApiResponse<string>.Ok(url));
+    }
+
+    [HasPermission("users:edit")]
     [HttpPatch("{userId:guid}/custom-fields")]
     public async Task<ActionResult<ApiResponse<Unit>>> UpsertCustomFields(
         Guid userId, [FromBody] IEnumerable<CustomFieldValueInput> values, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(new UpsertUserCustomFieldValuesCommand(userId, values), ct)));
+
+    [HasPermission("users:edit")]
+    [HttpDelete("{userId:guid}/job-level")]
+    public async Task<ActionResult<ApiResponse<Unit>>> UnassignJobLevel(
+        Guid userId, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new UnassignJobLevelCommand(userId), ct)));
 
     // --- Department ---
 
@@ -82,4 +100,48 @@ public sealed class UsersController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<Unit>>> SetScope(
         Guid userId, [FromBody] SetScopeOverrideCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { UserId = userId }, ct)));
+
+    // --- Status ---
+
+    [HasPermission("users:edit")]
+    [HttpPatch("{userId:guid}/status")]
+    public async Task<ActionResult<ApiResponse<Unit>>> UpdateStatus(
+        Guid userId, [FromBody] UpdateUserStatusCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { UserId = userId }, ct)));
+
+    [HasPermission("users:view")]
+    [HttpGet("{userId:guid}/status-history")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<UserStatusHistoryResponse>>>> GetStatusHistory(
+        Guid userId, CancellationToken ct)
+        => Ok(ApiResponse<IEnumerable<UserStatusHistoryResponse>>.Ok(
+            await sender.Send(new GetUserStatusHistoryQuery(userId), ct)));
+
+    // --- Work History ---
+
+    [HasPermission("users:view")]
+    [HttpGet("{userId:guid}/work-history")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<WorkHistoryResponse>>>> GetWorkHistory(
+        Guid userId, [FromQuery] WorkHistoryChangeType? changeType, CancellationToken ct)
+        => Ok(ApiResponse<IEnumerable<WorkHistoryResponse>>.Ok(
+            await sender.Send(new GetWorkHistoryQuery(userId, changeType), ct)));
+
+    // --- Lock ---
+
+    [HasPermission("users:edit")]
+    [HttpPatch("{userId:guid}/lock")]
+    public async Task<ActionResult<ApiResponse<Unit>>> LockEmployee(
+        Guid userId, [FromBody] LockEmployeeCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { UserId = userId }, ct)));
+
+    // --- Export ---
+
+    [HasPermission("users:view")]
+    [HttpGet("export")]
+    public async Task<IActionResult> ExportUsers(
+        [FromQuery] string? search, [FromQuery] UserStatus? status, [FromQuery] Guid? departmentId, CancellationToken ct)
+    {
+        var bytes = await sender.Send(new ExportUsersQuery(search, status, departmentId), ct);
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"nhan-su-{DateTimeOffset.UtcNow:yyyyMMdd}.xlsx");
+    }
 }

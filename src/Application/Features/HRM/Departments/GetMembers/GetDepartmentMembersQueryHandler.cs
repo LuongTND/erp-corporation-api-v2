@@ -25,8 +25,8 @@ public sealed class GetDepartmentMembersQueryHandler(IUnitOfWork unitOfWork)
 
         // collect fallback job levels from users too
         var fallbackLevelIds = users.Values
-            .Where(u => u.JobLevelId != Guid.Empty)
-            .Select(u => u.JobLevelId)
+            .Where(u => u.JobLevelId.HasValue)
+            .Select(u => u.JobLevelId!.Value)
             .Except(jobLevelIds).Distinct().ToList();
 
         var allLevelIds = jobLevelIds.Concat(fallbackLevelIds).Distinct().ToList();
@@ -43,7 +43,7 @@ public sealed class GetDepartmentMembersQueryHandler(IUnitOfWork unitOfWork)
             {
                 var user = users[ud.UserId];
                 var levelId = ud.JobLevelId ?? user.JobLevelId;
-                jobLevels.TryGetValue(levelId, out var level);
+                jobLevels.TryGetValue(levelId ?? Guid.Empty, out var level);
                 return new DepartmentMemberResponse
                 {
                     UserDepartmentId = ud.Id,

@@ -7,4 +7,6 @@ public sealed class UserSummaryResponse
     public string EmployeeCode { get; init; } = string.Empty;
     public string Email { get; init; } = string.Empty;
     public string? AvatarUrl { get; init; }
+    public string Status { get; init; } = string.Empty;
+    public DateTimeOffset JoinDate { get; init; }
 }

@@ -1,6 +1,7 @@
 global using API;
 global using Contract;
 global using Application;
+global using Domain;
 global using MediatR;
 global using Infrastructure;
 global using Microsoft.AspNetCore.Diagnostics;

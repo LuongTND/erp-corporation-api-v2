@@ -50,4 +50,10 @@ public sealed class DepartmentsController(ISender sender) : ControllerBase
         Guid departmentId, CancellationToken ct)
         => Ok(ApiResponse<IEnumerable<DepartmentMemberResponse>>.Ok(
             await sender.Send(new GetDepartmentMembersQuery(departmentId), ct)));
+
+    [HasPermission("users:assign-department")]
+    [HttpPost("{departmentId:guid}/members/bulk")]
+    public async Task<ActionResult<ApiResponse<int>>> AddMembersBulk(
+        Guid departmentId, [FromBody] AddBulkUserDepartmentCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<int>.Ok(await sender.Send(cmd with { DepartmentId = departmentId }, ct)));
 }

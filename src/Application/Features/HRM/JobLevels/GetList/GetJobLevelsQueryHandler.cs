@@ -13,6 +13,13 @@ public sealed class GetJobLevelsQueryHandler(IUnitOfWork unitOfWork)
             orderBy: q => q.OrderBy(j => j.LevelOrder),
             ct: ct);
 
+        var levelIds = result.Items.Select(j => j.Id).ToList();
+        var usersForCount = (await unitOfWork.Repository<User>().GetPagedAsync(
+            new QueryInfo { Top = 100000, NeedTotalCount = false },
+            filter: u => u.IsActive && u.JobLevelId.HasValue && levelIds.Contains(u.JobLevelId.Value),
+            ct: ct)).Items;
+        var counts = usersForCount.GroupBy(u => u.JobLevelId!.Value).ToDictionary(g => g.Key, g => g.Count());
+
         var items = result.Items.Select(j => new JobLevelResponse
         {
             Id = j.Id,
@@ -20,9 +27,8 @@ public sealed class GetJobLevelsQueryHandler(IUnitOfWork unitOfWork)
             LevelOrder = j.LevelOrder,
             DefaultScopeType = j.DefaultScopeType,
             Description = j.Description,
-            BaseSalaryMin = j.BaseSalaryMin,
-            BaseSalaryMax = j.BaseSalaryMax,
-            IsDeleted = j.IsDeleted
+            IsDeleted = j.IsDeleted,
+            EmployeeCount = counts.GetValueOrDefault(j.Id)
         });
 
         return new QueryResult<JobLevelResponse> { Items = items, TotalCount = result.TotalCount };

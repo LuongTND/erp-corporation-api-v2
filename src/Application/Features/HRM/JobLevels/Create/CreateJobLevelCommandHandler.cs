@@ -16,9 +16,7 @@ public sealed class CreateJobLevelCommandHandler(IUnitOfWork unitOfWork)
             LevelName = cmd.LevelName,
             LevelOrder = cmd.LevelOrder,
             DefaultScopeType = cmd.DefaultScopeType,
-            Description = cmd.Description,
-            BaseSalaryMin = cmd.BaseSalaryMin,
-            BaseSalaryMax = cmd.BaseSalaryMax
+            Description = cmd.Description
         };
 
         await unitOfWork.Repository<JobLevel>().AddAsync(jobLevel);

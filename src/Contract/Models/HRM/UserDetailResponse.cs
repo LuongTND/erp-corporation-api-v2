@@ -9,8 +9,9 @@ public sealed class UserDetailResponse
     public string? AvatarUrl { get; init; }
     public string Status { get; init; } = string.Empty;
     public bool IsActive { get; init; }
+    public bool IsLocked { get; init; }
 
-    public Guid JobLevelId { get; init; }
+    public Guid? JobLevelId { get; init; }
     public string? JobLevelName { get; init; }
     public Guid? ManagerId { get; init; }
     public string? ManagerName { get; init; }
@@ -18,7 +19,17 @@ public sealed class UserDetailResponse
     public UserProfileDetailResponse? Profile { get; init; }
     public UserIdentityDetailResponse? Identity { get; init; }
     public UserEmploymentDetailResponse? Employment { get; init; }
+    public IEnumerable<UserDepartmentDetailResponse> Departments { get; init; } = [];
     public IEnumerable<CustomFieldValueResponse> CustomFields { get; init; } = [];
+}
+
+public sealed class UserDepartmentDetailResponse
+{
+    public Guid DepartmentId { get; init; }
+    public string DepartmentName { get; init; } = string.Empty;
+    public bool IsPrimary { get; init; }
+    public Guid? ManagerId { get; init; }
+    public string? ManagerName { get; init; }
 }
 
 public sealed class UserProfileDetailResponse

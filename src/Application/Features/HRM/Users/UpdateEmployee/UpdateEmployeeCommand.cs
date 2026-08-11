@@ -3,7 +3,7 @@ namespace Application;
 public sealed record UpdateEmployeeCommand(
     Guid UserId,
     string FullName,
-    Guid JobLevelId,
+    Guid? JobLevelId,
     Guid? ManagerId,
     // Profile
     Gender? Gender,

@@ -25,6 +25,9 @@ public sealed class ApplicationDbContext(
     public DbSet<EmployeeProfile> EmployeeProfiles => Set<EmployeeProfile>();
     public DbSet<EmployeeIdentity> EmployeeIdentities => Set<EmployeeIdentity>();
     public DbSet<EmploymentInfo> EmploymentInfos => Set<EmploymentInfo>();
+    public DbSet<UserStatusHistory> UserStatusHistories => Set<UserStatusHistory>();
+    public DbSet<EmployeeDocument> EmployeeDocuments => Set<EmployeeDocument>();
+    public DbSet<WorkHistory> WorkHistories => Set<WorkHistory>();
 
     // Custom Fields
     public DbSet<CustomFieldDefinition> CustomFieldDefinitions => Set<CustomFieldDefinition>();
@@ -34,6 +37,20 @@ public sealed class ApplicationDbContext(
     // Org
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<JobLevel> JobLevels => Set<JobLevel>();
+    public DbSet<DepartmentJobLevel> DepartmentJobLevels => Set<DepartmentJobLevel>();
+    public DbSet<BonusPolicy> BonusPolicies => Set<BonusPolicy>();
+
+    // KPI
+    public DbSet<KpiTemplate> KpiTemplates => Set<KpiTemplate>();
+    public DbSet<KpiMetric> KpiMetrics => Set<KpiMetric>();
+    public DbSet<KpiEntry> KpiEntries => Set<KpiEntry>();
+
+    // Salary
+    public DbSet<SalaryRecord> SalaryRecords => Set<SalaryRecord>();
+
+    // Payroll
+    public DbSet<PayrollRun> PayrollRuns => Set<PayrollRun>();
+    public DbSet<PayrollEntry> PayrollEntries => Set<PayrollEntry>();
 
     // Tasks
     public DbSet<TaskItemStatus> TaskStatuses => Set<TaskItemStatus>();

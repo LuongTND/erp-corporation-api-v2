@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260728065053_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260807070121_HRM028_AddKpiEntryAndPayroll")]
+    partial class HRM028_AddKpiEntryAndPayroll
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,6 +63,50 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("Domain.BonusPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BonusPolicies", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Conversation", b =>
@@ -205,6 +249,117 @@ namespace Infrastructure.Migrations
                     b.ToTable("ConversationMembers", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.CustomFieldDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FieldType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Group")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("HelpText")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Placeholder")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ValidationJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("CustomFieldDefinitions", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.CustomFieldOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("DefinitionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefinitionId");
+
+                    b.ToTable("CustomFieldOptions", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Department", b =>
                 {
                     b.Property<Guid>("Id")
@@ -267,19 +422,207 @@ namespace Infrastructure.Migrations
                     b.ToTable("Departments", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.JobLevel", b =>
+            modelBuilder.Entity("Domain.DepartmentJobLevel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal?>("BaseSalaryMax")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<Guid?>("BonusPolicyId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal?>("BaseSalaryMin")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("JobLevelId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("KpiTemplateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BonusPolicyId");
+
+                    b.HasIndex("JobLevelId");
+
+                    b.HasIndex("KpiTemplateId");
+
+                    b.HasIndex("DepartmentId", "JobLevelId")
+                        .IsUnique();
+
+                    b.ToTable("DepartmentJobLevels", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.EmployeeIdentity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly?>("IdentityCardIssuedDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("IdentityCardIssuedPlace")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("IdentityCardNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly?>("PassportExpiryDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("PassportNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdentityCardNumber")
+                        .IsUnique()
+                        .HasFilter("[IdentityCardNumber] IS NOT NULL");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("EmployeeIdentities", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.EmployeeProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CurrentAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Gender")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("PermanentAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("EmployeeProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.EmploymentInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BankAccountNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("BankBranch")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("BankName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ContractType")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly>("DateOfJoin")
+                        .HasColumnType("date");
+
+                    b.Property<bool?>("HandoverCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("ResignedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("SocialInsuranceCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TaxCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("EmploymentInfos", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.JobLevel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -322,6 +665,155 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("JobLevels", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.KpiEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("ActualValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("KpiMetricId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Score")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KpiMetricId");
+
+                    b.HasIndex("UserId", "KpiMetricId", "Month", "Year")
+                        .IsUnique();
+
+                    b.ToTable("KpiEntries", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.KpiMetric", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("Target")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<Guid>("TemplateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Weight")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("KpiMetrics", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.KpiTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("JobLevelId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobLevelId");
+
+                    b.HasIndex("DepartmentId", "JobLevelId")
+                        .IsUnique()
+                        .HasFilter("[JobLevelId] IS NOT NULL");
+
+                    b.ToTable("KpiTemplates", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Message", b =>
@@ -673,6 +1165,133 @@ namespace Infrastructure.Migrations
                     b.ToTable("NotificationTriggerBindings", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.PayrollEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("BonusAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("GrossPay")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("HealthInsurance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("HourlyRateSnapshot")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("HoursWorked")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<decimal>("NetPay")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("PayrollRunId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("PersonalIncomeTax")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SocialInsurance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalDeductions")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("UnemploymentIns")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("PayrollRunId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("PayrollEntries", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.PayrollRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Month", "Year");
+
+                    b.ToTable("PayrollRuns", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Permission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -726,9 +1345,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("BypassDataScope")
-                        .HasColumnType("bit");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -801,6 +1417,48 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("RolePermissions", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.SalaryRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("EffectiveTo")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("HourlyRate")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "EffectiveTo");
+
+                    b.ToTable("SalaryRecords", (string)null);
                 });
 
             modelBuilder.Entity("Domain.TaskActivityLog", b =>
@@ -1336,9 +1994,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateOnly>("DateOfJoin")
-                        .HasColumnType("date");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -1357,7 +2012,7 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("JobLevelId")
+                    b.Property<Guid?>("JobLevelId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ManagerId")
@@ -1365,6 +2020,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("ScopeOverride")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1443,6 +2101,39 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserAccounts", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.UserCustomFieldValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("DefinitionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefinitionId");
+
+                    b.HasIndex("UserId", "DefinitionId")
+                        .IsUnique();
+
+                    b.ToTable("UserCustomFieldValues", (string)null);
+                });
+
             modelBuilder.Entity("Domain.UserDepartment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1455,6 +2146,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("DepartmentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("DepartmentJobLevelId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateOnly?>("EndDate")
                         .HasColumnType("date");
 
@@ -1463,6 +2157,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("bit");
+
+                    b.Property<Guid?>("JobLevelId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
@@ -1476,6 +2173,10 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
+
+                    b.HasIndex("DepartmentJobLevelId");
+
+                    b.HasIndex("JobLevelId");
 
                     b.HasIndex("UserId", "DepartmentId")
                         .IsUnique();
@@ -1621,9 +2322,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProcessedAt");
-
-                    b.HasIndex("ProcessedAt", "CreatedAt");
+                    b.HasIndex("CreatedAt", "RetryCount")
+                        .HasDatabaseName("IX_OutboxMessages_Pending")
+                        .HasFilter("\"ProcessedAt\" IS NULL");
 
                     b.ToTable("OutboxMessages", (string)null);
                 });
@@ -1672,6 +2373,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.CustomFieldOption", b =>
+                {
+                    b.HasOne("Domain.CustomFieldDefinition", "Definition")
+                        .WithMany("Options")
+                        .HasForeignKey("DefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Definition");
+                });
+
             modelBuilder.Entity("Domain.Department", b =>
                 {
                     b.HasOne("Domain.User", "Manager")
@@ -1687,6 +2399,120 @@ namespace Infrastructure.Migrations
                     b.Navigation("Manager");
 
                     b.Navigation("ParentDepartment");
+                });
+
+            modelBuilder.Entity("Domain.DepartmentJobLevel", b =>
+                {
+                    b.HasOne("Domain.BonusPolicy", "BonusPolicy")
+                        .WithMany()
+                        .HasForeignKey("BonusPolicyId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.Department", "Department")
+                        .WithMany("DepartmentJobLevels")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.JobLevel", "JobLevel")
+                        .WithMany()
+                        .HasForeignKey("JobLevelId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.KpiTemplate", "KpiTemplate")
+                        .WithMany()
+                        .HasForeignKey("KpiTemplateId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("BonusPolicy");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("JobLevel");
+
+                    b.Navigation("KpiTemplate");
+                });
+
+            modelBuilder.Entity("Domain.EmployeeIdentity", b =>
+                {
+                    b.HasOne("Domain.User", "User")
+                        .WithOne("Identity")
+                        .HasForeignKey("Domain.EmployeeIdentity", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.EmployeeProfile", b =>
+                {
+                    b.HasOne("Domain.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("Domain.EmployeeProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.EmploymentInfo", b =>
+                {
+                    b.HasOne("Domain.User", "User")
+                        .WithOne("EmploymentInfo")
+                        .HasForeignKey("Domain.EmploymentInfo", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.KpiEntry", b =>
+                {
+                    b.HasOne("Domain.KpiMetric", "KpiMetric")
+                        .WithMany()
+                        .HasForeignKey("KpiMetricId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("KpiMetric");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.KpiMetric", b =>
+                {
+                    b.HasOne("Domain.KpiTemplate", "Template")
+                        .WithMany("Metrics")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("Domain.KpiTemplate", b =>
+                {
+                    b.HasOne("Domain.Department", "Department")
+                        .WithMany("KpiTemplates")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.JobLevel", "JobLevel")
+                        .WithMany()
+                        .HasForeignKey("JobLevelId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Department");
+
+                    b.Navigation("JobLevel");
                 });
 
             modelBuilder.Entity("Domain.Message", b =>
@@ -1804,6 +2630,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("EventType");
                 });
 
+            modelBuilder.Entity("Domain.PayrollEntry", b =>
+                {
+                    b.HasOne("Domain.PayrollRun", "PayrollRun")
+                        .WithMany("Entries")
+                        .HasForeignKey("PayrollRunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("PayrollRun");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.RolePermission", b =>
                 {
                     b.HasOne("Domain.Permission", "Permission")
@@ -1821,6 +2666,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Permission");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Domain.SalaryRecord", b =>
+                {
+                    b.HasOne("Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.TaskActivityLog", b =>
@@ -1999,8 +2855,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.JobLevel", "JobLevel")
                         .WithMany("Users")
                         .HasForeignKey("JobLevelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.User", "Manager")
                         .WithMany("DirectReports")
@@ -2023,6 +2878,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.UserCustomFieldValue", b =>
+                {
+                    b.HasOne("Domain.CustomFieldDefinition", "Definition")
+                        .WithMany("Values")
+                        .HasForeignKey("DefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.User", "User")
+                        .WithMany("CustomFieldValues")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Definition");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.UserDepartment", b =>
                 {
                     b.HasOne("Domain.Department", "Department")
@@ -2031,6 +2905,16 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.DepartmentJobLevel", "DepartmentJobLevel")
+                        .WithMany()
+                        .HasForeignKey("DepartmentJobLevelId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.JobLevel", "JobLevel")
+                        .WithMany()
+                        .HasForeignKey("JobLevelId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("Domain.User", "User")
                         .WithMany("UserDepartments")
                         .HasForeignKey("UserId")
@@ -2038,6 +2922,10 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Department");
+
+                    b.Navigation("DepartmentJobLevel");
+
+                    b.Navigation("JobLevel");
 
                     b.Navigation("User");
                 });
@@ -2089,9 +2977,20 @@ namespace Infrastructure.Migrations
                     b.Navigation("Messages");
                 });
 
+            modelBuilder.Entity("Domain.CustomFieldDefinition", b =>
+                {
+                    b.Navigation("Options");
+
+                    b.Navigation("Values");
+                });
+
             modelBuilder.Entity("Domain.Department", b =>
                 {
                     b.Navigation("ChildDepartments");
+
+                    b.Navigation("DepartmentJobLevels");
+
+                    b.Navigation("KpiTemplates");
 
                     b.Navigation("UserDepartments");
                 });
@@ -2099,6 +2998,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.JobLevel", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Domain.KpiTemplate", b =>
+                {
+                    b.Navigation("Metrics");
                 });
 
             modelBuilder.Entity("Domain.Message", b =>
@@ -2119,6 +3023,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Templates");
 
                     b.Navigation("TriggerBindings");
+                });
+
+            modelBuilder.Entity("Domain.PayrollRun", b =>
+                {
+                    b.Navigation("Entries");
                 });
 
             modelBuilder.Entity("Domain.Permission", b =>
@@ -2173,7 +3082,15 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.User", b =>
                 {
+                    b.Navigation("CustomFieldValues");
+
                     b.Navigation("DirectReports");
+
+                    b.Navigation("EmploymentInfo");
+
+                    b.Navigation("Identity");
+
+                    b.Navigation("Profile");
 
                     b.Navigation("UserAccount");
 
