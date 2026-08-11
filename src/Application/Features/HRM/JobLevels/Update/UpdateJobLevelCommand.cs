@@ -5,7 +5,5 @@ public sealed record UpdateJobLevelCommand(
     string LevelName,
     int LevelOrder,
     ScopeType DefaultScopeType,
-    string? Description,
-    decimal? BaseSalaryMin,
-    decimal? BaseSalaryMax
+    string? Description
 ) : IRequest<Unit>;

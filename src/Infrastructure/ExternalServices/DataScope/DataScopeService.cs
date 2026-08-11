@@ -12,9 +12,12 @@ public sealed class DataScopeService(IUnitOfWork unitOfWork) : IDataScopeService
         if (user.ScopeOverride.HasValue)
             return user.ScopeOverride.Value;
 
+        if (!user.JobLevelId.HasValue)
+            return ScopeType.Own;
+
         var jobLevel = await unitOfWork.Repository<JobLevel>()
-            .FindAsync(j => j.Id == user.JobLevelId, ct)
-            ?? throw new NotFoundException(ExceptionMessages.NotFound("JobLevel", user.JobLevelId));
+            .FindAsync(j => j.Id == user.JobLevelId.Value, ct)
+            ?? throw new NotFoundException(ExceptionMessages.NotFound("JobLevel", user.JobLevelId.Value));
 
         return jobLevel.DefaultScopeType;
     }

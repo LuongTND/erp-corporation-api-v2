@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork)
+public sealed class UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork, IUserContext currentUser)
     : IRequestHandler<UpdateEmployeeCommand, Unit>
 {
     public async Task<Unit> Handle(UpdateEmployeeCommand cmd, CancellationToken ct)
@@ -9,12 +9,12 @@ public sealed class UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork)
             .FindTrackedAsync(u => u.Id == cmd.UserId, ct)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("User", cmd.UserId));
 
-        if (cmd.JobLevelId != user.JobLevelId)
+        if (cmd.JobLevelId.HasValue && cmd.JobLevelId != user.JobLevelId)
         {
             var levelExists = await unitOfWork.Repository<JobLevel>()
-                .AnyAsync(j => j.Id == cmd.JobLevelId && !j.IsDeleted, ct);
+                .AnyAsync(j => j.Id == cmd.JobLevelId.Value && !j.IsDeleted, ct);
             if (!levelExists)
-                throw new NotFoundException(ExceptionMessages.NotFound("JobLevel", cmd.JobLevelId));
+                throw new NotFoundException(ExceptionMessages.NotFound("JobLevel", cmd.JobLevelId.Value));
         }
 
         if (cmd.ManagerId.HasValue && cmd.ManagerId != user.ManagerId)
@@ -23,6 +23,23 @@ public sealed class UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork)
                 .AnyAsync(u => u.Id == cmd.ManagerId.Value && u.IsActive, ct);
             if (!managerExists)
                 throw new NotFoundException(ExceptionMessages.NotFound("Manager", cmd.ManagerId.Value));
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var workLogs = new List<WorkHistory>();
+
+        if (cmd.JobLevelId != user.JobLevelId)
+        {
+            var oldLevel = user.JobLevelId.HasValue ? await unitOfWork.Repository<JobLevel>().FindAsync(j => j.Id == user.JobLevelId.Value, ct) : null;
+            var newLevel = cmd.JobLevelId.HasValue ? await unitOfWork.Repository<JobLevel>().FindAsync(j => j.Id == cmd.JobLevelId.Value, ct) : null;
+            workLogs.Add(new WorkHistory { Id = Guid.NewGuid(), UserId = cmd.UserId, ChangeType = WorkHistoryChangeType.JobLevel, OldValue = oldLevel?.LevelName, NewValue = newLevel?.LevelName, ChangedBy = currentUser.UserId, ChangedAt = now });
+        }
+
+        if (cmd.ManagerId != user.ManagerId)
+        {
+            var oldManager = user.ManagerId.HasValue ? await unitOfWork.Repository<User>().FindAsync(u => u.Id == user.ManagerId.Value, ct) : null;
+            var newManager = cmd.ManagerId.HasValue ? await unitOfWork.Repository<User>().FindAsync(u => u.Id == cmd.ManagerId.Value, ct) : null;
+            workLogs.Add(new WorkHistory { Id = Guid.NewGuid(), UserId = cmd.UserId, ChangeType = WorkHistoryChangeType.Manager, OldValue = oldManager?.FullName, NewValue = newManager?.FullName, ChangedBy = currentUser.UserId, ChangedAt = now });
         }
 
         user.FullName = cmd.FullName;
@@ -102,6 +119,9 @@ public sealed class UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork)
         }
         else
         {
+            if (employment.ContractType != cmd.ContractType)
+                workLogs.Add(new WorkHistory { Id = Guid.NewGuid(), UserId = cmd.UserId, ChangeType = WorkHistoryChangeType.ContractType, OldValue = employment.ContractType?.ToString(), NewValue = cmd.ContractType?.ToString(), ChangedBy = currentUser.UserId, ChangedAt = now });
+
             if (cmd.DateOfJoin.HasValue)
                 employment.DateOfJoin = cmd.DateOfJoin.Value;
             employment.ContractType = cmd.ContractType;
@@ -111,6 +131,9 @@ public sealed class UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork)
             employment.BankAccountNumber = cmd.BankAccountNumber;
             employment.BankBranch = cmd.BankBranch;
         }
+
+        foreach (var log in workLogs)
+            await unitOfWork.Repository<WorkHistory>().AddAsync(log);
 
         await unitOfWork.SaveChangesAsync(ct);
         return Unit.Value;

@@ -8,6 +8,8 @@ public sealed class DepartmentTreeResponse
     public Guid? ParentDepartmentId { get; init; }
     public Guid? ManagerId { get; init; }
     public string? ManagerName { get; init; }
+    public string? ManagerAvatarUrl { get; init; }
     public bool IsActive { get; init; }
+    public int MemberCount { get; init; }
     public List<DepartmentTreeResponse> Children { get; init; } = [];
 }

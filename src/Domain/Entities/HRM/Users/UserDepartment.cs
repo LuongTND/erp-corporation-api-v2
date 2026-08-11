@@ -15,5 +15,8 @@ public class UserDepartment : EntityBase<Guid>
     public DateOnly StartDate { get; set; }
     public DateOnly? EndDate { get; set; }
 
+    public Guid? DepartmentJobLevelId { get; set; }
+    public DepartmentJobLevel? DepartmentJobLevel { get; set; }
+
     public bool IsActive { get; set; } = true;
 }

@@ -6,5 +6,7 @@ public enum UserStatus
     Resigned = 3,
     Terminated = 4,
     Suspended = 5,
-    MaternityLeave = 6
+    MaternityLeave = 6,
+    Apprentice = 7,
+    Official = 8
 }

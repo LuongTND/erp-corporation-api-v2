@@ -16,8 +16,6 @@ public sealed class GetJobLevelByIdQueryHandler(IUnitOfWork unitOfWork)
             LevelOrder = jobLevel.LevelOrder,
             DefaultScopeType = jobLevel.DefaultScopeType,
             Description = jobLevel.Description,
-            BaseSalaryMin = jobLevel.BaseSalaryMin,
-            BaseSalaryMax = jobLevel.BaseSalaryMax,
             IsDeleted = jobLevel.IsDeleted
         };
     }

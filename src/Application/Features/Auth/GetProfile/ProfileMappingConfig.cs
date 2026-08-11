@@ -9,7 +9,7 @@ public sealed class ProfileMappingConfig : IRegister
                 .Where(ur => ur.IsActive)
                 .Select(ur => ur.Role != null ? ur.Role.RoleName : null)
                 .FirstOrDefault() ?? string.Empty)
-            .Map(dest => dest.Status, src => src.Status.ToString())
+            .Map(dest => dest.Status, src => src.Status.ToString()!)
             .Ignore(dest => dest.LastLoginAt)
             .Ignore(dest => dest.EmailVerified);
     }

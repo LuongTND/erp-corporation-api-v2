@@ -18,8 +18,12 @@ public static class ServiceCollectionExtensions
         services.AddInfrastructureDbContext(configuration)
                 .AddJwtService(jwtOptions)
                 .AddRedisCache(configuration)
+                .AddAzureBlobStorage(configuration)
                 // .AddQuartzService() // uncomment khi có scheduled jobs
                 .AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
+
+        services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
 
         services.AddHostedService<OutboxProcessorHostedService>();
 

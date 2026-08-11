@@ -35,6 +35,13 @@ public class AppData
         });
 
         context.Permissions.AddRange(toAdd);
+
+        var obsolete = await context.Permissions
+            .Where(p => !allKeys.Contains(p.PermissionCode))
+            .ToListAsync();
+
+        context.Permissions.RemoveRange(obsolete);
+
         await context.SaveChangesAsync();
 
         await SyncAdminPermissionsAsync(context);

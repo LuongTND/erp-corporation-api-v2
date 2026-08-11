@@ -7,7 +7,6 @@ public sealed class JobLevelResponse
     public int LevelOrder { get; set; }
     public ScopeType DefaultScopeType { get; set; }
     public string? Description { get; set; }
-    public decimal? BaseSalaryMin { get; set; }
-    public decimal? BaseSalaryMax { get; set; }
     public bool IsDeleted { get; set; }
+    public int EmployeeCount { get; set; }
 }

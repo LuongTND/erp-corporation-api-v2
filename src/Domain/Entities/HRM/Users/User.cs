@@ -7,7 +7,7 @@ public class User : AuditableEntityBase<Guid>
     public string Email { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
 
-    public Guid JobLevelId { get; set; }
+    public Guid? JobLevelId { get; set; }
     public JobLevel? JobLevel { get; set; }
 
     public Guid? ManagerId { get; set; }
@@ -26,9 +26,14 @@ public class User : AuditableEntityBase<Guid>
     public ICollection<UserRole> UserRoles { get; set; } = [];
     public ICollection<UserCustomFieldValue> CustomFieldValues { get; set; } = [];
 
+    public ICollection<UserStatusHistory> StatusHistories { get; set; } = [];
+    public ICollection<EmployeeDocument> Documents { get; set; } = [];
+    public ICollection<WorkHistory> WorkHistories { get; set; } = [];
+
     public void ChangeStatus(UserStatus newStatus)
     {
         Status = newStatus;
-        IsActive = newStatus is UserStatus.Active or UserStatus.Probation;
+        IsActive = newStatus is UserStatus.Active or UserStatus.Probation
+            or UserStatus.Apprentice or UserStatus.Official;
     }
 }
