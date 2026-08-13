@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class RevokeRoleCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IPermissionService permissionService)
+public sealed class RevokeRoleCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IPermissionService permissionService, IPermissionAuditLogRepository permissionAuditLog)
     : IRequestHandler<RevokeRoleCommand, Unit>
 {
     public async Task<Unit> Handle(RevokeRoleCommand cmd, CancellationToken ct)
@@ -16,6 +16,22 @@ public sealed class RevokeRoleCommandHandler(IUnitOfWork unitOfWork, IUserContex
 
         await unitOfWork.EnsureSaveAsync(ct);
         await permissionService.InvalidateCacheForUserAsync(cmd.UserId);
+
+        var role = await unitOfWork.Repository<Role>().FindAsync(r => r.Id == cmd.RoleId, ct);
+        var targetUser = await unitOfWork.Repository<User>().FindAsync(u => u.Id == cmd.UserId, ct);
+        var actor = await unitOfWork.Repository<User>().FindAsync(u => u.Id == userContext.UserId, ct);
+        await permissionAuditLog.WriteAsync(new PermissionAuditLog
+        {
+            Action = "RevokeRole",
+            ActorId = userContext.UserId,
+            ActorName = actor?.FullName ?? "System",
+            TargetUserId = cmd.UserId,
+            TargetUserName = targetUser?.FullName,
+            RoleId = cmd.RoleId,
+            RoleName = role?.RoleName ?? cmd.RoleId.ToString(),
+            OccurredAt = DateTimeOffset.UtcNow,
+        }, ct);
+
         return Unit.Value;
     }
 }

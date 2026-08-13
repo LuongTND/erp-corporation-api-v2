@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class AssignPermissionsCommandHandler(IUnitOfWork unitOfWork, IPermissionService permissionService)
+public sealed class AssignPermissionsCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IPermissionService permissionService, IPermissionAuditLogRepository permissionAuditLog)
     : IRequestHandler<AssignPermissionsCommand, Unit>
 {
     public async Task<Unit> Handle(AssignPermissionsCommand cmd, CancellationToken ct)
@@ -31,6 +31,23 @@ public sealed class AssignPermissionsCommandHandler(IUnitOfWork unitOfWork, IPer
 
         await unitOfWork.EnsureSaveAsync(ct);
         await permissionService.InvalidateCacheAsync(cmd.RoleId);
+
+        var perms = await unitOfWork.Repository<Permission>().GetPagedAsync(
+            new QueryInfo { Top = 10000, NeedTotalCount = false },
+            filter: p => cmd.PermissionIds.Contains(p.Id), ct: ct);
+        var codes = string.Join(", ", perms.Items.Select(p => p.PermissionCode));
+        var actor = await unitOfWork.Repository<User>().FindAsync(u => u.Id == userContext.UserId, ct);
+        await permissionAuditLog.WriteAsync(new PermissionAuditLog
+        {
+            Action = "AssignPermissions",
+            ActorId = userContext.UserId,
+            ActorName = actor?.FullName ?? "System",
+            RoleId = cmd.RoleId,
+            RoleName = role.RoleName,
+            PermissionCodes = codes,
+            OccurredAt = DateTimeOffset.UtcNow,
+        }, ct);
+
         return Unit.Value;
     }
 }
