@@ -9,6 +9,8 @@ public sealed class StoreResponse
     public string? Address { get; init; }
     public string? Phone { get; init; }
     public Guid? RegionId { get; init; }
+    public Guid? ManagerId { get; init; }
+    public string? ManagerName { get; init; }
     public bool IsActive { get; init; }
     public bool? TodayIsClosed { get; init; } // null = chưa cấu hình giờ
 }

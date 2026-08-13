@@ -39,4 +39,10 @@ public sealed class StoresController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<Unit>>> UpsertStoreHours(
         Guid storeId, [FromBody] UpsertStoreHoursCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { StoreId = storeId }, ct)));
+
+    [HasPermission("stores:update")]
+    [HttpPatch("{storeId:guid}/manager")]
+    public async Task<ActionResult<ApiResponse<Unit>>> AssignManager(
+        Guid storeId, [FromBody] AssignStoreManagerCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { StoreId = storeId }, ct)));
 }

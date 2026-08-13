@@ -11,6 +11,9 @@ public class Store : AuditableEntityBase<Guid>, ISoftDeletable
     public Guid? RegionId { get; set; }
     public Region? Region { get; set; }
 
+    public Guid? ManagerId { get; set; }
+    public User? Manager { get; set; }
+
     public bool IsDeleted { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid? DeletedBy { get; set; }

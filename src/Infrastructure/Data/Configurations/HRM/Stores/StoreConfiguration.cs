@@ -18,5 +18,10 @@ public class StoreConfiguration : AuditableEntityConfiguration<Store, Guid>
             .HasForeignKey(s => s.RegionId)
             .OnDelete(DeleteBehavior.SetNull)
             .IsRequired(false);
+        builder.HasOne(s => s.Manager)
+            .WithMany()
+            .HasForeignKey(s => s.ManagerId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .IsRequired(false);
     }
 }

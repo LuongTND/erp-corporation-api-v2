@@ -10,6 +10,7 @@ public sealed class GetStoresQueryHandler(IUnitOfWork unitOfWork)
 
         var dbQuery = unitOfWork.Repository<Store>().Query()
             .Include(s => s.StoreHours.Where(h => h.DayOfWeek == today))
+            .Include(s => s.Manager)
             .Where(s => !s.IsDeleted);
 
         if (query.RegionId.HasValue)
@@ -40,6 +41,8 @@ public sealed class GetStoresQueryHandler(IUnitOfWork unitOfWork)
             Address = s.Address,
             Phone = s.Phone,
             RegionId = s.RegionId,
+            ManagerId = s.ManagerId,
+            ManagerName = s.Manager?.FullName,
             IsActive = s.IsActive,
             TodayIsClosed = s.StoreHours.FirstOrDefault()?.IsClosed,
         });
