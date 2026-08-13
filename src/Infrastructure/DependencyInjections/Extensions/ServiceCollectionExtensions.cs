@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
                 .AddJwtService(jwtOptions)
                 .AddRedisCache(configuration)
                 .AddAzureBlobStorage(configuration)
-                // .AddQuartzService() // uncomment khi có scheduled jobs
+                .AddQuartzService()
                 .AddServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
 
         services.AddMediatR(cfg =>

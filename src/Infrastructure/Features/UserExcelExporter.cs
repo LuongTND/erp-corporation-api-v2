@@ -2,10 +2,10 @@ using ClosedXML.Excel;
 
 namespace Infrastructure;
 
-public sealed class ExportUsersQueryHandler(ApplicationDbContext db)
-    : IRequestHandler<ExportUsersQuery, byte[]>
+[RegisterService(typeof(IUserExcelExporter))]
+public sealed class UserExcelExporter(ApplicationDbContext db) : IUserExcelExporter
 {
-    public async Task<byte[]> Handle(ExportUsersQuery query, CancellationToken ct)
+    public async Task<byte[]> ExportAsync(ExportUsersQuery query, CancellationToken ct = default)
     {
         var users = await db.Users
             .Where(u => (query.Status == null ? u.IsActive : u.Status == query.Status.Value)
@@ -20,7 +20,6 @@ public sealed class ExportUsersQueryHandler(ApplicationDbContext db)
         using var wb = new XLWorkbook();
         var ws = wb.Worksheets.Add("Danh sách nhân sự");
 
-        // Header
         string[] headers = ["STT", "Mã NV", "Họ tên", "Email", "Chức danh", "Loại HĐ", "Trạng thái", "Ngày vào làm"];
         for (int i = 0; i < headers.Length; i++)
         {
@@ -32,7 +31,6 @@ public sealed class ExportUsersQueryHandler(ApplicationDbContext db)
             cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
         }
 
-        // Rows
         for (int i = 0; i < users.Count; i++)
         {
             var u = users[i];

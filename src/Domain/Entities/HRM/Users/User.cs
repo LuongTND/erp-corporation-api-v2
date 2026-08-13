@@ -10,6 +10,9 @@ public class User : AuditableEntityBase<Guid>
     public Guid? JobLevelId { get; set; }
     public JobLevel? JobLevel { get; set; }
 
+    public Guid? EmployeeTypeId { get; set; }
+    public EmployeeType? EmployeeType { get; set; }
+
     public Guid? ManagerId { get; set; }
     public User? Manager { get; set; }
     public ICollection<User> DirectReports { get; set; } = [];

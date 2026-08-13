@@ -5,7 +5,7 @@ namespace API;
 [Route("api/users")]
 public sealed class UsersController(ISender sender) : ControllerBase
 {
-    [HasPermission("users:create")]
+    [HasPermission("w:create")]
     [HttpPost]
     public async Task<ActionResult<ApiResponse<Guid>>> CreateEmployee(
         [FromBody] CreateEmployeeCommand cmd, CancellationToken ct)
@@ -133,7 +133,14 @@ public sealed class UsersController(ISender sender) : ControllerBase
         Guid userId, [FromBody] LockEmployeeCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { UserId = userId }, ct)));
 
-    // --- Export ---
+    
+    [HasPermission("users:edit")]
+    [HttpPatch("{userId:guid}/employee-type")]
+    public async Task<ActionResult<ApiResponse<Unit>>> AssignEmployeeType(
+        Guid userId, [FromBody] AssignEmployeeTypeCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { UserId = userId }, ct)));
+
+    
 
     [HasPermission("users:view")]
     [HttpGet("export")]
