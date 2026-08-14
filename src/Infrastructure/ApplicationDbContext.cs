@@ -42,6 +42,7 @@ public sealed class ApplicationDbContext(
     public DbSet<Store> Stores => Set<Store>();
     public DbSet<StoreHours> StoreHours => Set<StoreHours>();
     public DbSet<Counter> Counters => Set<Counter>();
+    public DbSet<UserStore> UserStores => Set<UserStore>();
     public DbSet<JobLevel> JobLevels => Set<JobLevel>();
     public DbSet<EmployeeType> EmployeeTypes => Set<EmployeeType>();
     public DbSet<DepartmentJobLevel> DepartmentJobLevels => Set<DepartmentJobLevel>();

@@ -45,4 +45,23 @@ public sealed class StoresController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<Unit>>> AssignManager(
         Guid storeId, [FromBody] AssignStoreManagerCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { StoreId = storeId }, ct)));
+
+    [HasPermission("stores:view")]
+    [HttpGet("{storeId:guid}/members")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<StoreMemberResponse>>>> GetMembers(
+        Guid storeId, CancellationToken ct)
+        => Ok(ApiResponse<IEnumerable<StoreMemberResponse>>.Ok(
+            await sender.Send(new GetStoreMembersQuery(storeId), ct)));
+
+    [HasPermission("stores:update")]
+    [HttpPost("{storeId:guid}/members")]
+    public async Task<ActionResult<ApiResponse<Guid>>> AddMember(
+        Guid storeId, [FromBody] AddStoreMemberCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Guid>.Ok(await sender.Send(cmd with { StoreId = storeId }, ct)));
+
+    [HasPermission("stores:update")]
+    [HttpDelete("{storeId:guid}/members/{userId:guid}")]
+    public async Task<ActionResult<ApiResponse<Unit>>> RemoveMember(
+        Guid storeId, Guid userId, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new RemoveStoreMemberCommand(storeId, userId), ct)));
 }

@@ -5,7 +5,7 @@ namespace API;
 [Route("api/users")]
 public sealed class UsersController(ISender sender) : ControllerBase
 {
-    [HasPermission("w:create")]
+    [HasPermission("wate")]
     [HttpPost]
     public async Task<ActionResult<ApiResponse<Guid>>> CreateEmployee(
         [FromBody] CreateEmployeeCommand cmd, CancellationToken ct)

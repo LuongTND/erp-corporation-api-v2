@@ -26,6 +26,7 @@ public class User : AuditableEntityBase<Guid>
     public EmployeeIdentity? Identity { get; set; }
     public EmploymentInfo? EmploymentInfo { get; set; }
     public ICollection<UserDepartment> UserDepartments { get; set; } = [];
+    public ICollection<UserStore> UserStores { get; set; } = [];
     public ICollection<UserRole> UserRoles { get; set; } = [];
     public ICollection<UserCustomFieldValue> CustomFieldValues { get; set; } = [];
 
