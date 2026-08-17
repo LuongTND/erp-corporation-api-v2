@@ -15,6 +15,7 @@ public sealed class UserDetailResponse
     public string? JobLevelName { get; init; }
     public Guid? ManagerId { get; init; }
     public string? ManagerName { get; init; }
+    public Guid? EmployeeTypeId { get; init; }
 
     public UserProfileDetailResponse? Profile { get; init; }
     public UserIdentityDetailResponse? Identity { get; init; }

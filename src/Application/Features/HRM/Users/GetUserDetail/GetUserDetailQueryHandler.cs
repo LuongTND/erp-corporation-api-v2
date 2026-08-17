@@ -65,6 +65,7 @@ public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStora
             JobLevelName = user.JobLevel?.LevelName,
             ManagerId = user.ManagerId,
             ManagerName = user.Manager?.FullName,
+            EmployeeTypeId = user.EmployeeTypeId,
             Profile = user.Profile is null ? null : new UserProfileDetailResponse
             {
                 Gender = user.Profile.Gender?.ToString(),

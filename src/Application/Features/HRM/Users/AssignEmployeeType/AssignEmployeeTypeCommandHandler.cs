@@ -19,7 +19,7 @@ public sealed class AssignEmployeeTypeCommandHandler(IUnitOfWork unitOfWork)
 
         user.EmployeeTypeId = cmd.EmployeeTypeId;
 
-        await unitOfWork.EnsureSaveAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
         return Unit.Value;
     }
 }
