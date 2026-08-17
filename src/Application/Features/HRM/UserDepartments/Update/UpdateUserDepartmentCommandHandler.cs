@@ -17,7 +17,12 @@ public sealed class UpdateUserDepartmentCommandHandler(IUnitOfWork unitOfWork)
                 throw new NotFoundException(ExceptionMessages.NotFound("JobLevel", cmd.JobLevelId.Value));
         }
 
-        ud.JobLevelId = cmd.JobLevelId;
+        // sync to User.JobLevelId — single source of truth for job title
+        var user = await unitOfWork.Repository<User>()
+            .FindTrackedAsync(u => u.Id == cmd.UserId, ct);
+        if (user is not null)
+            user.JobLevelId = cmd.JobLevelId;
+
         await unitOfWork.EnsureSaveAsync(ct);
         return Unit.Value;
     }

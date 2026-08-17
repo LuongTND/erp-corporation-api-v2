@@ -20,11 +20,6 @@ public class UserDepartmentConfiguration : BaseEntityConfiguration<UserDepartmen
             .HasForeignKey(ud => ud.DepartmentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(ud => ud.JobLevel)
-            .WithMany()
-            .HasForeignKey(ud => ud.JobLevelId)
-            .OnDelete(DeleteBehavior.NoAction);
-
         builder.HasOne(ud => ud.DepartmentJobLevel)
             .WithMany()
             .HasForeignKey(ud => ud.DepartmentJobLevelId)

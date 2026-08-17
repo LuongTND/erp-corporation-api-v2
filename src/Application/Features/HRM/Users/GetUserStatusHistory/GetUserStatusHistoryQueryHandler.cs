@@ -5,10 +5,16 @@ public sealed class GetUserStatusHistoryQueryHandler(IUnitOfWork unitOfWork)
 {
     public async Task<IEnumerable<UserStatusHistoryResponse>> Handle(
         GetUserStatusHistoryQuery query, CancellationToken ct)
-        => await unitOfWork.Repository<UserStatusHistory>()
-            .Query()
-            .Where(h => h.UserId == query.UserId)
-            .OrderByDescending(h => h.ChangedAt)
-            .ProjectToType<UserStatusHistoryResponse>()
-            .ToListAsync(ct);
+    {
+        var items = await unitOfWork.Repository<WorkHistory>()
+            .GetAllAsync(w => w.UserId == query.UserId && w.ChangeType == WorkHistoryChangeType.Status, ct);
+
+        return items.OrderByDescending(w => w.ChangedAt).Select(w => new UserStatusHistoryResponse(
+            ChangedAt: w.ChangedAt,
+            OldStatus: w.OldValue ?? string.Empty,
+            NewStatus: w.NewValue ?? string.Empty,
+            Note: w.Note,
+            ChangedBy: w.ChangedBy
+        ));
+    }
 }

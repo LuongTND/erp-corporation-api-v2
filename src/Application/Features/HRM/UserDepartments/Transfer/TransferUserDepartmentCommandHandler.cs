@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class TransferUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUserContext currentUser)
+public sealed class TransferUserDepartmentCommandHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<TransferUserDepartmentCommand, Unit>
 {
     public async Task<Unit> Handle(TransferUserDepartmentCommand cmd, CancellationToken ct)
@@ -37,19 +37,6 @@ public sealed class TransferUserDepartmentCommandHandler(IUnitOfWork unitOfWork,
                 IsPrimary = true,
                 StartDate = cmd.TransferDate,
                 IsActive = true
-            });
-
-            await unitOfWork.Repository<WorkHistory>().AddAsync(new WorkHistory
-            {
-                Id = Guid.NewGuid(),
-                UserId = cmd.UserId,
-                ChangeType = WorkHistoryChangeType.Department,
-                OldValue = currentPrimary is not null
-                    ? (await unitOfWork.Repository<Department>().FindAsync(d => d.Id == currentPrimary.DepartmentId, ct))?.DepartmentName
-                    : null,
-                NewValue = newDept.DepartmentName,
-                ChangedBy = currentUser.UserId,
-                ChangedAt = DateTimeOffset.UtcNow,
             });
 
             await unitOfWork.EnsureSaveAsync(ct);

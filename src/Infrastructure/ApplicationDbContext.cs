@@ -26,7 +26,6 @@ public sealed class ApplicationDbContext(
     public DbSet<EmployeeProfile> EmployeeProfiles => Set<EmployeeProfile>();
     public DbSet<EmployeeIdentity> EmployeeIdentities => Set<EmployeeIdentity>();
     public DbSet<EmploymentInfo> EmploymentInfos => Set<EmploymentInfo>();
-    public DbSet<UserStatusHistory> UserStatusHistories => Set<UserStatusHistory>();
     public DbSet<EmployeeDocument> EmployeeDocuments => Set<EmployeeDocument>();
     public DbSet<WorkHistory> WorkHistories => Set<WorkHistory>();
 

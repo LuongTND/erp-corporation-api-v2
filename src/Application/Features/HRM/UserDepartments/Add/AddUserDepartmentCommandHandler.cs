@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUserContext currentUser)
+public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork)
     : IRequestHandler<AddUserDepartmentCommand, Guid>
 {
     public async Task<Guid> Handle(AddUserDepartmentCommand cmd, CancellationToken ct)
@@ -41,7 +41,6 @@ public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUse
             Id = Guid.NewGuid(),
             UserId = cmd.UserId,
             DepartmentId = cmd.DepartmentId,
-            JobLevelId = cmd.JobLevelId,
             DepartmentJobLevelId = departmentJobLevelId,
             IsPrimary = false,
             StartDate = cmd.StartDate,
@@ -50,17 +49,14 @@ public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUse
 
         await unitOfWork.Repository<UserDepartment>().AddAsync(ud);
 
-        var dept = await unitOfWork.Repository<Department>().FindAsync(d => d.Id == cmd.DepartmentId, ct);
-        await unitOfWork.Repository<WorkHistory>().AddAsync(new WorkHistory
+        // sync to User.JobLevelId — single source of truth for job title
+        if (cmd.JobLevelId.HasValue)
         {
-            Id = Guid.NewGuid(),
-            UserId = cmd.UserId,
-            ChangeType = WorkHistoryChangeType.Department,
-            OldValue = null,
-            NewValue = dept?.DepartmentName,
-            ChangedBy = currentUser.UserId,
-            ChangedAt = DateTimeOffset.UtcNow,
-        });
+            var user = await unitOfWork.Repository<User>()
+                .FindTrackedAsync(u => u.Id == cmd.UserId, ct);
+            if (user is not null)
+                user.JobLevelId = cmd.JobLevelId;
+        }
 
         await unitOfWork.EnsureSaveAsync(ct);
         return ud.Id;
