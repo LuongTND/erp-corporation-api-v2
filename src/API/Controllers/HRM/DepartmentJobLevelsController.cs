@@ -5,7 +5,7 @@ namespace API;
 [Route("api/hrm/department-job-levels")]
 public sealed class DepartmentJobLevelsController(ISender sender) : ControllerBase
 {
-    [HasPermission("department-job-levels:view")]
+    [HasPermission(DepartmentJobLevelPermissions.ViewList)]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<QueryResult<DepartmentJobLevelResponse>>>> GetList(
         [FromQuery] QueryInfo queryInfo,
@@ -14,19 +14,19 @@ public sealed class DepartmentJobLevelsController(ISender sender) : ControllerBa
         => Ok(ApiResponse<QueryResult<DepartmentJobLevelResponse>>.Ok(
             await sender.Send(new GetDepartmentJobLevelsQuery(queryInfo, departmentId), ct)));
 
-    [HasPermission("department-job-levels:view")]
+    [HasPermission(DepartmentJobLevelPermissions.ViewDetail)]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ApiResponse<DepartmentJobLevelResponse>>> GetById(Guid id, CancellationToken ct)
         => Ok(ApiResponse<DepartmentJobLevelResponse>.Ok(
             await sender.Send(new GetDepartmentJobLevelByIdQuery(id), ct)));
 
-    [HasPermission("department-job-levels:create")]
+    [HasPermission(DepartmentJobLevelPermissions.Create)]
     [HttpPost]
     public async Task<ActionResult<ApiResponse<Guid>>> Create(
         [FromBody] CreateDepartmentJobLevelCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Guid>.Ok(await sender.Send(cmd, ct)));
 
-    [HasPermission("department-job-levels:update")]
+    [HasPermission(DepartmentJobLevelPermissions.Update)]
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<ApiResponse<string>>> Update(
         Guid id, [FromBody] UpdateDepartmentJobLevelCommand cmd, CancellationToken ct)
@@ -35,7 +35,7 @@ public sealed class DepartmentJobLevelsController(ISender sender) : ControllerBa
         return Ok(ApiResponse<string>.Ok(BusinessMessages.UpdatedSuccessfully("DepartmentJobLevel")));
     }
 
-    [HasPermission("department-job-levels:delete")]
+    [HasPermission(DepartmentJobLevelPermissions.Delete)]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult<ApiResponse<string>>> Delete(Guid id, CancellationToken ct)
     {
@@ -43,7 +43,7 @@ public sealed class DepartmentJobLevelsController(ISender sender) : ControllerBa
         return Ok(ApiResponse<string>.Ok(BusinessMessages.DeletedSuccessfully("DepartmentJobLevel")));
     }
 
-    [HasPermission("department-job-levels:update")]
+    [HasPermission(DepartmentJobLevelPermissions.AssignKpiTemplate)]
     [HttpPost("{id:guid}/assign-kpi-template")]
     public async Task<ActionResult<ApiResponse<string>>> AssignKpiTemplate(
         Guid id, [FromBody] AssignKpiTemplateCommand cmd, CancellationToken ct)

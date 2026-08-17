@@ -5,14 +5,14 @@ namespace API;
 [Route("api/users/{userId:guid}/documents")]
 public sealed class DocumentsController(ISender sender) : ControllerBase
 {
-    [HasPermission("users:view")]
+    [HasPermission(DocumentPermissions.View)]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IEnumerable<EmployeeDocumentResponse>>>> GetDocuments(
         Guid userId, CancellationToken ct)
         => Ok(ApiResponse<IEnumerable<EmployeeDocumentResponse>>.Ok(
             await sender.Send(new GetDocumentsQuery(userId), ct)));
 
-    [HasPermission("users:edit")]
+    [HasPermission(DocumentPermissions.Upload)]
     [HttpPost]
     [RequestSizeLimit(10 * 1024 * 1024)] // 10MB
     public async Task<ActionResult<ApiResponse<EmployeeDocumentResponse>>> UploadDocument(
@@ -33,7 +33,7 @@ public sealed class DocumentsController(ISender sender) : ControllerBase
         return Ok(ApiResponse<EmployeeDocumentResponse>.Ok(await sender.Send(cmd, ct)));
     }
 
-    [HasPermission("users:edit")]
+    [HasPermission(DocumentPermissions.Delete)]
     [HttpDelete("{documentId:guid}")]
     public async Task<ActionResult<ApiResponse<Unit>>> DeleteDocument(
         Guid userId, Guid documentId, CancellationToken ct)

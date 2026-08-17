@@ -5,7 +5,7 @@ namespace API;
 [Route("api/hrm/payroll-runs")]
 public sealed class PayrollRunsController(ISender sender) : ControllerBase
 {
-    [HasPermission("payroll-runs:view")]
+    [HasPermission(PayrollRunPermissions.ViewList)]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<PayrollRunResponse>>>> GetList(
         [FromQuery] int? year,
@@ -13,19 +13,19 @@ public sealed class PayrollRunsController(ISender sender) : ControllerBase
         => Ok(ApiResponse<IReadOnlyList<PayrollRunResponse>>.Ok(
             await sender.Send(new GetPayrollRunsQuery(year), ct)));
 
-    [HasPermission("payroll-runs:view")]
+    [HasPermission(PayrollRunPermissions.ViewDetail)]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ApiResponse<PayrollRunDetailResponse>>> GetById(Guid id, CancellationToken ct)
         => Ok(ApiResponse<PayrollRunDetailResponse>.Ok(
             await sender.Send(new GetPayrollRunByIdQuery(id), ct)));
 
-    [HasPermission("payroll-runs:create")]
+    [HasPermission(PayrollRunPermissions.Create)]
     [HttpPost]
     public async Task<ActionResult<ApiResponse<Guid>>> Create(
         [FromBody] CreatePayrollRunCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Guid>.Ok(await sender.Send(cmd, ct)));
 
-    [HasPermission("payroll-runs:update")]
+    [HasPermission(PayrollRunPermissions.UpdateEntry)]
     [HttpPut("entries/{entryId:guid}")]
     public async Task<ActionResult<ApiResponse<string>>> UpdateEntry(
         Guid entryId, [FromBody] UpdatePayrollEntryCommand cmd, CancellationToken ct)
@@ -34,7 +34,7 @@ public sealed class PayrollRunsController(ISender sender) : ControllerBase
         return Ok(ApiResponse<string>.Ok(BusinessMessages.UpdatedSuccessfully("PayrollEntry")));
     }
 
-    [HasPermission("payroll-runs:finalize")]
+    [HasPermission(PayrollRunPermissions.Finalize)]
     [HttpPost("{id:guid}/finalize")]
     public async Task<ActionResult<ApiResponse<string>>> Finalize(Guid id, CancellationToken ct)
     {

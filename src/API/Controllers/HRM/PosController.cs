@@ -5,12 +5,12 @@ namespace API;
 [Route("api/pos")]
 public sealed class PosController(ISender sender) : ControllerBase
 {
-    [HasPermission("departments:manage")]
+    [HasPermission(StorePermissions.ImportFromPos)]
     [HttpGet("stores")]
     public async Task<ActionResult<ApiResponse<IEnumerable<PosStoreResponse>>>> GetPosStores(CancellationToken ct)
         => Ok(ApiResponse<IEnumerable<PosStoreResponse>>.Ok(await sender.Send(new GetPosStoresQuery(), ct)));
 
-    [HasPermission("departments:manage")]
+    [HasPermission(StorePermissions.ImportFromPos)]
     [HttpPost("stores/{posStoreId:guid}/import")]
     public async Task<ActionResult<ApiResponse<Guid>>> ImportPosStore(
         Guid posStoreId, [FromBody] ImportPosStoreCommand cmd, CancellationToken ct)

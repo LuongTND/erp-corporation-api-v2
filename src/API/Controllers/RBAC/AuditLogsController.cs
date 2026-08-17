@@ -5,7 +5,7 @@ namespace API;
 [Route("api/audit-logs")]
 public sealed class AuditLogsController(ISender sender) : ControllerBase
 {
-    [HasPermission("roles:view")]
+    [HasPermission(AuditLogPermissions.ViewList)]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<QueryResult<PermissionAuditLogResponse>>>> GetAll(
         [FromQuery] string? action,

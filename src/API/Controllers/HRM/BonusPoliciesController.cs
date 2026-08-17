@@ -5,14 +5,14 @@ namespace API;
 [Route("api/hrm/bonus-policies")]
 public sealed class BonusPoliciesController(ISender sender) : ControllerBase
 {
-    [HasPermission("bonus-policies:view")]
+    [HasPermission(BonusPolicyPermissions.ViewList)]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<QueryResult<BonusPolicyResponse>>>> GetList(
         [FromQuery] QueryInfo queryInfo, CancellationToken ct)
         => Ok(ApiResponse<QueryResult<BonusPolicyResponse>>.Ok(
             await sender.Send(new GetBonusPoliciesQuery(queryInfo), ct)));
 
-    [HasPermission("bonus-policies:create")]
+    [HasPermission(BonusPolicyPermissions.Create)]
     [HttpPost]
     public async Task<ActionResult<ApiResponse<Guid>>> Create(
         [FromBody] CreateBonusPolicyCommand cmd, CancellationToken ct)
