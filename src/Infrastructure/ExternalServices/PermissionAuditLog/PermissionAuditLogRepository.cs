@@ -3,10 +3,10 @@ namespace Infrastructure;
 [RegisterService(typeof(IPermissionAuditLogRepository))]
 public sealed class PermissionAuditLogRepository(ApplicationDbContext db) : IPermissionAuditLogRepository
 {
-    public async Task WriteAsync(PermissionAuditLog log, CancellationToken ct = default)
+    public Task WriteAsync(PermissionAuditLog log, CancellationToken ct = default)
     {
         db.PermissionAuditLogs.Add(log);
-        await db.SaveChangesAsync(ct);
+        return Task.CompletedTask;
     }
 
     public async Task<QueryResult<PermissionAuditLogResponse>> GetLogsAsync(PermissionAuditLogFilter filter, CancellationToken ct = default)

@@ -31,6 +31,7 @@ public sealed class RevokeRoleCommandHandler(IUnitOfWork unitOfWork, IUserContex
             RoleName = role?.RoleName ?? cmd.RoleId.ToString(),
             OccurredAt = DateTimeOffset.UtcNow,
         }, ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         return Unit.Value;
     }

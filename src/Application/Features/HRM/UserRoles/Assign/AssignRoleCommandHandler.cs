@@ -48,6 +48,7 @@ public sealed class AssignRoleCommandHandler(IUnitOfWork unitOfWork, IUserContex
             RoleName = role.RoleName,
             OccurredAt = DateTimeOffset.UtcNow,
         }, ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         return userRole.Id;
     }

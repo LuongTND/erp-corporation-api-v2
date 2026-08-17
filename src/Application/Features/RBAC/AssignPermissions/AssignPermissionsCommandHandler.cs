@@ -47,6 +47,7 @@ public sealed class AssignPermissionsCommandHandler(IUnitOfWork unitOfWork, IUse
             PermissionCodes = codes,
             OccurredAt = DateTimeOffset.UtcNow,
         }, ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         return Unit.Value;
     }

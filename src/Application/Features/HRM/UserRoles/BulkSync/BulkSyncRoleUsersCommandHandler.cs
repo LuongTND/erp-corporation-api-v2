@@ -85,6 +85,7 @@ public sealed class BulkSyncRoleUsersCommandHandler(
                 OccurredAt = auditAt,
             }, ct);
 
+        await unitOfWork.SaveChangesAsync(ct);
         return Unit.Value;
     }
 }
