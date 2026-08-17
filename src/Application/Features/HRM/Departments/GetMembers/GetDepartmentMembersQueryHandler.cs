@@ -13,23 +13,17 @@ public sealed class GetDepartmentMembersQueryHandler(IUnitOfWork unitOfWork)
         if (memberships.Count == 0) return [];
 
         var userIds = memberships.Select(ud => ud.UserId).Distinct().ToList();
-        var jobLevelIds = memberships
-            .Where(ud => ud.JobLevelId.HasValue)
-            .Select(ud => ud.JobLevelId!.Value)
-            .Distinct().ToList();
 
         var users = (await unitOfWork.Repository<User>().GetPagedAsync(
             new QueryInfo { Top = userIds.Count, NeedTotalCount = false },
             filter: u => userIds.Contains(u.Id),
             ct: ct)).Items.ToDictionary(u => u.Id);
 
-        // collect fallback job levels from users too
-        var fallbackLevelIds = users.Values
+        var allLevelIds = users.Values
             .Where(u => u.JobLevelId.HasValue)
             .Select(u => u.JobLevelId!.Value)
-            .Except(jobLevelIds).Distinct().ToList();
+            .Distinct().ToList();
 
-        var allLevelIds = jobLevelIds.Concat(fallbackLevelIds).Distinct().ToList();
         var jobLevels = allLevelIds.Count > 0
             ? (await unitOfWork.Repository<JobLevel>().GetPagedAsync(
                 new QueryInfo { Top = allLevelIds.Count, NeedTotalCount = false },
@@ -42,7 +36,7 @@ public sealed class GetDepartmentMembersQueryHandler(IUnitOfWork unitOfWork)
             .Select(ud =>
             {
                 var user = users[ud.UserId];
-                var levelId = ud.JobLevelId ?? user.JobLevelId;
+                var levelId = user.JobLevelId; // authoritative: User.JobLevelId only
                 jobLevels.TryGetValue(levelId ?? Guid.Empty, out var level);
                 return new DepartmentMemberResponse
                 {

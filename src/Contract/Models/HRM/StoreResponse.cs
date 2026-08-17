@@ -1,4 +1,4 @@
-namespace Application;
+namespace Contract;
 
 public sealed class StoreResponse
 {
@@ -12,5 +12,5 @@ public sealed class StoreResponse
     public Guid? ManagerId { get; init; }
     public string? ManagerName { get; init; }
     public bool IsActive { get; init; }
-    public bool? TodayIsClosed { get; init; } // null = chưa cấu hình giờ
+    public bool? TodayIsClosed { get; init; }
 }

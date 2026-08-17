@@ -1,4 +1,4 @@
-namespace Application;
+namespace Contract;
 
 public sealed class KpiMetricResponse
 {
@@ -7,5 +7,5 @@ public sealed class KpiMetricResponse
     public string Unit { get; set; } = string.Empty;
     public decimal Weight { get; set; }
     public decimal Target { get; set; }
-    public MetricType Type { get; set; }
+    public string Type { get; set; } = string.Empty;
 }
