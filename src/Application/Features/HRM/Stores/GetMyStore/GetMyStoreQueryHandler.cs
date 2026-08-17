@@ -1,16 +1,11 @@
 namespace Application;
 
-public sealed class GetMyStoreQueryHandler(IUnitOfWork unitOfWork, IUserContext userContext)
+public sealed class GetMyStoreQueryHandler(IStoreRepository storeRepository, IUserContext userContext)
     : IRequestHandler<GetMyStoreQuery, StorePortalResponse?>
 {
     public async Task<StorePortalResponse?> Handle(GetMyStoreQuery _, CancellationToken ct)
     {
-        var store = await unitOfWork.Repository<Store>().Query()
-            .Include(s => s.Region)
-            .Include(s => s.Counters.Where(c => c.IsActive))
-            .Include(s => s.StoreHours.Where(h => h.DayOfWeek == VietnamTime.Today))
-            .Where(s => s.ManagerId == userContext.UserId && !s.IsDeleted)
-            .FirstOrDefaultAsync(ct);
+        var store = await storeRepository.GetMyStoreAsync(userContext.UserId, ct);
 
         if (store is null) return null;
 
