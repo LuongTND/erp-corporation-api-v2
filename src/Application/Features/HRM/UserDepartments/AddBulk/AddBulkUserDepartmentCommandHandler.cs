@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class AddBulkUserDepartmentCommandHandler(IUnitOfWork unitOfWork)
+public sealed class AddBulkUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUserContext currentUser)
     : IRequestHandler<AddBulkUserDepartmentCommand, int>
 {
     public async Task<int> Handle(AddBulkUserDepartmentCommand cmd, CancellationToken ct)
@@ -39,6 +39,18 @@ public sealed class AddBulkUserDepartmentCommandHandler(IUnitOfWork unitOfWork)
                     IsActive = true
                 });
             }
+
+            await unitOfWork.Repository<WorkHistory>().AddAsync(new WorkHistory
+            {
+                Id = Guid.NewGuid(),
+                UserId = uid,
+                ChangeType = WorkHistoryChangeType.Department,
+                OldValue = null,
+                NewValue = dept.DepartmentName,
+                ChangedBy = currentUser.UserId,
+                ChangedAt = DateTimeOffset.UtcNow,
+            });
+
             added++;
         }
 

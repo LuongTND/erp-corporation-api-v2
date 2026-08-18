@@ -56,6 +56,7 @@ public sealed class ApplicationDbContext(
     public DbSet<ContractTemplate> ContractTemplates => Set<ContractTemplate>();
     public DbSet<EmploymentContract> EmploymentContracts => Set<EmploymentContract>();
 
+
     // Salary
     public DbSet<SalaryRecord> SalaryRecords => Set<SalaryRecord>();
 

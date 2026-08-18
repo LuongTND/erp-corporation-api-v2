@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork)
+public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUserContext currentUser)
     : IRequestHandler<AddUserDepartmentCommand, Guid>
 {
     public async Task<Guid> Handle(AddUserDepartmentCommand cmd, CancellationToken ct)
@@ -41,6 +41,7 @@ public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork)
             Id = Guid.NewGuid(),
             UserId = cmd.UserId,
             DepartmentId = cmd.DepartmentId,
+            JobLevelId = cmd.JobLevelId,
             DepartmentJobLevelId = departmentJobLevelId,
             IsPrimary = false,
             StartDate = cmd.StartDate,
@@ -57,6 +58,18 @@ public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork)
             if (user is not null)
                 user.JobLevelId = cmd.JobLevelId;
         }
+
+        var dept = await unitOfWork.Repository<Department>().FindAsync(d => d.Id == cmd.DepartmentId, ct);
+        await unitOfWork.Repository<WorkHistory>().AddAsync(new WorkHistory
+        {
+            Id = Guid.NewGuid(),
+            UserId = cmd.UserId,
+            ChangeType = WorkHistoryChangeType.Department,
+            OldValue = null,
+            NewValue = dept?.DepartmentName,
+            ChangedBy = currentUser.UserId,
+            ChangedAt = DateTimeOffset.UtcNow,
+        });
 
         await unitOfWork.EnsureSaveAsync(ct);
         return ud.Id;

@@ -36,7 +36,7 @@ public sealed class GetDepartmentMembersQueryHandler(IUnitOfWork unitOfWork)
             .Select(ud =>
             {
                 var user = users[ud.UserId];
-                var levelId = user.JobLevelId; // authoritative: User.JobLevelId only
+                var levelId = user.JobLevelId;
                 jobLevels.TryGetValue(levelId ?? Guid.Empty, out var level);
                 return new DepartmentMemberResponse
                 {

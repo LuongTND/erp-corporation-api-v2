@@ -139,6 +139,8 @@ public sealed class UsersController(ISender sender) : ControllerBase
         Guid userId, [FromBody] AssignEmployeeTypeCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { UserId = userId }, ct)));
 
+    // --- Export ---
+
     [HasPermission(UserPermissions.Export)]
     [HttpGet("export")]
     public async Task<IActionResult> ExportUsers(

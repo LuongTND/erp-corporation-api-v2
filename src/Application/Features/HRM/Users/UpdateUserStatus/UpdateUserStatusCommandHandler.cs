@@ -18,6 +18,8 @@ public sealed class UpdateUserStatusCommandHandler(IUnitOfWork unitOfWork, IUser
 
         var now = DateTimeOffset.UtcNow;
 
+
+
         await unitOfWork.Repository<WorkHistory>().AddAsync(new WorkHistory
         {
             Id = Guid.NewGuid(),
