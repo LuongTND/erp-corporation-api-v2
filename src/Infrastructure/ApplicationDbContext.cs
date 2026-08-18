@@ -52,6 +52,10 @@ public sealed class ApplicationDbContext(
     public DbSet<KpiMetric> KpiMetrics => Set<KpiMetric>();
     public DbSet<KpiEntry> KpiEntries => Set<KpiEntry>();
 
+    // Contracts
+    public DbSet<ContractTemplate> ContractTemplates => Set<ContractTemplate>();
+    public DbSet<EmploymentContract> EmploymentContracts => Set<EmploymentContract>();
+
     // Salary
     public DbSet<SalaryRecord> SalaryRecords => Set<SalaryRecord>();
 
