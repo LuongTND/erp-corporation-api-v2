@@ -3,7 +3,8 @@ namespace Application;
 public sealed class BulkSyncRoleUsersCommandHandler(
     IUnitOfWork unitOfWork,
     IUserContext userContext,
-    IPermissionService permissionService)
+    IPermissionService permissionService,
+    IPermissionAuditLogRepository permissionAuditLog)
     : IRequestHandler<BulkSyncRoleUsersCommand, Unit>
 {
     public async Task<Unit> Handle(BulkSyncRoleUsersCommand cmd, CancellationToken ct)
@@ -56,6 +57,35 @@ public sealed class BulkSyncRoleUsersCommandHandler(
         await unitOfWork.EnsureSaveAsync(ct);
         await permissionService.InvalidateCacheAsync(cmd.RoleId);
 
+        var role = await unitOfWork.Repository<Role>().FindAsync(r => r.Id == cmd.RoleId, ct);
+        var actor = await unitOfWork.Repository<User>().FindAsync(u => u.Id == userContext.UserId, ct);
+        var auditAt = DateTimeOffset.UtcNow;
+
+        foreach (var uid in cmd.ToAdd)
+            await permissionAuditLog.WriteAsync(new PermissionAuditLog
+            {
+                Action = "AssignRole",
+                ActorId = userContext.UserId,
+                ActorName = actor?.FullName ?? "System",
+                TargetUserId = uid,
+                RoleId = cmd.RoleId,
+                RoleName = role?.RoleName ?? cmd.RoleId.ToString(),
+                OccurredAt = auditAt,
+            }, ct);
+
+        foreach (var uid in cmd.ToRemove)
+            await permissionAuditLog.WriteAsync(new PermissionAuditLog
+            {
+                Action = "RevokeRole",
+                ActorId = userContext.UserId,
+                ActorName = actor?.FullName ?? "System",
+                TargetUserId = uid,
+                RoleId = cmd.RoleId,
+                RoleName = role?.RoleName ?? cmd.RoleId.ToString(),
+                OccurredAt = auditAt,
+            }, ct);
+
+        await unitOfWork.SaveChangesAsync(ct);
         return Unit.Value;
     }
 }

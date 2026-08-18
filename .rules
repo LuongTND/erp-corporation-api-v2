@@ -15,7 +15,7 @@
 | Application | Command/Query Handlers, Validators, `IUnitOfWork`, `IGenericRepository<T>`, infrastructure contracts, business logic |
 | Infrastructure | `UnitOfWork`, `GenericRepository<T>`, DbContext, external provider implementations |
 | API | Controllers, Middlewares, Filters |
-| Contract | Shared types: `ApiResponse<T>`, Exceptions, `RegisterServiceAttribute`, `AutoInjectionExtensions` |
+| Contract | Shared types: `ApiResponse<T>`, Exceptions, `RegisterServiceAttribute`, `AutoInjectionExtensions`, Response DTOs (`*Response`, `*Dto`) |
 
 **Dependency direction (one-way only):**
 ```
@@ -51,6 +51,15 @@ Manual registration allowed **only** for: `AddDbContext`, `AddMediatR`, `AddAuth
 - Handler calls `IUnitOfWork`. Call `EnsureSaveAsync` once — not inside Repository.
 - Query handlers may use `DbContext` directly for `ProjectToType<TDto>()` projections.
 - Folder: `Application/Features/<Domain>/<Feature>/` — 1 feature per folder.
+
+## Models placement
+| Type | Location | Reason |
+|---|---|---|
+| Response DTOs (`*Response`, `*Dto`) | `Contract/Models/<Domain>/` | Shared across API, Application, tests |
+| Commands / Queries (`*Command`, `*Query`) | `Application/Features/<Domain>/<Feature>/` | Only Application uses them |
+| Filter / pagination inputs | `Application/Features/<Domain>/<Feature>/` | Query-specific, not shared |
+
+Never put Response DTOs in `Application/Features/` — they belong in `Contract`.
 
 ## Services (shared infra only)
 Use Services **only** for cross-cutting concerns shared across Handlers: email, SMS, file storage, external APIs. Never use as a CRUD wrapper.

@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class AssignRoleCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IPermissionService permissionService)
+public sealed class AssignRoleCommandHandler(IUnitOfWork unitOfWork, IUserContext userContext, IPermissionService permissionService, IPermissionAuditLogRepository permissionAuditLog)
     : IRequestHandler<AssignRoleCommand, Guid>
 {
     public async Task<Guid> Handle(AssignRoleCommand cmd, CancellationToken ct)
@@ -34,6 +34,22 @@ public sealed class AssignRoleCommandHandler(IUnitOfWork unitOfWork, IUserContex
         await unitOfWork.Repository<UserRole>().AddAsync(userRole);
         await unitOfWork.EnsureSaveAsync(ct);
         await permissionService.InvalidateCacheAsync(cmd.RoleId);
+
+        var targetUser = await unitOfWork.Repository<User>().FindAsync(u => u.Id == cmd.UserId, ct);
+        var actor = await unitOfWork.Repository<User>().FindAsync(u => u.Id == userContext.UserId, ct);
+        await permissionAuditLog.WriteAsync(new PermissionAuditLog
+        {
+            Action = "AssignRole",
+            ActorId = userContext.UserId,
+            ActorName = actor?.FullName ?? "System",
+            TargetUserId = cmd.UserId,
+            TargetUserName = targetUser?.FullName,
+            RoleId = cmd.RoleId,
+            RoleName = role.RoleName,
+            OccurredAt = DateTimeOffset.UtcNow,
+        }, ct);
+        await unitOfWork.SaveChangesAsync(ct);
+
         return userRole.Id;
     }
 }

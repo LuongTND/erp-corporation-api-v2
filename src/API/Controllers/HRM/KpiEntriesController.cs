@@ -5,7 +5,7 @@ namespace API;
 [Route("api/hrm/kpi-entries")]
 public sealed class KpiEntriesController(ISender sender) : ControllerBase
 {
-    [HasPermission("kpi-entries:view")]
+    [HasPermission(KpiEntryPermissions.ViewList)]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IReadOnlyList<KpiEntryResponse>>>> GetList(
         [FromQuery] int month,
@@ -16,7 +16,7 @@ public sealed class KpiEntriesController(ISender sender) : ControllerBase
         => Ok(ApiResponse<IReadOnlyList<KpiEntryResponse>>.Ok(
             await sender.Send(new GetKpiEntriesQuery(month, year, userId, kpiMetricId), ct)));
 
-    [HasPermission("kpi-entries:view")]
+    [HasPermission(KpiEntryPermissions.ViewSummary)]
     [HttpGet("summary")]
     public async Task<ActionResult<ApiResponse<KpiSummaryResponse>>> GetSummary(
         [FromQuery] Guid userId,
@@ -26,7 +26,7 @@ public sealed class KpiEntriesController(ISender sender) : ControllerBase
         => Ok(ApiResponse<KpiSummaryResponse>.Ok(
             await sender.Send(new GetKpiSummaryQuery(userId, month, year), ct)));
 
-    [HasPermission("kpi-entries:create")]
+    [HasPermission(KpiEntryPermissions.Upsert)]
     [HttpPost]
     public async Task<ActionResult<ApiResponse<Guid>>> Upsert(
         [FromBody] UpsertKpiEntryCommand cmd, CancellationToken ct)

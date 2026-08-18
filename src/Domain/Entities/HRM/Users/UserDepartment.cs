@@ -8,9 +8,6 @@ public class UserDepartment : EntityBase<Guid>
     public Guid DepartmentId { get; set; }
     public Department? Department { get; set; }
 
-    public Guid? JobLevelId { get; set; }
-    public JobLevel? JobLevel { get; set; }
-
     public bool IsPrimary { get; set; }
     public DateOnly StartDate { get; set; }
     public DateOnly? EndDate { get; set; }

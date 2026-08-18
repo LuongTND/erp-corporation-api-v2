@@ -18,16 +18,7 @@ public sealed class UpdateUserStatusCommandHandler(IUnitOfWork unitOfWork, IUser
 
         var now = DateTimeOffset.UtcNow;
 
-        await unitOfWork.Repository<UserStatusHistory>().AddAsync(new UserStatusHistory
-        {
-            Id = Guid.NewGuid(),
-            UserId = cmd.UserId,
-            OldStatus = oldStatus,
-            NewStatus = cmd.NewStatus,
-            Note = cmd.Note,
-            ChangedBy = currentUser.UserId,
-            ChangedAt = now,
-        });
+
 
         await unitOfWork.Repository<WorkHistory>().AddAsync(new WorkHistory
         {

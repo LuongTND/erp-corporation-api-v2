@@ -25,7 +25,7 @@ public sealed class GetJobLevelsQueryHandler(IUnitOfWork unitOfWork)
             Id = j.Id,
             LevelName = j.LevelName,
             LevelOrder = j.LevelOrder,
-            DefaultScopeType = j.DefaultScopeType,
+            DefaultScopeType = j.DefaultScopeType.ToString(),
             Description = j.Description,
             IsDeleted = j.IsDeleted,
             EmployeeCount = counts.GetValueOrDefault(j.Id)

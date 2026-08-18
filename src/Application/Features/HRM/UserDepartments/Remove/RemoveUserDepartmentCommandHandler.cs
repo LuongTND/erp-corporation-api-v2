@@ -17,6 +17,7 @@ public sealed class RemoveUserDepartmentCommandHandler(IUnitOfWork unitOfWork, I
         ud.IsActive = false;
         ud.EndDate = DateOnly.FromDateTime(DateTime.UtcNow);
 
+
         await unitOfWork.Repository<WorkHistory>().AddAsync(new WorkHistory
         {
             Id = Guid.NewGuid(),
@@ -27,6 +28,7 @@ public sealed class RemoveUserDepartmentCommandHandler(IUnitOfWork unitOfWork, I
             ChangedBy = currentUser.UserId,
             ChangedAt = DateTimeOffset.UtcNow,
         });
+
 
         await unitOfWork.EnsureSaveAsync(ct);
         return Unit.Value;

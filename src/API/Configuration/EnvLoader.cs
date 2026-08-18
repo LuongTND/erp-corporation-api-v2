@@ -5,7 +5,8 @@ public static class EnvLoader
     private static readonly IReadOnlyDictionary<string, string> ExplicitKeyMap =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["CONNECTION_STRING"]    = "ConnectionStrings:SqlServerConnection",
+            ["CONNECTION_STRING"]     = "ConnectionStrings:SqlServerConnection",
+            ["CONNECTION_STRING_POS"] = "ConnectionStrings:PosConnection",
             ["REDIS_CONNECTION"]     = "Upstash:ConnectionString",
             ["ENCRYPTION_KEY"]       = "Encryption:Key",
             ["AZURE_BLOB_STORAGE"]   = "AzureBlobStorage:ConnectionString",

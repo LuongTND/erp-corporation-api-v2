@@ -50,6 +50,15 @@ public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUse
 
         await unitOfWork.Repository<UserDepartment>().AddAsync(ud);
 
+        // sync to User.JobLevelId — single source of truth for job title
+        if (cmd.JobLevelId.HasValue)
+        {
+            var user = await unitOfWork.Repository<User>()
+                .FindTrackedAsync(u => u.Id == cmd.UserId, ct);
+            if (user is not null)
+                user.JobLevelId = cmd.JobLevelId;
+        }
+
         var dept = await unitOfWork.Repository<Department>().FindAsync(d => d.Id == cmd.DepartmentId, ct);
         await unitOfWork.Repository<WorkHistory>().AddAsync(new WorkHistory
         {

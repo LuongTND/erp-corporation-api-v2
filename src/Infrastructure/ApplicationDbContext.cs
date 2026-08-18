@@ -8,6 +8,7 @@ public sealed class ApplicationDbContext(
 {
     // Audit
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<PermissionAuditLog> PermissionAuditLogs => Set<PermissionAuditLog>();
 
     // Outbox
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
@@ -25,7 +26,6 @@ public sealed class ApplicationDbContext(
     public DbSet<EmployeeProfile> EmployeeProfiles => Set<EmployeeProfile>();
     public DbSet<EmployeeIdentity> EmployeeIdentities => Set<EmployeeIdentity>();
     public DbSet<EmploymentInfo> EmploymentInfos => Set<EmploymentInfo>();
-    public DbSet<UserStatusHistory> UserStatusHistories => Set<UserStatusHistory>();
     public DbSet<EmployeeDocument> EmployeeDocuments => Set<EmployeeDocument>();
     public DbSet<WorkHistory> WorkHistories => Set<WorkHistory>();
 
@@ -36,7 +36,14 @@ public sealed class ApplicationDbContext(
 
     // Org
     public DbSet<Department> Departments => Set<Department>();
+    public DbSet<Region> Regions => Set<Region>();
+    public DbSet<RegionHours> RegionHours => Set<RegionHours>();
+    public DbSet<Store> Stores => Set<Store>();
+    public DbSet<StoreHours> StoreHours => Set<StoreHours>();
+    public DbSet<Counter> Counters => Set<Counter>();
+    public DbSet<UserStore> UserStores => Set<UserStore>();
     public DbSet<JobLevel> JobLevels => Set<JobLevel>();
+    public DbSet<EmployeeType> EmployeeTypes => Set<EmployeeType>();
     public DbSet<DepartmentJobLevel> DepartmentJobLevels => Set<DepartmentJobLevel>();
     public DbSet<BonusPolicy> BonusPolicies => Set<BonusPolicy>();
 
@@ -44,6 +51,11 @@ public sealed class ApplicationDbContext(
     public DbSet<KpiTemplate> KpiTemplates => Set<KpiTemplate>();
     public DbSet<KpiMetric> KpiMetrics => Set<KpiMetric>();
     public DbSet<KpiEntry> KpiEntries => Set<KpiEntry>();
+
+    // Contracts
+    public DbSet<ContractTemplate> ContractTemplates => Set<ContractTemplate>();
+    public DbSet<EmploymentContract> EmploymentContracts => Set<EmploymentContract>();
+
 
     // Salary
     public DbSet<SalaryRecord> SalaryRecords => Set<SalaryRecord>();
