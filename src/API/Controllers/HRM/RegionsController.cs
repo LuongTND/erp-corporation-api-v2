@@ -29,4 +29,10 @@ public sealed class RegionsController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<Unit>>> UpsertRegionHours(
         Guid regionId, [FromBody] UpsertRegionHoursCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { RegionId = regionId }, ct)));
+
+    [HasPermission(RegionPermissions.AssignManager)]
+    [HttpPatch("{regionId:guid}/manager")]
+    public async Task<ActionResult<ApiResponse<Unit>>> AssignManager(
+        Guid regionId, [FromBody] AssignRegionManagerCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { RegionId = regionId }, ct)));
 }

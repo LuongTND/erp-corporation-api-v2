@@ -2,8 +2,8 @@ namespace Application;
 
 public static class CounterPermissions
 {
-    public const string ViewList = "counters:view-list";
-    public const string Create = "counters:create";
-    public const string Update = "counters:update";
-    public const string Delete = "counters:delete";
+    public const string ViewList = "hrm:counters:view-list";
+    public const string Create = "hrm:counters:create";
+    public const string Update = "hrm:counters:update";
+    public const string Delete = "hrm:counters:delete";
 }

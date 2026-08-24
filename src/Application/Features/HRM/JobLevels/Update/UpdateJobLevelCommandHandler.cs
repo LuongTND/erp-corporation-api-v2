@@ -16,7 +16,6 @@ public sealed class UpdateJobLevelCommandHandler(IUnitOfWork unitOfWork)
 
         jobLevel.LevelName = cmd.LevelName;
         jobLevel.LevelOrder = cmd.LevelOrder;
-        jobLevel.DefaultScopeType = cmd.DefaultScopeType;
         jobLevel.Description = cmd.Description;
 
         await unitOfWork.EnsureSaveAsync(ct);

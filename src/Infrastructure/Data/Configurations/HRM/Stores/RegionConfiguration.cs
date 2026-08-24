@@ -11,5 +11,10 @@ public class RegionConfiguration : AuditableEntityConfiguration<Region, Guid>
         builder.Property(r => r.Name).IsRequired().HasMaxLength(255);
         builder.Property(r => r.Code).IsRequired().HasMaxLength(50);
         builder.Property(r => r.PosRegionId).IsRequired().HasMaxLength(100);
+
+        builder.HasOne(r => r.Manager)
+            .WithMany()
+            .HasForeignKey(r => r.ManagerId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

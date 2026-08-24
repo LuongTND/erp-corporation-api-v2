@@ -12,14 +12,21 @@ public sealed class DataScopeService(IUnitOfWork unitOfWork) : IDataScopeService
         if (user.ScopeOverride.HasValue)
             return user.ScopeOverride.Value;
 
-        if (!user.JobLevelId.HasValue)
+        var userRoles = await unitOfWork.Repository<UserRole>()
+            .GetAllAsync(ur => ur.UserId == userId && ur.IsActive && ur.RevokedAt == null
+                && (ur.ExpiresAt == null || ur.ExpiresAt > DateTimeOffset.UtcNow), ct);
+
+        if (!userRoles.Any())
             return ScopeType.Own;
 
-        var jobLevel = await unitOfWork.Repository<JobLevel>()
-            .FindAsync(j => j.Id == user.JobLevelId.Value, ct)
-            ?? throw new NotFoundException(ExceptionMessages.NotFound("JobLevel", user.JobLevelId.Value));
+        var roleIds = userRoles.Select(ur => ur.RoleId).ToList();
+        var roles = await unitOfWork.Repository<Domain.Role>()
+            .GetAllAsync(r => roleIds.Contains(r.Id) && r.IsActive, ct);
 
-        return jobLevel.DefaultScopeType;
+        if (!roles.Any())
+            return ScopeType.Own;
+
+        return (ScopeType)roles.Max(r => (int)r.DefaultDataScope);
     }
 
     public async Task<IReadOnlySet<Guid>> GetAccessibleDepartmentIdsAsync(Guid userId, CancellationToken ct = default)
@@ -47,6 +54,8 @@ public sealed class DataScopeService(IUnitOfWork unitOfWork) : IDataScopeService
             ScopeType.Own => query.Where(u => u.Id == userId),
             ScopeType.Team => query.Where(u => u.Id == userId || u.ManagerId == userId),
             ScopeType.Department => await ApplyDepartmentScopeAsync(query, userId, ct),
+            ScopeType.Store => await ApplyStoreScopeAsync(query, userId, ct),
+            ScopeType.Region => await ApplyRegionScopeAsync(query, userId, ct),
             ScopeType.All => query,
             _ => query.Where(u => u.Id == userId)
         };
@@ -64,6 +73,44 @@ public sealed class DataScopeService(IUnitOfWork unitOfWork) : IDataScopeService
             .Select(ud => ud.UserId);
 
         return query.Where(u => userIds.Contains(u.Id));
+    }
+
+    private async Task<IQueryable<User>> ApplyStoreScopeAsync(IQueryable<User> query, Guid userId, CancellationToken ct)
+    {
+        var storeIds = unitOfWork.Repository<UserStore>().Query()
+            .Where(us => us.UserId == userId && us.IsActive)
+            .Select(us => us.StoreId);
+
+        var userIdsInStores = unitOfWork.Repository<UserStore>().Query()
+            .Where(us => storeIds.Contains(us.StoreId) && us.IsActive)
+            .Select(us => us.UserId);
+
+        return query.Where(u => userIdsInStores.Contains(u.Id));
+    }
+
+    private async Task<IQueryable<User>> ApplyRegionScopeAsync(IQueryable<User> query, Guid userId, CancellationToken ct)
+    {
+        var regionIds = unitOfWork.Repository<Store>().Query()
+            .Where(s => s.ManagerId == userId && s.RegionId.HasValue)
+            .Select(s => s.RegionId!.Value)
+            .Distinct();
+
+        // ponytail: also include region where user is Region.ManagerId
+        var managedRegionIds = unitOfWork.Repository<Region>().Query()
+            .Where(r => r.ManagerId == userId)
+            .Select(r => r.Id);
+
+        var allRegionIds = regionIds.Union(managedRegionIds);
+
+        var storeIds = unitOfWork.Repository<Store>().Query()
+            .Where(s => s.RegionId.HasValue && allRegionIds.Contains(s.RegionId!.Value))
+            .Select(s => s.Id);
+
+        var userIdsInRegion = unitOfWork.Repository<UserStore>().Query()
+            .Where(us => storeIds.Contains(us.StoreId) && us.IsActive)
+            .Select(us => us.UserId);
+
+        return query.Where(u => userIdsInRegion.Contains(u.Id));
     }
 
     private static IReadOnlySet<Guid> BuildSubtree(Guid rootId, List<Department> all)

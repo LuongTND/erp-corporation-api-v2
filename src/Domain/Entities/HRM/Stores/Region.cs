@@ -7,6 +7,9 @@ public class Region : AuditableEntityBase<Guid>, ISoftDeletable
     public string PosRegionId { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
 
+    public Guid? ManagerId { get; set; }
+    public User? Manager { get; set; }
+
     public bool IsDeleted { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid? DeletedBy { get; set; }

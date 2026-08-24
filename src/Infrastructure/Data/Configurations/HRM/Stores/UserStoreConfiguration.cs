@@ -6,7 +6,8 @@ public class UserStoreConfiguration : BaseEntityConfiguration<UserStore, Guid>
     {
         base.Configure(builder);
         builder.ToTable("UserStores");
-        builder.HasIndex(us => new { us.UserId, us.StoreId }).IsUnique();
+        // ponytail: no DB unique — app checks active duplicate before insert to allow rejoin after inactive
+        builder.HasIndex(us => new { us.UserId, us.StoreId });
         builder.HasOne(us => us.User)
             .WithMany(u => u.UserStores)
             .HasForeignKey(us => us.UserId)

@@ -31,7 +31,7 @@ public sealed class GetKpiTemplateByIdQueryHandler(IUnitOfWork unitOfWork)
             Unit = m.Unit,
             Weight = m.Weight,
             Target = m.Target,
-            Type = m.Type
+            Type = m.Type.ToString()
         }).ToList()
     };
 }
