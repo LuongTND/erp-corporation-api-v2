@@ -22,6 +22,7 @@ public sealed class UserDetailResponse
     public UserEmploymentDetailResponse? Employment { get; init; }
     public IEnumerable<UserDepartmentDetailResponse> Departments { get; init; } = [];
     public IEnumerable<CustomFieldValueResponse> CustomFields { get; init; } = [];
+    public IEnumerable<LabelResponse> Labels { get; init; } = [];
 }
 
 public sealed class UserDepartmentDetailResponse

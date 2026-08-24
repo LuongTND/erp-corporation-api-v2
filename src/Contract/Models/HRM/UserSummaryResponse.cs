@@ -9,4 +9,5 @@ public sealed class UserSummaryResponse
     public string? AvatarUrl { get; init; }
     public string Status { get; init; } = string.Empty;
     public DateTimeOffset JoinDate { get; init; }
+    public IEnumerable<LabelResponse> Labels { get; init; } = [];
 }

@@ -1,23 +1,33 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Application;
 
-public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStorageService blobStorage)
+public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStorageService blobStorage, IDataScopeService dataScope)
     : IRequestHandler<GetUserDetailQuery, UserDetailResponse>
 {
     public async Task<UserDetailResponse> Handle(GetUserDetailQuery query, CancellationToken ct)
     {
-        var user = await unitOfWork.Repository<User>()
-            .FindAsync(
-                u => u.Id == query.UserId,
-                ct,
-                u => u.JobLevel!,
-                u => u.Manager!,
-                u => u.Profile!,
-                u => u.Identity!,
-                u => u.EmploymentInfo!,
-                u => u.UserDepartments!)
+        var scopedQuery = await dataScope.ApplyScopeAsync(
+            unitOfWork.Repository<User>().Query().Where(u => u.Id == query.UserId), query.CallerId, ct);
+        if (!await scopedQuery.AnyAsync(ct))
+            throw new ForbiddenException("Bạn không có quyền xem hồ sơ nhân sự này");
+
+        var user = await unitOfWork.Repository<User>().Query()
+            .Where(u => u.Id == query.UserId)
+            .Include(u => u.JobLevel)
+            .Include(u => u.Manager)
+            .Include(u => u.Profile)
+            .Include(u => u.Identity)
+            .Include(u => u.EmploymentInfo)
+            .Include(u => u.UserDepartments)
+            .Include(u => u.UserAccount)
+            .Include(u => u.CustomFieldValues)
+                .ThenInclude(v => v.Definition)
+            .Include(u => u.UserLabels)
+                .ThenInclude(ul => ul.Label)
+            .FirstOrDefaultAsync(ct)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("User", query.UserId));
 
-        // Load departments + their managers (GetAllAsync has no includes overload)
         var departmentIds = user.UserDepartments.Select(ud => ud.DepartmentId).ToHashSet();
         var departments = await unitOfWork.Repository<Department>()
             .GetAllAsync(d => departmentIds.Contains(d.Id), ct);
@@ -28,29 +38,21 @@ public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStora
             .GetAllAsync(u => deptManagerIds.Contains(u.Id), ct);
         var deptManagerMap = deptManagers.ToDictionary(u => u.Id);
 
-        var account = await unitOfWork.Repository<UserAccount>()
-            .FindAsync(a => a.UserId == query.UserId, ct);
-
-        var rawValues = await unitOfWork.Repository<UserCustomFieldValue>()
-            .GetAllAsync(v => v.UserId == query.UserId, ct);
-
-        // Load definitions separately — GetAllAsync has no includes overload
-        var definitionIds = rawValues.Select(v => v.DefinitionId).ToHashSet();
-        var definitions = await unitOfWork.Repository<CustomFieldDefinition>()
-            .GetAllAsync(d => definitionIds.Contains(d.Id) && d.IsActive, ct);
-        var defMap = definitions.ToDictionary(d => d.Id);
-
-        var customFieldValues = rawValues
-            .Where(v => defMap.ContainsKey(v.DefinitionId))
-            .Select(v => { v.Definition = defMap[v.DefinitionId]; return v; })
+        var account = user.UserAccount;
+        var customFieldValues = user.CustomFieldValues
+            .Where(v => v.Definition?.IsActive == true)
+            .ToList();
+        var labelEntities = user.UserLabels
+            .Where(ul => ul.Label is not null)
+            .Select(ul => ul.Label!)
             .ToList();
 
-        return MapToResponse(user, account, customFieldValues, departmentMap, deptManagerMap, blobStorage);
+        return MapToResponse(user, account, customFieldValues, departmentMap, deptManagerMap, blobStorage, labelEntities);
     }
 
     private const string Container = "avatars";
 
-    private static UserDetailResponse MapToResponse(User user, UserAccount? account, IEnumerable<UserCustomFieldValue> customFields, Dictionary<Guid, Department> departmentMap, Dictionary<Guid, User> deptManagerMap, IBlobStorageService blobStorage)
+    private static UserDetailResponse MapToResponse(User user, UserAccount? account, IEnumerable<UserCustomFieldValue> customFields, Dictionary<Guid, Department> departmentMap, Dictionary<Guid, User> deptManagerMap, IBlobStorageService blobStorage, IEnumerable<Label> labels)
         => new()
         {
             Id = user.Id,
@@ -116,5 +118,6 @@ public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStora
                     SortOrder = v.Definition.SortOrder,
                     Value = v.Value,
                 }),
+            Labels = labels.Select(l => new LabelResponse { Id = l.Id, Name = l.Name, Color = l.Color, IsActive = l.IsActive }),
         };
 }

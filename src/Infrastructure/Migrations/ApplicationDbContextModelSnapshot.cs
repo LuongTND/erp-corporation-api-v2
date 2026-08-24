@@ -912,11 +912,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("DefaultScopeType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -1096,6 +1091,39 @@ namespace Infrastructure.Migrations
                         .HasFilter("[JobLevelId] IS NOT NULL");
 
                     b.ToTable("KpiTemplates", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Label", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Labels", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Message", b =>
@@ -1580,9 +1608,6 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Action")
-                        .HasColumnType("int");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -1596,21 +1621,12 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Module")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("PermissionCode")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PermissionName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Resource")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1680,6 +1696,36 @@ namespace Infrastructure.Migrations
                     b.ToTable("PermissionAuditLogs", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.RecruitmentApproverConfig", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ApproverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApproverId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.ToTable("RecruitmentApproverConfigs");
+                });
+
             modelBuilder.Entity("Domain.Region", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1709,6 +1755,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -1729,6 +1778,8 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
+
+                    b.HasIndex("ManagerId");
 
                     b.HasIndex("PosRegionId")
                         .IsUnique();
@@ -1788,6 +1839,13 @@ namespace Infrastructure.Migrations
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DefaultDataScope")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasDefaultValue("Own");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -2736,6 +2794,34 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserDepartments", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.UserLabel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("LabelId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LabelId");
+
+                    b.HasIndex("UserId", "LabelId")
+                        .IsUnique();
+
+                    b.ToTable("UserLabels", (string)null);
+                });
+
             modelBuilder.Entity("Domain.UserNotification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2875,8 +2961,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.HasIndex("UserId", "StoreId")
-                        .IsUnique();
+                    b.HasIndex("UserId", "StoreId");
 
                     b.ToTable("UserStores", (string)null);
                 });
@@ -3328,6 +3413,33 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.RecruitmentApproverConfig", b =>
+                {
+                    b.HasOne("Domain.User", "Approver")
+                        .WithMany()
+                        .HasForeignKey("ApproverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId");
+
+                    b.Navigation("Approver");
+
+                    b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("Domain.Region", b =>
+                {
+                    b.HasOne("Domain.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Manager");
+                });
+
             modelBuilder.Entity("Domain.RegionHours", b =>
                 {
                     b.HasOne("Domain.Region", "Region")
@@ -3647,6 +3759,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.UserLabel", b =>
+                {
+                    b.HasOne("Domain.Label", "Label")
+                        .WithMany("UserLabels")
+                        .HasForeignKey("LabelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.User", "User")
+                        .WithMany("UserLabels")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Label");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.UserNotification", b =>
                 {
                     b.HasOne("Domain.NotificationEventType", "EventType")
@@ -3762,6 +3893,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Metrics");
                 });
 
+            modelBuilder.Entity("Domain.Label", b =>
+                {
+                    b.Navigation("UserLabels");
+                });
+
             modelBuilder.Entity("Domain.Message", b =>
                 {
                     b.Navigation("Attachments");
@@ -3870,6 +4006,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("UserAccount");
 
                     b.Navigation("UserDepartments");
+
+                    b.Navigation("UserLabels");
 
                     b.Navigation("UserRoles");
 

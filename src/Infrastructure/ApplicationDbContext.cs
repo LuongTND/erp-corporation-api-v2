@@ -29,6 +29,13 @@ public sealed class ApplicationDbContext(
     public DbSet<EmployeeDocument> EmployeeDocuments => Set<EmployeeDocument>();
     public DbSet<WorkHistory> WorkHistories => Set<WorkHistory>();
 
+    // Labels
+    public DbSet<Label> Labels => Set<Label>();
+    public DbSet<UserLabel> UserLabels => Set<UserLabel>();
+
+    // Recruitment
+    public DbSet<RecruitmentApproverConfig> RecruitmentApproverConfigs => Set<RecruitmentApproverConfig>();
+
     // Custom Fields
     public DbSet<CustomFieldDefinition> CustomFieldDefinitions => Set<CustomFieldDefinition>();
     public DbSet<CustomFieldOption> CustomFieldOptions => Set<CustomFieldOption>();
