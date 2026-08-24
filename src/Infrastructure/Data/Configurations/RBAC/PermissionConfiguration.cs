@@ -10,7 +10,6 @@ public class PermissionConfiguration : BaseEntityConfiguration<Permission, Guid>
 
         builder.HasIndex(p => p.PermissionCode).IsUnique();
         builder.Property(p => p.PermissionCode).IsRequired().HasMaxLength(100);
-        builder.Property(p => p.Module).HasConversion<string>().HasMaxLength(100);
         builder.Property(p => p.Description).HasMaxLength(500);
     }
 }

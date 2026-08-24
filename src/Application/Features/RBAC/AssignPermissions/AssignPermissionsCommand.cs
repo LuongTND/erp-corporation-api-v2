@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed record AssignPermissionsCommand(List<Guid> PermissionIds) : IRequest<Unit>
+public sealed record AssignPermissionsCommand(List<Guid> ToAdd, List<Guid> ToRemove) : IRequest<Unit>
 {
     public Guid RoleId { get; init; }
 }

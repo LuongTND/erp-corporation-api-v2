@@ -2,15 +2,48 @@ using ClosedXML.Excel;
 
 namespace Infrastructure;
 
-public sealed class ExportUsersQueryHandler(ApplicationDbContext db)
+public sealed class ExportUsersQueryHandler(ApplicationDbContext db, IDataScopeService dataScope)
     : IRequestHandler<ExportUsersQuery, byte[]>
 {
     public async Task<byte[]> Handle(ExportUsersQuery query, CancellationToken ct)
     {
-        var users = await db.Users
+        var scopedQ = await dataScope.ApplyScopeAsync(db.Users.AsQueryable(), query.CallerId, ct);
+
+        List<Guid>? labelUserIds = null;
+        if (query.LabelId.HasValue)
+        {
+            labelUserIds = await db.Set<UserLabel>()
+                .Where(ul => ul.LabelId == query.LabelId.Value)
+                .Select(ul => ul.UserId).ToListAsync(ct);
+            if (labelUserIds.Count == 0) return [];
+        }
+
+        List<Guid>? storeUserIds = null;
+        if (query.StoreId.HasValue)
+        {
+            storeUserIds = await db.Set<UserStore>()
+                .Where(us => us.StoreId == query.StoreId.Value && us.IsActive)
+                .Select(us => us.UserId).ToListAsync(ct);
+            if (storeUserIds.Count == 0) return [];
+        }
+        else if (query.RegionId.HasValue)
+        {
+            var storeIds = await db.Set<Store>()
+                .Where(s => s.RegionId == query.RegionId.Value)
+                .Select(s => s.Id).ToListAsync(ct);
+            if (storeIds.Count == 0) return [];
+            storeUserIds = await db.Set<UserStore>()
+                .Where(us => storeIds.Contains(us.StoreId) && us.IsActive)
+                .Select(us => us.UserId).Distinct().ToListAsync(ct);
+            if (storeUserIds.Count == 0) return [];
+        }
+
+        var users = await scopedQ
             .Where(u => (query.Status == null ? u.IsActive : u.Status == query.Status.Value)
                 && (query.Search == null || u.FullName.Contains(query.Search) || u.EmployeeCode.Contains(query.Search))
-                && (query.DepartmentId == null || u.UserDepartments.Any(ud => ud.DepartmentId == query.DepartmentId.Value && ud.IsActive)))
+                && (query.DepartmentId == null || u.UserDepartments.Any(ud => ud.DepartmentId == query.DepartmentId.Value && ud.IsActive))
+                && (labelUserIds == null || labelUserIds.Contains(u.Id))
+                && (storeUserIds == null || storeUserIds.Contains(u.Id)))
             .Include(u => u.JobLevel)
             .Include(u => u.EmploymentInfo)
             .Include(u => u.UserDepartments)

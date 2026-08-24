@@ -14,15 +14,15 @@ public sealed class UsersController(ISender sender) : ControllerBase
     [HasPermission(UserPermissions.View)]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IEnumerable<UserSummaryResponse>>>> GetUsers(
-        [FromQuery] string? search, [FromQuery] Guid? jobLevelId, [FromQuery] UserStatus? status, [FromQuery] Guid? departmentId, CancellationToken ct)
+        [FromQuery] GetUsersQuery query, CancellationToken ct)
         => Ok(ApiResponse<IEnumerable<UserSummaryResponse>>.Ok(
-            await sender.Send(new GetUsersQuery(search, jobLevelId, status, departmentId), ct)));
+            await sender.Send(query with { CallerId = User.GetUserId() }, ct)));
 
     [HasPermission(UserPermissions.View)]
     [HttpGet("{userId:guid}")]
     public async Task<ActionResult<ApiResponse<UserDetailResponse>>> GetUserDetail(
         Guid userId, CancellationToken ct)
-        => Ok(ApiResponse<UserDetailResponse>.Ok(await sender.Send(new GetUserDetailQuery(userId), ct)));
+        => Ok(ApiResponse<UserDetailResponse>.Ok(await sender.Send(new GetUserDetailQuery(userId, User.GetUserId()), ct)));
 
     [HasPermission(UserPermissions.UpdateProfile)]
     [HttpPut("{userId:guid}")]
@@ -139,14 +139,27 @@ public sealed class UsersController(ISender sender) : ControllerBase
         Guid userId, [FromBody] AssignEmployeeTypeCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { UserId = userId }, ct)));
 
+    // --- Label ---
+
+    [HasPermission(LabelPermissions.Assign)]
+    [HttpPost("{userId:guid}/labels/{labelId:guid}")]
+    public async Task<ActionResult<ApiResponse<Unit>>> AssignLabel(
+        Guid userId, Guid labelId, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new AssignUserLabelCommand(userId, labelId), ct)));
+
+    [HasPermission(LabelPermissions.Assign)]
+    [HttpDelete("{userId:guid}/labels/{labelId:guid}")]
+    public async Task<ActionResult<ApiResponse<Unit>>> UnassignLabel(
+        Guid userId, Guid labelId, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new UnassignUserLabelCommand(userId, labelId), ct)));
+
     // --- Export ---
 
     [HasPermission(UserPermissions.Export)]
     [HttpGet("export")]
-    public async Task<IActionResult> ExportUsers(
-        [FromQuery] string? search, [FromQuery] UserStatus? status, [FromQuery] Guid? departmentId, CancellationToken ct)
+    public async Task<IActionResult> ExportUsers([FromQuery] ExportUsersQuery query, CancellationToken ct)
     {
-        var bytes = await sender.Send(new ExportUsersQuery(search, status, departmentId), ct);
+        var bytes = await sender.Send(query with { CallerId = User.GetUserId() }, ct);
         return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             $"nhan-su-{DateTimeOffset.UtcNow:yyyyMMdd}.xlsx");
     }

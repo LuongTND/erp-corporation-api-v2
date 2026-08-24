@@ -23,7 +23,6 @@ public static class StaffData
                 Id = jobLevelId,
                 LevelName = "Staff",
                 LevelOrder = 1,
-                DefaultScopeType = ScopeType.Department,
             });
             await context.SaveChangesAsync();
         }

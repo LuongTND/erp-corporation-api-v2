@@ -14,6 +14,7 @@ public sealed class UpdateRoleCommandHandler(IUnitOfWork unitOfWork)
 
         role.DisplayName = cmd.DisplayName;
         role.Description = cmd.Description;
+        role.DefaultDataScope = cmd.DefaultDataScope;
 
         await unitOfWork.SaveChangesAsync(ct);
         return Unit.Value;

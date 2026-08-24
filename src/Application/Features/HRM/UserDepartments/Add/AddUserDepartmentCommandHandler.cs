@@ -41,7 +41,6 @@ public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUse
             Id = Guid.NewGuid(),
             UserId = cmd.UserId,
             DepartmentId = cmd.DepartmentId,
-            JobLevelId = cmd.JobLevelId,
             DepartmentJobLevelId = departmentJobLevelId,
             IsPrimary = false,
             StartDate = cmd.StartDate,

@@ -3,11 +3,13 @@ using ClosedXML.Excel;
 namespace Infrastructure;
 
 [RegisterService(typeof(IUserExcelExporter))]
-public sealed class UserExcelExporter(ApplicationDbContext db) : IUserExcelExporter
+public sealed class UserExcelExporter(ApplicationDbContext db, IDataScopeService dataScope) : IUserExcelExporter
 {
     public async Task<byte[]> ExportAsync(ExportUsersQuery query, CancellationToken ct = default)
     {
-        var users = await db.Users
+        var scoped = await dataScope.ApplyScopeAsync(db.Users.AsQueryable(), query.CallerId, ct);
+
+        var users = await scoped
             .Where(u => (query.Status == null ? u.IsActive : u.Status == query.Status.Value)
                 && (query.Search == null || u.FullName.Contains(query.Search) || u.EmployeeCode.Contains(query.Search))
                 && (query.DepartmentId == null || u.UserDepartments.Any(ud => ud.DepartmentId == query.DepartmentId.Value && ud.IsActive)))

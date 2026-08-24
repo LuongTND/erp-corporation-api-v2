@@ -9,6 +9,7 @@ public sealed class GetRegionsQueryHandler(IUnitOfWork unitOfWork)
 
         var dbQuery = unitOfWork.Repository<Region>().Query()
             .Include(r => r.Stores)
+            .Include(r => r.Manager)
             .Where(r => !r.IsDeleted);
 
         if (search != null)
@@ -34,6 +35,8 @@ public sealed class GetRegionsQueryHandler(IUnitOfWork unitOfWork)
             PosRegionId = r.PosRegionId,
             IsActive = r.IsActive,
             StoreCount = r.Stores.Count,
+            ManagerId = r.ManagerId,
+            ManagerName = r.Manager?.FullName,
         });
 
         return new QueryResult<RegionResponse> { Items = items, TotalCount = totalCount };

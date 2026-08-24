@@ -18,7 +18,8 @@ public sealed class CreateRoleCommandHandler(IUnitOfWork unitOfWork)
             DisplayName = cmd.DisplayName,
             Description = cmd.Description,
             IsSystemRole = false,
-            IsActive = true
+            IsActive = true,
+            DefaultDataScope = cmd.DefaultDataScope
         };
 
         await unitOfWork.Repository<Role>().AddAsync(role);

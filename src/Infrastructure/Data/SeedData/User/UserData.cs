@@ -16,7 +16,6 @@ public static class UserData
                 Id = jobLevelId,
                 LevelName = "Admin",
                 LevelOrder = 0,
-                DefaultScopeType = ScopeType.All
             });
             await context.SaveChangesAsync();
         }

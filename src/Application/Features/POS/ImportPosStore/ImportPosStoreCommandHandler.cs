@@ -23,6 +23,15 @@ public sealed class ImportPosStoreCommandHandler(IUnitOfWork unitOfWork, IPosSto
                 throw new BadRequestException("Trưởng cửa hàng đã bị vô hiệu hóa.");
         }
 
+        Guid? regionId = null;
+        if (posStore.RegionId.HasValue)
+        {
+            var posRegionIdStr = posStore.RegionId.Value.ToString();
+            var region = await unitOfWork.Repository<Region>()
+                .FindAsync(r => r.PosRegionId == posRegionIdStr, ct);
+            regionId = region?.Id;
+        }
+
         var store = new Store
         {
             Id = Guid.NewGuid(),
@@ -31,7 +40,9 @@ public sealed class ImportPosStoreCommandHandler(IUnitOfWork unitOfWork, IPosSto
             PosStoreId = cmd.PosStoreId.ToString(),
             Address = posStore.Address,
             Phone = posStore.Phone,
-            IsActive = true
+            IsActive = true,
+            ManagerId = cmd.ManagerId,
+            RegionId = regionId
         };
 
         await unitOfWork.Repository<Store>().AddAsync(store);

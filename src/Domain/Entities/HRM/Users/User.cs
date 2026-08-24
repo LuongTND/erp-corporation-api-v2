@@ -30,6 +30,7 @@ public class User : AuditableEntityBase<Guid>
     public ICollection<UserRole> UserRoles { get; set; } = [];
     public ICollection<UserCustomFieldValue> CustomFieldValues { get; set; } = [];
 
+    public ICollection<UserLabel> UserLabels { get; set; } = [];
     public ICollection<EmployeeDocument> Documents { get; set; } = [];
     public ICollection<WorkHistory> WorkHistories { get; set; } = [];
 

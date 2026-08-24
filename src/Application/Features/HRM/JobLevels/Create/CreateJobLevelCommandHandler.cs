@@ -15,7 +15,6 @@ public sealed class CreateJobLevelCommandHandler(IUnitOfWork unitOfWork)
             Id = Guid.NewGuid(),
             LevelName = cmd.LevelName,
             LevelOrder = cmd.LevelOrder,
-            DefaultScopeType = cmd.DefaultScopeType,
             Description = cmd.Description
         };
 

@@ -3,5 +3,6 @@ namespace Application;
 public sealed record CreateRoleCommand(
     string RoleName,
     string DisplayName,
-    string? Description
+    string? Description,
+    ScopeType DefaultDataScope = ScopeType.Own
 ) : IRequest<Guid>;

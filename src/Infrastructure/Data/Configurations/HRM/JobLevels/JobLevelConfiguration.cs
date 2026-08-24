@@ -9,7 +9,6 @@ public class JobLevelConfiguration : AuditableEntityConfiguration<JobLevel, Guid
         builder.ToTable("JobLevels");
 
         builder.Property(j => j.LevelName).IsRequired().HasMaxLength(100);
-        builder.Property(j => j.DefaultScopeType).HasConversion<string>().HasMaxLength(30);
         builder.Property(j => j.Description).HasMaxLength(500);
     }
 }
