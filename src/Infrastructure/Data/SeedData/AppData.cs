@@ -4,9 +4,6 @@ public class AppData
 {
     public static async Task SeedAsync(ApplicationDbContext context, IPasswordHasher hasher)
     {
-        if (!await context.Roles.AnyAsync())
-            await context.Roles.AddRangeAsync(RoleData.GetRoles());
-
         await context.SaveChangesAsync();
 
         await UserData.SeedAdminAsync(context, hasher);
@@ -24,14 +21,29 @@ public class AppData
 
         var existing = await context.Permissions.Select(p => p.PermissionCode).ToHashSetAsync();
 
-        var toAdd = allKeys.Except(existing).Select(key => new Permission
+        // Update PermissionName + Description for existing permissions
+        var existingPerms = await context.Permissions.ToListAsync();
+        foreach (var perm in existingPerms)
         {
-            Id = Guid.NewGuid(),
-            PermissionCode = key,
-            PermissionName = key,
-            Module = PermissionModule.System,
-            Action = PermissionAction.Read,
-            Resource = key
+            if (PermissionNames.Map.TryGetValue(perm.PermissionCode, out var info))
+            {
+                perm.PermissionName = info.Name;
+                perm.Description = info.Description;
+            }
+        }
+
+        var toAdd = allKeys.Except(existing).Select(key =>
+        {
+            var (name, desc) = PermissionNames.Map.TryGetValue(key, out var info)
+                ? info
+                : (key, null);
+            return new Permission
+            {
+                Id = Guid.NewGuid(),
+                PermissionCode = key,
+                PermissionName = name,
+                Description = desc
+            };
         });
 
         context.Permissions.AddRange(toAdd);
@@ -51,6 +63,12 @@ public class AppData
     {
         var adminRole = await context.Roles.FirstOrDefaultAsync(r => r.RoleName == RoleConstants.Admin);
         if (adminRole is null) return;
+
+        if (adminRole.DefaultDataScope != ScopeType.All)
+        {
+            adminRole.DefaultDataScope = ScopeType.All;
+            await context.SaveChangesAsync();
+        }
 
         var allPermissionIds = await context.Permissions.Select(p => p.Id).ToListAsync();
         var existingPermissionIds = await context.RolePermissions

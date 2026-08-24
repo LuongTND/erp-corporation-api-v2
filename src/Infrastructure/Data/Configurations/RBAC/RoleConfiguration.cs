@@ -14,5 +14,6 @@ public class RoleConfiguration : BaseEntityConfiguration<Role, Guid>
 
         builder.Property(r => r.RoleName).IsRequired().HasMaxLength(100);
         builder.Property(r => r.Description).HasMaxLength(500);
+        builder.Property(r => r.DefaultDataScope).HasConversion<string>().HasMaxLength(30).HasDefaultValue(ScopeType.Own).HasSentinel(ScopeType.Own);
     }
 }

@@ -7,6 +7,7 @@ public class Role : AuditableEntityBase<Guid>
     public string? Description { get; set; }
     public bool IsSystemRole { get; set; }
     public bool IsActive { get; set; } = true;
+    public ScopeType DefaultDataScope { get; set; } = ScopeType.Own;
 
     public ICollection<RolePermission> RolePermissions { get; set; } = [];
     public ICollection<UserRole> UserRoles { get; set; } = [];

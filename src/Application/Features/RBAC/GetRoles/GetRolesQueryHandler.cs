@@ -13,19 +13,16 @@ public sealed class GetRolesQueryHandler(IUnitOfWork unitOfWork)
         var roles = result.Items.ToList();
 
         var roleIds = roles.Select(r => r.Id).ToList();
-        var allRolePerms = await unitOfWork.Repository<RolePermission>().GetPagedAsync(
-            new QueryInfo { Top = 10000, NeedTotalCount = false },
-            filter: rp => roleIds.Contains(rp.RoleId),
-            ct: ct);
+        var allRolePerms = await unitOfWork.Repository<RolePermission>().GetAllAsync(
+            rp => roleIds.Contains(rp.RoleId), ct);
 
-        var permIds = allRolePerms.Items.Select(rp => rp.PermissionId).Distinct().ToList();
-        var allPerms = await unitOfWork.Repository<Permission>().GetPagedAsync(
-            new QueryInfo { Top = 10000, NeedTotalCount = false },
-            filter: p => permIds.Contains(p.Id),
-            ct: ct);
+        var permIds = allRolePerms.Select(rp => rp.PermissionId).Distinct().ToList();
+        var allPerms = permIds.Count == 0
+            ? []
+            : await unitOfWork.Repository<Permission>().GetAllAsync(p => permIds.Contains(p.Id), ct);
 
-        var permMap = allPerms.Items.ToDictionary(p => p.Id);
-        var rolePermMap = allRolePerms.Items
+        var permMap = allPerms.ToDictionary(p => p.Id);
+        var rolePermMap = allRolePerms
             .GroupBy(rp => rp.RoleId)
             .ToDictionary(g => g.Key, g => g
                 .Where(rp => permMap.ContainsKey(rp.PermissionId))
@@ -33,7 +30,7 @@ public sealed class GetRolesQueryHandler(IUnitOfWork unitOfWork)
                 {
                     Id = permMap[rp.PermissionId].Id,
                     PermissionCode = permMap[rp.PermissionId].PermissionCode,
-                    Module = permMap[rp.PermissionId].Module.ToString()
+                    PermissionName = permMap[rp.PermissionId].PermissionName
                 }));
 
         return roles.Select(r => new RoleResponse
@@ -43,6 +40,7 @@ public sealed class GetRolesQueryHandler(IUnitOfWork unitOfWork)
             DisplayName = r.DisplayName,
             Description = r.Description,
             IsSystemRole = r.IsSystemRole,
+            DefaultDataScope = r.DefaultDataScope.ToString(),
             Permissions = rolePermMap.TryGetValue(r.Id, out var perms) ? perms : []
         });
     }
