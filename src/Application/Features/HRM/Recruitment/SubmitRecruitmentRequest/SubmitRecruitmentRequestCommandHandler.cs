@@ -13,7 +13,7 @@ public sealed class SubmitRecruitmentRequestCommandHandler(IUnitOfWork unitOfWor
             request.Status != RecruitmentRequestStatus.NeedMoreInfo)
             throw new BadRequestException("Chỉ có thể gửi phiếu ở trạng thái Draft hoặc NeedMoreInfo.");
 
-        request.Status = RecruitmentRequestStatus.PendingApproval;
+        request.Status = RecruitmentRequestStatus.PendingLevel1Approval;
         await unitOfWork.EnsureSaveAsync(ct);
         return Unit.Value;
     }

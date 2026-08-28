@@ -32,12 +32,13 @@ public sealed class UsersController(ISender sender) : ControllerBase
 
     [HasPermission(UserPermissions.UpdateProfile)]
     [HttpPost("{userId:guid}/avatar")]
+    [Consumes("multipart/form-data")]
     [RequestSizeLimit(5 * 1024 * 1024)]
     public async Task<ActionResult<ApiResponse<string>>> UploadAvatar(
-        Guid userId, [FromForm] IFormFile file, CancellationToken ct)
+        Guid userId, [FromForm] UploadAvatarRequest request, CancellationToken ct)
     {
-        using var stream = file.OpenReadStream();
-        var url = await sender.Send(new UploadAvatarCommand(userId, stream, file.ContentType, file.FileName), ct);
+        using var stream = request.File.OpenReadStream();
+        var url = await sender.Send(new UploadAvatarCommand(userId, stream, request.File.ContentType, request.File.FileName), ct);
         return Ok(ApiResponse<string>.Ok(url));
     }
 

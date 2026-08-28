@@ -9,8 +9,8 @@ public sealed class RejectRecruitmentRequestCommandHandler(IUnitOfWork unitOfWor
             .FindAsync(r => r.Id == cmd.RequestId, ct)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("RecruitmentRequest", cmd.RequestId));
 
-        if (request.Status != RecruitmentRequestStatus.PendingApproval)
-            throw new BadRequestException("Chỉ có thể từ chối phiếu ở trạng thái PendingApproval.");
+        if (request.Status is not (RecruitmentRequestStatus.PendingLevel1Approval or RecruitmentRequestStatus.PendingLevel2Approval))
+            throw new BadRequestException("Chỉ có thể từ chối phiếu đang chờ duyệt.");
 
         request.Status = RecruitmentRequestStatus.Rejected;
         request.RejectionNote = cmd.RejectionNote;

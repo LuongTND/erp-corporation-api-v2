@@ -45,7 +45,14 @@ public sealed class RecruitmentRequestsController(ISender sender) : ControllerBa
         Guid requestId, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(new SubmitRecruitmentRequestCommand(requestId), ct)));
 
-    // HRM-051
+    // HRM-051a: Giám sát vùng / Trưởng BP duyệt cấp 1
+    [HasPermission(RecruitmentPermissions.ApproveRequestLevel1)]
+    [HttpPost("{requestId:guid}/approve-level1")]
+    public async Task<ActionResult<ApiResponse<Unit>>> ApproveLevel1(
+        Guid requestId, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new ApproveLevel1RecruitmentRequestCommand(requestId), ct)));
+
+    // HRM-051b: Trưởng phòng NS duyệt cấp 2
     [HasPermission(RecruitmentPermissions.ApproveRequest)]
     [HttpPost("{requestId:guid}/approve")]
     public async Task<ActionResult<ApiResponse<Unit>>> Approve(

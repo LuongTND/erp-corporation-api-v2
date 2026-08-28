@@ -18,6 +18,9 @@ public class Candidate : AuditableEntityBase<Guid>, ISoftDeletable
 
     public Guid? ConvertedEmployeeId { get; set; }
 
+    // HRM-067: ngày bắt đầu học việc — set khi chốt lịch sau phỏng vấn đạt
+    public DateOnly? TrialStartDate { get; set; }
+
     public string? Notes { get; set; }
 
     public bool IsDeleted { get; set; }
@@ -25,4 +28,5 @@ public class Candidate : AuditableEntityBase<Guid>, ISoftDeletable
     public Guid? DeletedBy { get; set; }
 
     public ICollection<CandidateEvaluation> Evaluations { get; set; } = [];
+    public ICollection<InterviewSchedule> InterviewSchedules { get; set; } = [];
 }

@@ -39,6 +39,8 @@ public sealed class ApplicationDbContext(
     public DbSet<Candidate> Candidates => Set<Candidate>();
     public DbSet<CandidateEvaluation> CandidateEvaluations => Set<CandidateEvaluation>();
     public DbSet<JobPosting> JobPostings => Set<JobPosting>();
+    public DbSet<InterviewRuleConfig> InterviewRuleConfigs => Set<InterviewRuleConfig>();
+    public DbSet<InterviewSchedule> InterviewSchedules => Set<InterviewSchedule>();
 
     // Custom Fields
     public DbSet<CustomFieldDefinition> CustomFieldDefinitions => Set<CustomFieldDefinition>();

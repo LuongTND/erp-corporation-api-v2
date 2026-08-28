@@ -40,4 +40,28 @@ public sealed class AuthController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<Unit>>> ChangePassword(
         ChangePasswordCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd, ct)));
+
+    // Nhân viên tự xem hồ sơ đầy đủ của mình — khác GET /api/auth/me (chỉ trả basic info).
+    // Tái dùng GetUserDetailQuery với UserId = caller, bỏ qua data-scope check.
+    [Authorize]
+    [HttpGet("me/detail")]
+    public async Task<ActionResult<ApiResponse<UserDetailResponse>>> MyDetail(
+        [FromServices] IUserContext userContext, CancellationToken ct)
+        => Ok(ApiResponse<UserDetailResponse>.Ok(
+            await sender.Send(new GetUserDetailQuery(userContext.UserId, userContext.UserId), ct)));
+
+    // Nhân viên xem lương hiện tại của mình — khác GET /api/hr/users/{id}/salary/current (admin only).
+    [Authorize]
+    [HttpGet("me/salary")]
+    public async Task<ActionResult<ApiResponse<SalaryRecordResponse?>>> MySalary(
+        [FromServices] IUserContext userContext, CancellationToken ct)
+        => Ok(ApiResponse<SalaryRecordResponse?>.Ok(
+            await sender.Send(new GetCurrentSalaryQuery(userContext.UserId), ct)));
+
+    // Nhân viên tự cập nhật thông tin cá nhân, giấy tờ, tài chính — không cho sửa FullName/JobLevel/Manager (HR quản lý).
+    [Authorize]
+    [HttpPatch("me/profile")]
+    public async Task<ActionResult<ApiResponse<Unit>>> UpdateMyProfile(
+        UpdateMyProfileCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd, ct)));
 }
