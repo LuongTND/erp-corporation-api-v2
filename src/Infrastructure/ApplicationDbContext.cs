@@ -35,6 +35,10 @@ public sealed class ApplicationDbContext(
 
     // Recruitment
     public DbSet<RecruitmentApproverConfig> RecruitmentApproverConfigs => Set<RecruitmentApproverConfig>();
+    public DbSet<RecruitmentRequest> RecruitmentRequests => Set<RecruitmentRequest>();
+    public DbSet<Candidate> Candidates => Set<Candidate>();
+    public DbSet<CandidateEvaluation> CandidateEvaluations => Set<CandidateEvaluation>();
+    public DbSet<JobPosting> JobPostings => Set<JobPosting>();
 
     // Custom Fields
     public DbSet<CustomFieldDefinition> CustomFieldDefinitions => Set<CustomFieldDefinition>();

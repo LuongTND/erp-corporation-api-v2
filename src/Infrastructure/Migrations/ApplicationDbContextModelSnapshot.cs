@@ -106,6 +106,136 @@ namespace Infrastructure.Migrations
                     b.ToTable("BonusPolicies", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Candidate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ConvertedEmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CvUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("RecruitmentRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("SourceChannel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecruitmentRequestId", "Stage");
+
+                    b.ToTable("Candidates", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.CandidateEvaluation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CandidateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EvaluatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsStoreEvaluation")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Recommendation")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StrengthNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("WeaknessNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EvaluatorId");
+
+                    b.HasIndex("CandidateId", "EvaluatorId")
+                        .IsUnique();
+
+                    b.ToTable("CandidateEvaluations", (string)null);
+                });
+
             modelBuilder.Entity("Domain.ContractTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -600,6 +730,9 @@ namespace Infrastructure.Migrations
                     b.Property<long>("FileSizeBytes")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsVisibleToEmployee")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset?>("IssuedDate")
                         .HasColumnType("datetimeoffset");
 
@@ -942,6 +1075,75 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("JobLevels", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.JobPosting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTimeOffset?>("CostApprovedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CostApprovedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CostRejectionNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("CostStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("EstimatedCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("PostUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset?>("PostedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("RecruitmentRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CostApprovedByUserId");
+
+                    b.HasIndex("RecruitmentRequestId");
+
+                    b.ToTable("JobPostings", (string)null);
                 });
 
             modelBuilder.Entity("Domain.KpiEntry", b =>
@@ -1724,6 +1926,98 @@ namespace Infrastructure.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("RecruitmentApproverConfigs");
+                });
+
+            modelBuilder.Entity("Domain.RecruitmentRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ApprovalRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Headcount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("JobDescription")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NeedMoreInfoNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("PositionTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("RejectionNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("RequestContext")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("RequestedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("RequiredByDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("RequestedByUserId");
+
+                    b.HasIndex("StoreId");
+
+                    b.HasIndex("Status", "RequestContext");
+
+                    b.ToTable("RecruitmentRequests", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Region", b =>
@@ -3046,6 +3340,35 @@ namespace Infrastructure.Migrations
                     b.ToTable("OutboxMessages", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Candidate", b =>
+                {
+                    b.HasOne("Domain.RecruitmentRequest", "RecruitmentRequest")
+                        .WithMany("Candidates")
+                        .HasForeignKey("RecruitmentRequestId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("RecruitmentRequest");
+                });
+
+            modelBuilder.Entity("Domain.CandidateEvaluation", b =>
+                {
+                    b.HasOne("Domain.Candidate", "Candidate")
+                        .WithMany("Evaluations")
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.User", "Evaluator")
+                        .WithMany()
+                        .HasForeignKey("EvaluatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Candidate");
+
+                    b.Navigation("Evaluator");
+                });
+
             modelBuilder.Entity("Domain.ConversationActivityLog", b =>
                 {
                     b.HasOne("Domain.Conversation", "Conversation")
@@ -3229,6 +3552,24 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.JobPosting", b =>
+                {
+                    b.HasOne("Domain.User", "CostApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("CostApprovedByUserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.RecruitmentRequest", "RecruitmentRequest")
+                        .WithMany("JobPostings")
+                        .HasForeignKey("RecruitmentRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CostApprovedBy");
+
+                    b.Navigation("RecruitmentRequest");
                 });
 
             modelBuilder.Entity("Domain.KpiEntry", b =>
@@ -3428,6 +3769,24 @@ namespace Infrastructure.Migrations
                     b.Navigation("Approver");
 
                     b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("Domain.RecruitmentRequest", b =>
+                {
+                    b.HasOne("Domain.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.User", "RequestedBy")
+                        .WithMany()
+                        .HasForeignKey("RequestedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("RequestedBy");
                 });
 
             modelBuilder.Entity("Domain.Region", b =>
@@ -3846,6 +4205,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Candidate", b =>
+                {
+                    b.Navigation("Evaluations");
+                });
+
             modelBuilder.Entity("Domain.ContractTemplate", b =>
                 {
                     b.Navigation("Contracts");
@@ -3926,6 +4290,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("Domain.RecruitmentRequest", b =>
+                {
+                    b.Navigation("Candidates");
+
+                    b.Navigation("JobPostings");
                 });
 
             modelBuilder.Entity("Domain.Region", b =>

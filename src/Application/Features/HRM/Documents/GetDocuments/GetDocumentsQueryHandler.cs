@@ -11,6 +11,9 @@ public sealed class GetDocumentsQueryHandler(IUnitOfWork unitOfWork, IBlobStorag
         var docs = await unitOfWork.Repository<EmployeeDocument>()
             .GetAllAsync(d => d.UserId == query.UserId, ct);
 
+        if (query.SelfView)
+            docs = docs.Where(d => d.CreatedBy == query.CallerId || d.IsVisibleToEmployee).ToList();
+
         return docs.OrderByDescending(d => d.CreatedAt).Select(Map);
     }
 
@@ -36,6 +39,8 @@ public sealed class GetDocumentsQueryHandler(IUnitOfWork unitOfWork, IBlobStorag
             CreatedAt = d.CreatedAt,
             IsExpired = expired,
             IsExpiringSoon = expiringSoon,
+            IsVisibleToEmployee = d.IsVisibleToEmployee,
+            UploadedById = d.CreatedBy,
         };
     }
 

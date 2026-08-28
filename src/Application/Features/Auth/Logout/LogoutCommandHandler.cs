@@ -2,7 +2,8 @@ namespace Application;
 
 public sealed class LogoutCommandHandler(
     IUserContext userContext,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IPermissionService permissionService)
     : IRequestHandler<LogoutCommand, Unit>
 {
     public async Task<Unit> Handle(LogoutCommand cmd, CancellationToken ct)
@@ -15,6 +16,8 @@ public sealed class LogoutCommandHandler(
             account.ClearRefreshToken();
             await unitOfWork.EnsureSaveAsync(ct);
         }
+
+        await permissionService.InvalidateCacheForUserAsync(userContext.UserId);
 
         return Unit.Value;
     }

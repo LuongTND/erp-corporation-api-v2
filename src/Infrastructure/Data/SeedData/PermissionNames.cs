@@ -107,9 +107,10 @@ public static class PermissionNames
         ["hrm:custom-fields:delete"]      = ("Xóa trường tùy chỉnh", "Xóa trường mở rộng"),
 
         // ── Tài liệu nhân sự ─────────────────────────────────────────────
-        ["hrm:documents:view"]   = ("Xem tài liệu nhân sự", "Xem tài liệu đính kèm hồ sơ nhân sự"),
-        ["hrm:documents:upload"] = ("Tải lên tài liệu", "Đính kèm tài liệu vào hồ sơ nhân sự"),
-        ["hrm:documents:delete"] = ("Xóa tài liệu", "Xóa tài liệu khỏi hồ sơ nhân sự"),
+        ["hrm:documents:view"]              = ("Xem tài liệu nhân sự", "Xem tài liệu đính kèm hồ sơ nhân sự"),
+        ["hrm:documents:upload"]            = ("Tải lên tài liệu", "Đính kèm tài liệu vào hồ sơ nhân sự"),
+        ["hrm:documents:delete"]            = ("Xóa tài liệu", "Xóa tài liệu khỏi hồ sơ nhân sự"),
+        ["hrm:documents:toggle-visibility"] = ("Điều chỉnh hiển thị tài liệu", "Bật/tắt hiển thị tài liệu với nhân viên"),
 
         // ── Nhãn hồ sơ nhân sự ───────────────────────────────────────────
         ["hrm:labels:view"]   = ("Xem nhãn hồ sơ", "Xem danh sách nhãn và nhãn gắn trên hồ sơ nhân sự"),
@@ -119,6 +120,32 @@ public static class PermissionNames
         // ── Cấu hình tuyển dụng ───────────────────────────────────────────
         ["hrm:recruitment:approver-config:view"]   = ("Xem cấu hình người duyệt tuyển dụng", "Xem danh sách người duyệt phiếu đề xuất tuyển dụng"),
         ["hrm:recruitment:approver-config:manage"] = ("Quản lý cấu hình người duyệt tuyển dụng", "Thêm, sửa, xóa cấu hình người duyệt phiếu đề xuất tuyển dụng"),
+
+        // ── Phiếu đề xuất tuyển dụng ─────────────────────────────────────
+        ["hrm:recruitment:request:view"]      = ("Xem phiếu đề xuất tuyển dụng", "Xem danh sách và chi tiết phiếu đề xuất tuyển dụng"),
+        ["hrm:recruitment:request:create"]    = ("Tạo phiếu đề xuất tuyển dụng", "Tạo mới phiếu đề xuất tuyển dụng cho cửa hàng hoặc bộ phận sản xuất"),
+        ["hrm:recruitment:request:update"]    = ("Cập nhật phiếu đề xuất tuyển dụng", "Chỉnh sửa thông tin phiếu đề xuất tuyển dụng"),
+        ["hrm:recruitment:request:submit"]    = ("Gửi phiếu đề xuất tuyển dụng", "Gửi phiếu đề xuất tuyển dụng đi để chờ duyệt"),
+        ["hrm:recruitment:request:approve"]   = ("Duyệt phiếu đề xuất tuyển dụng", "Phê duyệt phiếu đề xuất tuyển dụng"),
+        ["hrm:recruitment:request:reject"]    = ("Từ chối phiếu đề xuất tuyển dụng", "Từ chối phiếu đề xuất tuyển dụng kèm lý do"),
+        ["hrm:recruitment:request:more-info"] = ("Yêu cầu bổ sung thông tin tuyển dụng", "Yêu cầu người tạo bổ sung thêm thông tin phiếu đề xuất"),
+        ["hrm:recruitment:request:history"]   = ("Xem lịch sử duyệt tuyển dụng", "Xem lịch sử phê duyệt các phiếu đề xuất tuyển dụng"),
+
+        // ── Ứng viên ─────────────────────────────────────────────────────
+        ["hrm:recruitment:candidate:view"]     = ("Xem ứng viên", "Xem danh sách và thông tin chi tiết ứng viên"),
+        ["hrm:recruitment:candidate:create"]   = ("Thêm ứng viên", "Nhập hồ sơ ứng viên mới vào hệ thống"),
+        ["hrm:recruitment:candidate:update"]   = ("Cập nhật ứng viên", "Chỉnh sửa thông tin ứng viên"),
+        ["hrm:recruitment:candidate:upload-cv"] = ("Tải lên CV ứng viên", "Đính kèm file CV của ứng viên"),
+        ["hrm:recruitment:candidate:screen"]   = ("Sơ loại ứng viên", "Thực hiện sơ loại hồ sơ ứng viên"),
+        ["hrm:recruitment:candidate:assign"]   = ("Chuyển ứng viên sang đánh giá", "Chuyển ứng viên đạt sơ loại sang bộ phận phỏng vấn"),
+        ["hrm:recruitment:candidate:evaluate"] = ("Đánh giá ứng viên", "Nhập kết quả đánh giá phỏng vấn ứng viên"),
+        ["hrm:recruitment:candidate:reject"]   = ("Từ chối ứng viên", "Từ chối ứng viên kèm lý do"),
+        ["hrm:recruitment:candidate:hire"]     = ("Chấp nhận ứng viên vào học việc", "Chuyển ứng viên đạt sang trạng thái học việc"),
+
+        // ── Tin tuyển dụng ────────────────────────────────────────────────
+        ["hrm:recruitment:posting:manage"]       = ("Quản lý tin tuyển dụng", "Tạo và quản lý tin đăng tuyển dụng"),
+        ["hrm:recruitment:posting:paid-create"]  = ("Tạo yêu cầu kênh tuyển phí", "Tạo yêu cầu đăng tuyển trên kênh trả phí"),
+        ["hrm:recruitment:posting:paid-approve"] = ("Duyệt chi phí kênh tuyển", "Phê duyệt hoặc từ chối chi phí đăng tuyển kênh phí"),
 
         // ── Lương cơ bản ──────────────────────────────────────────────────
         ["hrm:salary:view"] = ("Xem lương nhân sự", "Xem mức lương của nhân sự"),

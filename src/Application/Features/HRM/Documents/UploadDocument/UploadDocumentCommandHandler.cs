@@ -5,10 +5,26 @@ public sealed class UploadDocumentCommandHandler(IUnitOfWork unitOfWork, IBlobSt
 {
     private const string Container = "employee-documents";
 
+    private static readonly HashSet<DocumentCategory> EmployeeAllowedCategories =
+    [
+        DocumentCategory.IdentityCard,
+        DocumentCategory.HouseholdBook,
+        DocumentCategory.JudicialRecord,
+        DocumentCategory.HealthCertificate,
+        DocumentCategory.Degree,
+        DocumentCategory.Certificate,
+        DocumentCategory.DriversLicense,
+        DocumentCategory.FoodSafetyCertificate,
+        DocumentCategory.Other,
+    ];
+
     public async Task<EmployeeDocumentResponse> Handle(UploadDocumentCommand cmd, CancellationToken ct)
     {
-        var userExists = await unitOfWork.Repository<User>().FindAsync(u => u.Id == cmd.UserId, ct)
+        _ = await unitOfWork.Repository<User>().FindAsync(u => u.Id == cmd.UserId, ct)
             ?? throw new NotFoundException($"User {cmd.UserId} not found");
+
+        if (!cmd.IsHrUpload && !EmployeeAllowedCategories.Contains(cmd.Category))
+            throw new ForbiddenException("Category không được phép tự upload");
 
         var ext = Path.GetExtension(cmd.OriginalFileName);
         var blobName = $"{cmd.UserId}/{Guid.NewGuid()}{ext}";
@@ -28,6 +44,7 @@ public sealed class UploadDocumentCommandHandler(IUnitOfWork unitOfWork, IBlobSt
             IssuedDate = cmd.IssuedDate,
             ExpiryDate = cmd.ExpiryDate,
             Notes = cmd.Notes,
+            IsVisibleToEmployee = cmd.IsVisibleToEmployee,
             CreatedAt = DateTimeOffset.UtcNow,
             CreatedBy = currentUser.UserId,
         };
@@ -53,6 +70,8 @@ public sealed class UploadDocumentCommandHandler(IUnitOfWork unitOfWork, IBlobSt
             CreatedAt = doc.CreatedAt,
             IsExpired = doc.ExpiryDate.HasValue && doc.ExpiryDate.Value < now,
             IsExpiringSoon = doc.ExpiryDate.HasValue && doc.ExpiryDate.Value >= now && doc.ExpiryDate.Value < now.Add(warnWindow),
+            IsVisibleToEmployee = doc.IsVisibleToEmployee,
+            UploadedById = doc.CreatedBy,
         };
     }
 }

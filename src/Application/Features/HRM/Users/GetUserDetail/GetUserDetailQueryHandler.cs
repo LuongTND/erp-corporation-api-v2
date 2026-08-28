@@ -7,10 +7,15 @@ public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStora
 {
     public async Task<UserDetailResponse> Handle(GetUserDetailQuery query, CancellationToken ct)
     {
-        var scopedQuery = await dataScope.ApplyScopeAsync(
-            unitOfWork.Repository<User>().Query().Where(u => u.Id == query.UserId), query.CallerId, ct);
-        if (!await scopedQuery.AnyAsync(ct))
-            throw new ForbiddenException("Bạn không có quyền xem hồ sơ nhân sự này");
+        // Tự xem hồ sơ của mình — bỏ qua data-scope để tránh bị chặn bởi scope Store/Region
+        var isSelf = query.UserId == query.CallerId;
+        if (!isSelf)
+        {
+            var scopedQuery = await dataScope.ApplyScopeAsync(
+                unitOfWork.Repository<User>().Query().Where(u => u.Id == query.UserId), query.CallerId, ct);
+            if (!await scopedQuery.AnyAsync(ct))
+                throw new ForbiddenException("Bạn không có quyền xem hồ sơ nhân sự này");
+        }
 
         var user = await unitOfWork.Repository<User>().Query()
             .Where(u => u.Id == query.UserId)
