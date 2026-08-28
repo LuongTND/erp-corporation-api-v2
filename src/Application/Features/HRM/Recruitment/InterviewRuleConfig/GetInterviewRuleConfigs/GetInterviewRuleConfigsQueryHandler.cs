@@ -14,21 +14,7 @@ public sealed class GetInterviewRuleConfigsQueryHandler(IUnitOfWork unitOfWork)
                     (q.IsActive == null || r.IsActive == q.IsActive),
                 ct: ct);
 
-        return result.Items.OrderByDescending(r => r.Priority).Select(r => new InterviewRuleConfigResponse
-        {
-            Id = r.Id,
-            Name = r.Name,
-            Context = r.Context.ToString(),
-            RegionId = r.RegionId,
-            RegionName = r.Region?.Name,
-            DepartmentId = r.DepartmentId,
-            DepartmentName = r.Department?.DepartmentName,
-            InterviewerRoleKey = r.InterviewerRoleKey,
-            Location = r.Location.ToString(),
-            SchedulerRoleKey = r.SchedulerRoleKey,
-            NotifyRoleKey = r.NotifyRoleKey,
-            Priority = r.Priority,
-            IsActive = r.IsActive,
-        });
+        return result.Items.OrderByDescending(r => r.Priority)
+            .Select(r => r.Adapt<InterviewRuleConfigResponse>());
     }
 }

@@ -10,21 +10,7 @@ public sealed class GetInterviewSchedulesQueryHandler(IUnitOfWork unitOfWork)
         var result = await unitOfWork.Repository<Domain.InterviewSchedule>()
             .GetPagedAsync(queryInfo, filter: s => s.CandidateId == q.CandidateId, ct: ct);
 
-        return result.Items.OrderByDescending(s => s.ScheduledAt).Select(s => new InterviewScheduleResponse
-        {
-            Id = s.Id,
-            CandidateId = s.CandidateId,
-            CandidateName = s.Candidate?.FullName ?? string.Empty,
-            InterviewerId = s.InterviewerId,
-            InterviewerName = s.Interviewer?.FullName ?? string.Empty,
-            ScheduledAt = s.ScheduledAt,
-            Location = s.Location.ToString(),
-            LocationNote = s.LocationNote,
-            Status = s.Status.ToString(),
-            Notes = s.Notes,
-            InterviewResult = s.InterviewResult,
-            CompletedAt = s.CompletedAt,
-            CreatedAt = s.CreatedAt,
-        });
+        return result.Items.OrderByDescending(s => s.ScheduledAt)
+            .Select(s => s.Adapt<InterviewScheduleResponse>());
     }
 }
