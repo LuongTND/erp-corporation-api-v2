@@ -24,6 +24,8 @@ public class RecruitmentRequest : AuditableEntityBase<Guid>, ISoftDeletable
 
     public DateOnly? RequiredByDate { get; set; }
 
+    public string RequestCode { get; set; } = string.Empty;
+
     public RecruitmentRequestStatus Status { get; set; } = RecruitmentRequestStatus.Draft;
 
     public string? RejectionNote { get; set; }
@@ -33,6 +35,7 @@ public class RecruitmentRequest : AuditableEntityBase<Guid>, ISoftDeletable
     public Guid? Level1ApproverId { get; set; }
     public User? Level1Approver { get; set; }
     public DateTimeOffset? Level1ApprovedAt { get; set; }
+    public string? Level1Note { get; set; }
 
     // Duyệt cấp 2: Trưởng phòng Nhân sự
     public Guid? Level2ApproverId { get; set; }

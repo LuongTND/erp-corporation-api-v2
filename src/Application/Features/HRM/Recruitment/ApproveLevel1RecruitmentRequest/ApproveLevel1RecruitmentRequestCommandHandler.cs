@@ -15,6 +15,7 @@ public sealed class ApproveLevel1RecruitmentRequestCommandHandler(IUnitOfWork un
         request.Status = RecruitmentRequestStatus.PendingLevel2Approval;
         request.Level1ApproverId = userContext.UserId;
         request.Level1ApprovedAt = DateTimeOffset.UtcNow;
+        request.Level1Note = cmd.Note;
 
         await unitOfWork.EnsureSaveAsync(ct);
         return Unit.Value;

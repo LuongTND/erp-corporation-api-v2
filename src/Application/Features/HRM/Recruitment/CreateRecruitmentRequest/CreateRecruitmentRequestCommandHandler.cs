@@ -29,6 +29,7 @@ public sealed class CreateRecruitmentRequestCommandHandler(
         var request = new RecruitmentRequest
         {
             Id = Guid.NewGuid(),
+            RequestCode = $"RQ-{DateTime.UtcNow:yyyyMM}-{Guid.NewGuid().ToString("N")[..6].ToUpper()}",
             RequestContext = cmd.RequestContext,
             DepartmentId = cmd.DepartmentId,
             StoreId = cmd.StoreId,

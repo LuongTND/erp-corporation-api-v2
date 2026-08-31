@@ -4,6 +4,7 @@ public sealed class JobPostingResponse
 {
     public Guid Id { get; init; }
     public Guid RecruitmentRequestId { get; init; }
+    public string? RequestCode { get; init; }
     public string Title { get; init; } = string.Empty;
     public string Channel { get; init; } = string.Empty;
     public string? PostUrl { get; init; }

@@ -13,6 +13,12 @@ public class RecruitmentRequestConfiguration : AuditableEntityConfiguration<Recr
             .HasMaxLength(50)
             .IsRequired();
 
+        builder.Property(r => r.RequestCode)
+            .HasMaxLength(30)
+            .IsRequired();
+
+        builder.HasIndex(r => r.RequestCode).IsUnique();
+
         builder.Property(r => r.PositionTitle)
             .HasMaxLength(200)
             .IsRequired();
@@ -36,6 +42,9 @@ public class RecruitmentRequestConfiguration : AuditableEntityConfiguration<Recr
             .HasMaxLength(1000);
 
         builder.Property(r => r.NeedMoreInfoNote)
+            .HasMaxLength(1000);
+
+        builder.Property(r => r.Level1Note)
             .HasMaxLength(1000);
 
         // soft delete

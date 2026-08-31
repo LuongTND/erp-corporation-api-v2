@@ -13,6 +13,7 @@ public sealed class HireCandidateCommandHandler(IUnitOfWork unitOfWork)
             throw new BadRequestException("Chỉ có thể tuyển ứng viên đang ở giai đoạn phỏng vấn.");
 
         candidate.Stage = CandidateStage.Hired;
+        candidate.TrialStartDate = cmd.TrialStartDate;
         await unitOfWork.EnsureSaveAsync(ct);
         return Unit.Value;
     }

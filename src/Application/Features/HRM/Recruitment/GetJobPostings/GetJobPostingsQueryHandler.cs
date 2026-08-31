@@ -9,6 +9,9 @@ public sealed class GetJobPostingsQueryHandler(IUnitOfWork unitOfWork)
         var result = await unitOfWork.Repository<JobPosting>()
             .GetPagedAsync(queryInfo, filter: p => p.RecruitmentRequestId == q.RecruitmentRequestId, ct: ct);
 
+        var recruitmentRequest = await unitOfWork.Repository<RecruitmentRequest>()
+            .FindAsync(r => r.Id == q.RecruitmentRequestId, ct);
+
         return new QueryResult<JobPostingResponse>
         {
             TotalCount = result.TotalCount,
@@ -16,6 +19,7 @@ public sealed class GetJobPostingsQueryHandler(IUnitOfWork unitOfWork)
             {
                 Id = p.Id,
                 RecruitmentRequestId = p.RecruitmentRequestId,
+                RequestCode = recruitmentRequest?.RequestCode,
                 Title = p.Title,
                 Channel = p.Channel.ToString(),
                 PostUrl = p.PostUrl,
