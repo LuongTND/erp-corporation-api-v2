@@ -47,6 +47,16 @@ public class RecruitmentRequestConfiguration : AuditableEntityConfiguration<Recr
         builder.Property(r => r.Level1Note)
             .HasMaxLength(1000);
 
+        builder.Property(r => r.Level2Note)
+            .HasMaxLength(1000);
+
+        builder.Property(r => r.WorkflowInstanceId).IsRequired(false);
+
+        builder.HasOne(r => r.WorkflowInstance)
+            .WithMany()
+            .HasForeignKey(r => r.WorkflowInstanceId)
+            .OnDelete(DeleteBehavior.NoAction);
+
         // soft delete
         builder.Property(r => r.IsDeleted).HasDefaultValue(false).IsRequired();
         builder.Property(r => r.DeletedAt).IsRequired(false);

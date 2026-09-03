@@ -57,8 +57,8 @@ public sealed class RecruitmentRequestsController(ISender sender) : ControllerBa
     [HasPermission(RecruitmentPermissions.ApproveRequest)]
     [HttpPost("{requestId:guid}/approve")]
     public async Task<ActionResult<ApiResponse<Unit>>> Approve(
-        Guid requestId, CancellationToken ct)
-        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new ApproveRecruitmentRequestCommand(requestId), ct)));
+        Guid requestId, [FromBody] ApproveRecruitmentRequestCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { RequestId = requestId }, ct)));
 
     // HRM-052
     [HasPermission(RecruitmentPermissions.RejectRequest)]

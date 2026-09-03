@@ -42,8 +42,10 @@ public class RecruitmentRequest : AuditableEntityBase<Guid>, ISoftDeletable
     public Guid? Level2ApproverId { get; set; }
     public User? Level2Approver { get; set; }
     public DateTimeOffset? Level2ApprovedAt { get; set; }
+    public string? Level2Note { get; set; }
 
-    public Guid? ApprovalRequestId { get; set; }
+    public Guid? WorkflowInstanceId { get; set; }
+    public WorkflowInstance? WorkflowInstance { get; set; }
 
     public bool IsDeleted { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
