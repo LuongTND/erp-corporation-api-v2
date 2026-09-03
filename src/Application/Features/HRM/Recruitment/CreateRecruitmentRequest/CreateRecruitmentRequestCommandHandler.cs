@@ -21,9 +21,12 @@ public sealed class CreateRecruitmentRequestCommandHandler(
             if (!cmd.StoreId.HasValue)
                 throw new BadRequestException("StoreId bắt buộc khi RequestContext = Store.");
 
-            _ = await unitOfWork.Repository<Store>()
+            var store = await unitOfWork.Repository<Store>()
                 .FindAsync(s => s.Id == cmd.StoreId.Value, ct)
                 ?? throw new NotFoundException(ExceptionMessages.NotFound("Store", cmd.StoreId.Value));
+
+            if (store.ManagerId != currentUser.UserId)
+                throw new ForbiddenException("Bạn không phải quản lý của cửa hàng này.");
         }
 
         var request = new RecruitmentRequest

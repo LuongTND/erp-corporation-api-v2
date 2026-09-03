@@ -20,9 +20,10 @@ public sealed class RecruitmentRequestsController(ISender sender) : ControllerBa
         [FromQuery] RecruitmentRequestContext? requestContext,
         [FromQuery] Guid? departmentId,
         [FromQuery] Guid? storeId,
+        [FromQuery] Guid? requestedByUserId,
         CancellationToken ct)
         => Ok(ApiResponse<QueryResult<RecruitmentRequestResponse>>.Ok(
-            await sender.Send(new GetRecruitmentRequestsQuery(queryInfo, status, requestContext, departmentId, storeId), ct)));
+            await sender.Send(new GetRecruitmentRequestsQuery(queryInfo, status, requestContext, departmentId, storeId, requestedByUserId), ct)));
 
     // HRM-054: kèm approval history
     [HasPermission(RecruitmentPermissions.ViewRequest)]

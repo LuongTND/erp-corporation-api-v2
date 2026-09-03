@@ -10,6 +10,7 @@ public class RecruitmentRequest : AuditableEntityBase<Guid>, ISoftDeletable
 
     // HRM-045: QLCH — set khi RequestContext = Store
     public Guid? StoreId { get; set; }
+    public Store? Store { get; set; }
 
     public string PositionTitle { get; set; } = string.Empty;
 

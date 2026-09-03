@@ -15,6 +15,7 @@ public sealed class GetRecruitmentRequestDetailQueryHandler(IUnitOfWork unitOfWo
         return new RecruitmentRequestDetailResponse
         {
             Id = r.Id,
+            RequestCode = r.RequestCode,
             RequestContext = r.RequestContext.ToString(),
             DepartmentId = r.DepartmentId,
             StoreId = r.StoreId,

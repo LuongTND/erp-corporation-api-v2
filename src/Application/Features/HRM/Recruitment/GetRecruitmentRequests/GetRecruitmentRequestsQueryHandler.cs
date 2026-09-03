@@ -13,7 +13,8 @@ public sealed class GetRecruitmentRequestsQueryHandler(IUnitOfWork unitOfWork)
                     (!q.Status.HasValue || r.Status == q.Status.Value) &&
                     (!q.RequestContext.HasValue || r.RequestContext == q.RequestContext.Value) &&
                     (!q.DepartmentId.HasValue || r.DepartmentId == q.DepartmentId.Value) &&
-                    (!q.StoreId.HasValue || r.StoreId == q.StoreId.Value),
+                    (!q.StoreId.HasValue || r.StoreId == q.StoreId.Value) &&
+                    (!q.RequestedByUserId.HasValue || r.RequestedByUserId == q.RequestedByUserId.Value),
                 ct: ct);
 
         return new QueryResult<RecruitmentRequestResponse>
@@ -22,10 +23,12 @@ public sealed class GetRecruitmentRequestsQueryHandler(IUnitOfWork unitOfWork)
             Items = result.Items.Select(r => new RecruitmentRequestResponse
             {
                 Id = r.Id,
+                RequestCode = r.RequestCode,
                 RequestContext = r.RequestContext.ToString(),
                 DepartmentId = r.DepartmentId,
                 DepartmentName = r.Department?.DepartmentName,
                 StoreId = r.StoreId,
+                StoreName = r.Store?.Name,
                 PositionTitle = r.PositionTitle,
                 RequestedByUserId = r.RequestedByUserId,
                 RequestedByName = r.RequestedBy?.FullName ?? string.Empty,

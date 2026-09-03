@@ -1,6 +1,6 @@
 namespace Application;
 
-public sealed class UpdateRecruitmentRequestCommandHandler(IUnitOfWork unitOfWork)
+public sealed class UpdateRecruitmentRequestCommandHandler(IUnitOfWork unitOfWork, IUserContext currentUser)
     : IRequestHandler<UpdateRecruitmentRequestCommand, Unit>
 {
     public async Task<Unit> Handle(UpdateRecruitmentRequestCommand cmd, CancellationToken ct)
@@ -8,6 +8,9 @@ public sealed class UpdateRecruitmentRequestCommandHandler(IUnitOfWork unitOfWor
         var request = await unitOfWork.Repository<RecruitmentRequest>()
             .FindAsync(r => r.Id == cmd.RequestId, ct)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("RecruitmentRequest", cmd.RequestId));
+
+        if (request.RequestedByUserId != currentUser.UserId)
+            throw new ForbiddenException("Bạn không có quyền cập nhật phiếu này.");
 
         if (request.Status is not (RecruitmentRequestStatus.Draft or RecruitmentRequestStatus.NeedMoreInfo))
             throw new BadRequestException("Chỉ có thể cập nhật phiếu ở trạng thái Draft hoặc NeedMoreInfo.");

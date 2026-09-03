@@ -3,6 +3,7 @@ namespace Contract;
 public class RecruitmentRequestResponse
 {
     public Guid Id { get; init; }
+    public string RequestCode { get; init; } = string.Empty;
     public string RequestContext { get; init; } = string.Empty;
     public Guid? DepartmentId { get; init; }
     public string? DepartmentName { get; init; }
