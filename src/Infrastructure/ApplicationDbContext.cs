@@ -1,5 +1,4 @@
 using Role = Domain.Role;
-using TaskItemStatus = Domain.TaskItemStatus;
 
 namespace Infrastructure;
 
@@ -53,53 +52,13 @@ public sealed class ApplicationDbContext(
     public DbSet<RegionHours> RegionHours => Set<RegionHours>();
     public DbSet<Store> Stores => Set<Store>();
     public DbSet<StoreHours> StoreHours => Set<StoreHours>();
-    public DbSet<Counter> Counters => Set<Counter>();
     public DbSet<UserStore> UserStores => Set<UserStore>();
-    public DbSet<JobLevel> JobLevels => Set<JobLevel>();
+    public DbSet<JobTitle> JobTitles => Set<JobTitle>();
     public DbSet<EmployeeType> EmployeeTypes => Set<EmployeeType>();
-    public DbSet<DepartmentJobLevel> DepartmentJobLevels => Set<DepartmentJobLevel>();
-    public DbSet<BonusPolicy> BonusPolicies => Set<BonusPolicy>();
-
-    // KPI
-    public DbSet<KpiTemplate> KpiTemplates => Set<KpiTemplate>();
-    public DbSet<KpiMetric> KpiMetrics => Set<KpiMetric>();
-    public DbSet<KpiEntry> KpiEntries => Set<KpiEntry>();
-
     // Contracts
     public DbSet<ContractTemplate> ContractTemplates => Set<ContractTemplate>();
     public DbSet<EmploymentContract> EmploymentContracts => Set<EmploymentContract>();
 
-
-    // Salary
-    public DbSet<SalaryRecord> SalaryRecords => Set<SalaryRecord>();
-
-    // Payroll
-    public DbSet<PayrollRun> PayrollRuns => Set<PayrollRun>();
-    public DbSet<PayrollEntry> PayrollEntries => Set<PayrollEntry>();
-
-    // Tasks
-    public DbSet<TaskItemStatus> TaskStatuses => Set<TaskItemStatus>();
-    public DbSet<TaskPriority> TaskPriorities => Set<TaskPriority>();
-    public DbSet<TaskItem> TaskItems => Set<TaskItem>();
-    public DbSet<TaskAssignee> TaskAssignees => Set<TaskAssignee>();
-    public DbSet<TaskFollower> TaskFollowers => Set<TaskFollower>();
-    public DbSet<TaskComment> TaskComments => Set<TaskComment>();
-    public DbSet<TaskAttachment> TaskAttachments => Set<TaskAttachment>();
-    public DbSet<TaskActivityLog> TaskActivityLogs => Set<TaskActivityLog>();
-    public DbSet<TaskKpi> TaskKpis => Set<TaskKpi>();
-    public DbSet<TaskLmsCourse> TaskLmsCourses => Set<TaskLmsCourse>();
-    public DbSet<TaskTemplate> TaskTemplates => Set<TaskTemplate>();
-    public DbSet<TaskDependency> TaskDependencies => Set<TaskDependency>();
-
-    // Chat
-    public DbSet<Conversation> Conversations => Set<Conversation>();
-    public DbSet<ConversationMember> ConversationMembers => Set<ConversationMember>();
-    public DbSet<ConversationActivityLog> ConversationActivityLogs => Set<ConversationActivityLog>();
-    public DbSet<Message> Messages => Set<Message>();
-    public DbSet<MessageAttachment> MessageAttachments => Set<MessageAttachment>();
-    public DbSet<MessageReaction> MessageReactions => Set<MessageReaction>();
-    public DbSet<MessageReadStatus> MessageReadStatuses => Set<MessageReadStatus>();
-    public DbSet<MessageTask> MessageTasks => Set<MessageTask>();
 
     // Notifications
     public DbSet<NotificationEventType> NotificationEventTypes => Set<NotificationEventType>();

@@ -23,21 +23,21 @@ public sealed class GetMyStoreMembersQueryHandler(IUnitOfWork unitOfWork, IUserC
             filter: u => userIds.Contains(u.Id),
             ct: ct)).Items.ToDictionary(u => u.Id);
 
-        var levelIds = users.Values.Where(u => u.JobLevelId.HasValue)
-            .Select(u => u.JobLevelId!.Value).Distinct().ToList();
+        var levelIds = users.Values.Where(u => u.JobTitleId.HasValue)
+            .Select(u => u.JobTitleId!.Value).Distinct().ToList();
         var jobLevels = levelIds.Count > 0
-            ? (await unitOfWork.Repository<JobLevel>().GetPagedAsync(
+            ? (await unitOfWork.Repository<JobTitle>().GetPagedAsync(
                 new QueryInfo { Top = levelIds.Count, NeedTotalCount = false },
                 filter: jl => levelIds.Contains(jl.Id),
                 ct: ct)).Items.ToDictionary(jl => jl.Id)
-            : new Dictionary<Guid, JobLevel>();
+            : new Dictionary<Guid, JobTitle>();
 
         return memberships
             .Where(us => users.ContainsKey(us.UserId))
             .Select(us =>
             {
                 var user = users[us.UserId];
-                jobLevels.TryGetValue(user.JobLevelId ?? Guid.Empty, out var level);
+                jobLevels.TryGetValue(user.JobTitleId ?? Guid.Empty, out var level);
                 return new StoreMemberResponse
                 {
                     UserStoreId = us.Id,
@@ -46,7 +46,7 @@ public sealed class GetMyStoreMembersQueryHandler(IUnitOfWork unitOfWork, IUserC
                     EmployeeCode = user.EmployeeCode,
                     Email = user.Email,
                     AvatarUrl = user.AvatarUrl,
-                    JobLevelName = level?.LevelName,
+                    JobName = level?.Name,
                     IsHomeStore = us.IsHomeStore,
                     StartDate = us.StartDate,
                 };

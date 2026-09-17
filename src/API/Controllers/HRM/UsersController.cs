@@ -48,12 +48,6 @@ public sealed class UsersController(ISender sender) : ControllerBase
         Guid userId, [FromBody] IEnumerable<CustomFieldValueInput> values, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(new UpsertUserCustomFieldValuesCommand(userId, values), ct)));
 
-    [HasPermission(UserPermissions.RemoveJobLevel)]
-    [HttpDelete("{userId:guid}/job-level")]
-    public async Task<ActionResult<ApiResponse<Unit>>> UnassignJobLevel(
-        Guid userId, CancellationToken ct)
-        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new UnassignJobLevelCommand(userId), ct)));
-
     // --- Department ---
 
     [HasPermission(UserPermissions.AddDepartment)]

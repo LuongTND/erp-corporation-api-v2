@@ -13,10 +13,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase<G
         _dbSet = db.Set<T>();
     }
 
-    public async Task<T> AddAsync(T entity)
+    public Task<T> AddAsync(T entity)
     {
-        await _dbSet.AddAsync(entity);
-        return entity;
+        _dbSet.Add(entity);
+        return Task.FromResult(entity);
     }
 
     public Task RemoveAsync(T entity)

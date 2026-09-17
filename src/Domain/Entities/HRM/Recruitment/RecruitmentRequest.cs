@@ -31,18 +31,7 @@ public class RecruitmentRequest : AuditableEntityBase<Guid>, ISoftDeletable
 
     public string? RejectionNote { get; set; }
     public string? NeedMoreInfoNote { get; set; }
-
-    // Duyệt cấp 1: Giám sát vùng / Trưởng BP
-    public Guid? Level1ApproverId { get; set; }
-    public User? Level1Approver { get; set; }
-    public DateTimeOffset? Level1ApprovedAt { get; set; }
-    public string? Level1Note { get; set; }
-
-    // Duyệt cấp 2: Trưởng phòng Nhân sự
-    public Guid? Level2ApproverId { get; set; }
-    public User? Level2Approver { get; set; }
-    public DateTimeOffset? Level2ApprovedAt { get; set; }
-    public string? Level2Note { get; set; }
+    public string? CancelNote { get; set; }
 
     public Guid? WorkflowInstanceId { get; set; }
     public WorkflowInstance? WorkflowInstance { get; set; }

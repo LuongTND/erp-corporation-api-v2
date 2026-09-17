@@ -9,14 +9,14 @@ public sealed class UpdateWorkflowStepCommandHandler(IUnitOfWork unitOfWork)
             .FindTrackedAsync(s => s.Id == cmd.StepId && s.TemplateId == cmd.TemplateId, ct)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("WorkflowTemplateStep", cmd.StepId));
 
-        if (cmd.ApproverType == WorkflowApproverType.SpecificUser && !cmd.ApproverId.HasValue)
-            throw new BadRequestException("SpecificUser yêu cầu ApproverId.");
+        if (cmd.ApproverType is WorkflowApproverType.SpecificUser or WorkflowApproverType.Role && !cmd.ApproverId.HasValue)
+            throw new BadRequestException($"{cmd.ApproverType} yêu cầu ApproverId.");
 
         step.StepName = cmd.StepName;
         step.ApproverType = cmd.ApproverType;
-        step.ApproverId = cmd.ApproverType == WorkflowApproverType.SpecificUser ? cmd.ApproverId : null;
+        step.ApproverId = cmd.ApproverType == WorkflowApproverType.OrgUnitManager ? null : cmd.ApproverId;
 
-        await unitOfWork.EnsureSaveAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
         return Unit.Value;
     }
 }

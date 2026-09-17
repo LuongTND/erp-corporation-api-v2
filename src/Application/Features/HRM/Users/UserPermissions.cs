@@ -30,7 +30,7 @@ public static class UserPermissions
     public const string AssignEmployeeType = "hrm:users:assign-employee-type";
 
     [PermissionInfo("Xóa cấp bậc nhân sự", "Gỡ bỏ cấp bậc công việc của nhân sự")]
-    public const string RemoveJobLevel = "hrm:users:remove-job-level";
+    public const string RemoveJobTitle = "hrm:users:remove-job-level";
 
     [PermissionInfo("Thêm nhân sự vào phòng ban", "Gán nhân sự vào một phòng ban")]
     public const string AddDepartment = "hrm:users:add-department";

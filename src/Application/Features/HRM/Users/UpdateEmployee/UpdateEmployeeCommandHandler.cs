@@ -8,7 +8,7 @@ public sealed class UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork, IUserCo
         // Single tracked query with includes — replaces 4+ sequential FindTrackedAsync calls
         var user = await unitOfWork.Repository<User>()
             .Query(tracking: true)
-            .Include(u => u.JobLevel)
+            .Include(u => u.JobTitle)
             .Include(u => u.Manager)
             .Include(u => u.Profile)
             .Include(u => u.Identity)
@@ -19,18 +19,18 @@ public sealed class UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork, IUserCo
         var now = DateTimeOffset.UtcNow;
         var workLogs = new List<WorkHistory>();
 
-        // JobLevel: validate new + build audit log using already-loaded old name
-        if (cmd.JobLevelId != user.JobLevelId)
+        // JobTitle: validate new + build audit log using already-loaded old name
+        if (cmd.JobTitleId != user.JobTitleId)
         {
-            string? newLevelName = null;
-            if (cmd.JobLevelId.HasValue)
+            string? newName = null;
+            if (cmd.JobTitleId.HasValue)
             {
-                var newLevel = await unitOfWork.Repository<JobLevel>()
-                    .FindAsync(j => j.Id == cmd.JobLevelId.Value && !j.IsDeleted, ct)
-                    ?? throw new NotFoundException(ExceptionMessages.NotFound("JobLevel", cmd.JobLevelId.Value));
-                newLevelName = newLevel.LevelName;
+                var newLevel = await unitOfWork.Repository<JobTitle>()
+                    .FindAsync(j => j.Id == cmd.JobTitleId.Value && !j.IsDeleted, ct)
+                    ?? throw new NotFoundException(ExceptionMessages.NotFound("JobTitle", cmd.JobTitleId.Value));
+                newName = newLevel.Name;
             }
-            workLogs.Add(new WorkHistory { Id = Guid.NewGuid(), UserId = cmd.UserId, ChangeType = WorkHistoryChangeType.JobLevel, OldValue = user.JobLevel?.LevelName, NewValue = newLevelName, ChangedBy = currentUser.UserId, ChangedAt = now });
+            workLogs.Add(new WorkHistory { Id = Guid.NewGuid(), UserId = cmd.UserId, ChangeType = WorkHistoryChangeType.JobTitle, OldValue = user.JobTitle?.Name, NewValue = newName, ChangedBy = currentUser.UserId, ChangedAt = now });
         }
 
         // Manager: validate new + build audit log using already-loaded old name
@@ -48,7 +48,7 @@ public sealed class UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork, IUserCo
         }
 
         user.FullName = cmd.FullName;
-        user.JobLevelId = cmd.JobLevelId;
+        user.JobTitleId = cmd.JobTitleId;
         user.ManagerId = cmd.ManagerId;
 
         // Profile — skip entirely if no fields provided; only update non-null fields

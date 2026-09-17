@@ -8,6 +8,11 @@ public sealed record WorkflowTaskResponse
     public Guid EntityId { get; init; }
     public int StepOrder { get; init; }
     public string StepName { get; init; } = string.Empty;
+    public Guid? AssignedTo { get; init; }
+    public Guid? AssignedToRoleId { get; init; }
+    public string AssignedToName { get; init; } = string.Empty;
+    public Guid? ActedByUserId { get; init; }
+    public string ActedByName { get; init; } = string.Empty;
     public string Status { get; init; } = string.Empty;
     public string? Note { get; init; }
     public DateTimeOffset? ActedAt { get; init; }

@@ -12,7 +12,7 @@ public sealed class RejectRecruitmentRequestCommandHandler(
             .FindTrackedAsync(r => r.Id == cmd.RequestId, ct)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("RecruitmentRequest", cmd.RequestId));
 
-        if (request.Status is not (RecruitmentRequestStatus.PendingLevel1Approval or RecruitmentRequestStatus.PendingLevel2Approval))
+        if (request.Status != RecruitmentRequestStatus.PendingApproval)
             throw new BadRequestException("Chỉ có thể từ chối phiếu đang chờ duyệt.");
 
         if (!request.WorkflowInstanceId.HasValue)

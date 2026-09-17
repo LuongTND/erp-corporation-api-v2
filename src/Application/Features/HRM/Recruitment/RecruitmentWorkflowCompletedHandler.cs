@@ -11,9 +11,14 @@ public sealed class RecruitmentWorkflowCompletedHandler(IUnitOfWork unitOfWork)
             .FindTrackedAsync(r => r.Id == notification.EntityId, ct)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("RecruitmentRequest", notification.EntityId));
 
-        request.Status = notification.FinalStatus == WorkflowInstanceStatus.Completed
-            ? RecruitmentRequestStatus.Approved
-            : RecruitmentRequestStatus.Rejected;
+        request.Status = notification.FinalStatus switch
+        {
+            WorkflowInstanceStatus.Completed => RecruitmentRequestStatus.Approved,
+            WorkflowInstanceStatus.Rejected  => RecruitmentRequestStatus.Rejected,
+            WorkflowInstanceStatus.Cancelled when request.Status == RecruitmentRequestStatus.PendingApproval
+                => RecruitmentRequestStatus.Cancelled,
+            _ => request.Status, // NeedMoreInfo flow: status đã set trước khi cancel, giữ nguyên
+        };
 
         await unitOfWork.EnsureSaveAsync(ct);
     }

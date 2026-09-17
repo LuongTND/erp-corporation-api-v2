@@ -12,7 +12,6 @@ public static class SignalRExtensions
 
     public static WebApplication MapHubs(this WebApplication app)
     {
-        app.MapHub<ChatHub>(ChatHub.HubPath);
         app.MapHub<NotificationHub>(NotificationHub.HubPath);
         return app;
     }

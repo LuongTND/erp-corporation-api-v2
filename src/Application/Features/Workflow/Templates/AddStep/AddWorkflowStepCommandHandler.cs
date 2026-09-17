@@ -10,8 +10,8 @@ public sealed class AddWorkflowStepCommandHandler(IUnitOfWork unitOfWork)
         if (!templateExists)
             throw new NotFoundException(ExceptionMessages.NotFound("WorkflowTemplate", cmd.TemplateId));
 
-        if (cmd.ApproverType == WorkflowApproverType.SpecificUser && !cmd.ApproverId.HasValue)
-            throw new BadRequestException("SpecificUser yêu cầu ApproverId.");
+        if (cmd.ApproverType is WorkflowApproverType.SpecificUser or WorkflowApproverType.Role && !cmd.ApproverId.HasValue)
+            throw new BadRequestException($"{cmd.ApproverType} yêu cầu ApproverId.");
 
         var orderConflict = await unitOfWork.Repository<WorkflowTemplateStep>()
             .AnyAsync(s => s.TemplateId == cmd.TemplateId && s.StepOrder == cmd.StepOrder, ct);
@@ -25,7 +25,7 @@ public sealed class AddWorkflowStepCommandHandler(IUnitOfWork unitOfWork)
             StepOrder = cmd.StepOrder,
             StepName = cmd.StepName,
             ApproverType = cmd.ApproverType,
-            ApproverId = cmd.ApproverType == WorkflowApproverType.SpecificUser ? cmd.ApproverId : null,
+            ApproverId = cmd.ApproverType == WorkflowApproverType.OrgUnitManager ? null : cmd.ApproverId,
             CreatedAt = DateTimeOffset.UtcNow,
         };
 

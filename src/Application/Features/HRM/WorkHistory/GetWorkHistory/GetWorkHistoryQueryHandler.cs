@@ -68,7 +68,7 @@ public sealed class GetWorkHistoryQueryHandler(IUnitOfWork unitOfWork)
     private static string ChangeTypeLabel(WorkHistoryChangeType type) => type switch
     {
         WorkHistoryChangeType.Status       => "Trạng thái",
-        WorkHistoryChangeType.JobLevel     => "Chức danh",
+        WorkHistoryChangeType.JobTitle     => "Chức danh",
         WorkHistoryChangeType.Department   => "Bộ phận",
         WorkHistoryChangeType.Salary       => "Lương",
         WorkHistoryChangeType.ContractType => "Loại hợp đồng",

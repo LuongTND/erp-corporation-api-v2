@@ -11,8 +11,8 @@ public sealed class UserDetailResponse
     public bool IsActive { get; init; }
     public bool IsLocked { get; init; }
 
-    public Guid? JobLevelId { get; init; }
-    public string? JobLevelName { get; init; }
+    public Guid? JobTitleId { get; init; }
+    public string? JobName { get; init; }
     public Guid? ManagerId { get; init; }
     public string? ManagerName { get; init; }
     public Guid? EmployeeTypeId { get; init; }
@@ -75,3 +75,4 @@ public sealed class CustomFieldValueResponse
     public int SortOrder { get; init; }
     public string Value { get; init; } = string.Empty;
 }
+

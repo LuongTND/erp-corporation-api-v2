@@ -50,15 +50,7 @@ public sealed class AuthController(ISender sender) : ControllerBase
         => Ok(ApiResponse<UserDetailResponse>.Ok(
             await sender.Send(new GetUserDetailQuery(userContext.UserId, userContext.UserId), ct)));
 
-    // Nhân viên xem lương hiện tại của mình — khác GET /api/hr/users/{id}/salary/current (admin only).
-    [Authorize]
-    [HttpGet("me/salary")]
-    public async Task<ActionResult<ApiResponse<SalaryRecordResponse?>>> MySalary(
-        [FromServices] IUserContext userContext, CancellationToken ct)
-        => Ok(ApiResponse<SalaryRecordResponse?>.Ok(
-            await sender.Send(new GetCurrentSalaryQuery(userContext.UserId), ct)));
-
-    // Nhân viên tự cập nhật thông tin cá nhân, giấy tờ, tài chính — không cho sửa FullName/JobLevel/Manager (HR quản lý).
+    // Nhân viên tự cập nhật thông tin cá nhân, giấy tờ, tài chính — không cho sửa FullName/JobTitle/Manager (HR quản lý).
     [Authorize]
     [HttpPatch("me/profile")]
     public async Task<ActionResult<ApiResponse<Unit>>> UpdateMyProfile(

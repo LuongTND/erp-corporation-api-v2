@@ -50,7 +50,7 @@ public sealed class GetUsersQueryHandler(IUnitOfWork unitOfWork, IBlobStorageSer
         var users = await q
             .Where(u => (query.Status == null ? u.IsActive : u.Status == query.Status.Value)
                 && (query.Search == null || u.FullName.Contains(query.Search) || u.EmployeeCode.Contains(query.Search))
-                && (query.JobLevelId == null || u.JobLevelId == query.JobLevelId)
+                && (query.JobTitleId == null || u.JobTitleId == query.JobTitleId)
                 && (deptUserIds == null || deptUserIds.Contains(u.Id))
                 && (labelUserIds == null || labelUserIds.Contains(u.Id))
                 && (storeUserIds == null || storeUserIds.Contains(u.Id)))

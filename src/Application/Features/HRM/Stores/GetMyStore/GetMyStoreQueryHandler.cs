@@ -21,15 +21,6 @@ public sealed class GetMyStoreQueryHandler(IStoreRepository storeRepository, IUs
             TodayHours = store.StoreHours.FirstOrDefault() is { } h
                 ? new StoreHoursResponse(h.Id, h.StoreId, h.DayOfWeek, h.OpenTime, h.CloseTime, h.IsClosed)
                 : null,
-            Counters = store.Counters.Select(c => new CounterResponse
-            {
-                Id = c.Id,
-                StoreId = c.StoreId,
-                StoreName = store.Name,
-                Name = c.Name,
-                Code = c.Code,
-                IsActive = c.IsActive,
-            }),
         };
     }
 }

@@ -18,11 +18,15 @@ public class RecruitmentRequestResponse
     public DateOnly? RequiredByDate { get; init; }
     public string Status { get; init; } = string.Empty;
     public DateTimeOffset CreatedAt { get; init; }
+    public bool IsAssignedApprover { get; set; }
 }
 
 public sealed class RecruitmentRequestDetailResponse : RecruitmentRequestResponse
 {
     public string? RejectionNote { get; init; }
     public string? NeedMoreInfoNote { get; init; }
+    public string? CancelNote { get; init; }
+    public Guid? WorkflowInstanceId { get; init; }
+    public IEnumerable<WorkflowTaskResponse> ApprovalHistory { get; init; } = [];
     public IEnumerable<JobPostingResponse> JobPostings { get; init; } = [];
 }

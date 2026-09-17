@@ -12,10 +12,10 @@ public sealed class CreateEmployeeCommandHandler(
         if (emailTaken)
             throw new ConflictException($"Email '{cmd.Email}' đã được sử dụng.");
 
-        var jobLevelExists = await unitOfWork.Repository<JobLevel>()
-            .AnyAsync(j => j.Id == cmd.JobLevelId && !j.IsDeleted, ct);
+        var jobLevelExists = await unitOfWork.Repository<JobTitle>()
+            .AnyAsync(j => j.Id == cmd.JobTitleId && !j.IsDeleted, ct);
         if (!jobLevelExists)
-            throw new NotFoundException(ExceptionMessages.NotFound("JobLevel", cmd.JobLevelId));
+            throw new NotFoundException(ExceptionMessages.NotFound("JobTitle", cmd.JobTitleId));
 
         if (cmd.ManagerId.HasValue)
         {
@@ -41,7 +41,7 @@ public sealed class CreateEmployeeCommandHandler(
             FullName = cmd.FullName,
             Email = cmd.Email,
             AvatarUrl = cmd.AvatarUrl,
-            JobLevelId = cmd.JobLevelId,
+            JobTitleId = cmd.JobTitleId,
             ManagerId = cmd.ManagerId,
         };
         user.ChangeStatus(UserStatus.Active);

@@ -1,3 +1,3 @@
 namespace Application;
 
-public sealed record DeleteRecruitmentRequestCommand(Guid RequestId) : IRequest<Unit>;
+public sealed record DeleteRecruitmentRequestCommand(Guid RequestId, string? Note) : IRequest<Unit>;

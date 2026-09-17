@@ -44,7 +44,7 @@ public sealed class ExportUsersQueryHandler(ApplicationDbContext db, IDataScopeS
                 && (query.DepartmentId == null || u.UserDepartments.Any(ud => ud.DepartmentId == query.DepartmentId.Value && ud.IsActive))
                 && (labelUserIds == null || labelUserIds.Contains(u.Id))
                 && (storeUserIds == null || storeUserIds.Contains(u.Id)))
-            .Include(u => u.JobLevel)
+            .Include(u => u.JobTitle)
             .Include(u => u.EmploymentInfo)
             .Include(u => u.UserDepartments)
             .OrderBy(u => u.FullName)
@@ -74,7 +74,7 @@ public sealed class ExportUsersQueryHandler(ApplicationDbContext db, IDataScopeS
             ws.Cell(row, 2).Value = u.EmployeeCode;
             ws.Cell(row, 3).Value = u.FullName;
             ws.Cell(row, 4).Value = u.Email;
-            ws.Cell(row, 5).Value = u.JobLevel?.LevelName ?? "";
+            ws.Cell(row, 5).Value = u.JobTitle?.Name ?? "";
             ws.Cell(row, 6).Value = u.EmploymentInfo?.ContractType?.ToString() ?? "";
             ws.Cell(row, 7).Value = StatusLabel(u.Status);
             ws.Cell(row, 8).Value = u.EmploymentInfo?.DateOfJoin.ToString("dd/MM/yyyy") ?? "";

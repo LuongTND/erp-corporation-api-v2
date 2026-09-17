@@ -12,21 +12,15 @@ public sealed class ApproveRecruitmentRequestCommandHandler(
             .FindTrackedAsync(r => r.Id == cmd.RequestId, ct)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("RecruitmentRequest", cmd.RequestId));
 
-        if (request.Status != RecruitmentRequestStatus.PendingLevel2Approval)
-            throw new BadRequestException("Chỉ có thể duyệt cấp 2 khi phiếu đang ở trạng thái chờ duyệt cấp 2.");
+        if (request.Status != RecruitmentRequestStatus.PendingApproval)
+            throw new BadRequestException("Phiếu không ở trạng thái chờ duyệt.");
 
         if (!request.WorkflowInstanceId.HasValue)
             throw new BadRequestException("Phiếu chưa có workflow instance.");
 
+        // Engine tự guard AssignedTo + advance step; nếu complete → publish notification → RecruitmentWorkflowCompletedHandler set Approved
+        // workflowService.ApproveAsync đã gọi EnsureSaveAsync bên trong, không gọi lại ở đây
         await workflowService.ApproveAsync(request.WorkflowInstanceId.Value, userContext.UserId, cmd.Note, ct);
-
-        // double-write: Status Approved được set bởi RecruitmentWorkflowCompletedHandler,
-        // Level2 fields set ở đây để đồng bộ trong cùng request
-        request.Level2ApproverId = userContext.UserId;
-        request.Level2ApprovedAt = DateTimeOffset.UtcNow;
-        request.Level2Note = cmd.Note;
-
-        await unitOfWork.EnsureSaveAsync(ct);
         return Unit.Value;
     }
 }

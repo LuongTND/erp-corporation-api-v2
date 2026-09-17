@@ -62,50 +62,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("AuditLogs");
                 });
 
-            modelBuilder.Entity("Domain.BonusPolicy", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BonusPolicies", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Candidate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -284,197 +240,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("ContractTemplates", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Conversation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ConversationType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPrivate")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LastMessageAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Title")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Conversations", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.ConversationActivityLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("ConversationID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("UserID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConversationID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("ConversationActivityLogs", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.ConversationMember", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ConversationID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsMuted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("JoinedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("LastReadMessageID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("LeftAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("RoleInConversation")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LastReadMessageID");
-
-                    b.HasIndex("UserID");
-
-                    b.HasIndex("ConversationID", "UserID")
-                        .IsUnique();
-
-                    b.ToTable("ConversationMembers", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Counter", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid>("StoreId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StoreId", "Code")
-                        .IsUnique();
-
-                    b.ToTable("Counters", (string)null);
-                });
-
             modelBuilder.Entity("Domain.CustomFieldDefinition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -646,59 +411,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ParentDepartmentId");
 
                     b.ToTable("Departments", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.DepartmentJobLevel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("BonusPolicyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("JobLevelId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("KpiTemplateId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BonusPolicyId");
-
-                    b.HasIndex("JobLevelId");
-
-                    b.HasIndex("KpiTemplateId");
-
-                    b.HasIndex("DepartmentId", "JobLevelId")
-                        .IsUnique();
-
-                    b.ToTable("DepartmentJobLevels", (string)null);
                 });
 
             modelBuilder.Entity("Domain.EmployeeDocument", b =>
@@ -1170,50 +882,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("InterviewSchedules", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.JobLevel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LevelName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("LevelOrder")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("JobLevels", (string)null);
-                });
-
             modelBuilder.Entity("Domain.JobPosting", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1283,108 +951,16 @@ namespace Infrastructure.Migrations
                     b.ToTable("JobPostings", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.KpiEntry", b =>
+            modelBuilder.Entity("Domain.JobTitle", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("ActualValue")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("KpiMetricId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("Score")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("KpiMetricId");
-
-                    b.HasIndex("UserId", "KpiMetricId", "Month", "Year")
-                        .IsUnique();
-
-                    b.ToTable("KpiEntries", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.KpiMetric", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal>("Target")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<Guid>("TemplateId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Unit")
+                    b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("Weight")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TemplateId");
-
-                    b.ToTable("KpiMetrics", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.KpiTemplate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -1398,38 +974,33 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("JobLevelId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("UnitType")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("JobLevelId");
-
-                    b.HasIndex("DepartmentId", "JobLevelId")
-                        .IsUnique()
-                        .HasFilter("[JobLevelId] IS NOT NULL");
-
-                    b.ToTable("KpiTemplates", (string)null);
+                    b.ToTable("JobTitles", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Label", b =>
@@ -1463,206 +1034,6 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Labels", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Message", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
-
-                    b.Property<Guid>("ConversationID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("EditedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("IsEdited")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MessageType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("ParentMessageID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConversationID");
-
-                    b.HasIndex("ParentMessageID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("Messages", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.MessageAttachment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("FileSize")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FileURL")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<Guid>("MessageID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ThumbnailURL")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MessageID");
-
-                    b.ToTable("MessageAttachments", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.MessageReaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("MessageID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ReactionType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserID");
-
-                    b.HasIndex("MessageID", "UserID", "ReactionType")
-                        .IsUnique();
-
-                    b.ToTable("MessageReactions", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.MessageReadStatus", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("MessageID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("ReadAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserID");
-
-                    b.HasIndex("MessageID", "UserID")
-                        .IsUnique();
-
-                    b.ToTable("MessageReadStatuses", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.MessageTask", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("LinkedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("MessageID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("TaskID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskID");
-
-                    b.HasIndex("MessageID", "TaskID")
-                        .IsUnique();
-
-                    b.ToTable("MessageTasks", (string)null);
                 });
 
             modelBuilder.Entity("Domain.NotificationEventType", b =>
@@ -1814,133 +1185,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("NotificationTriggerBindings", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.PayrollEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("BonusAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("GrossPay")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("HealthInsurance")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("HourlyRateSnapshot")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("HoursWorked")
-                        .HasPrecision(8, 2)
-                        .HasColumnType("decimal(8,2)");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<decimal>("NetPay")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<Guid>("PayrollRunId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("PersonalIncomeTax")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("SocialInsurance")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalDeductions")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("UnemploymentIns")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("PayrollRunId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("PayrollEntries", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.PayrollRun", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Month", "Year");
-
-                    b.ToTable("PayrollRuns", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Permission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2071,6 +1315,10 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CancelNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -2097,26 +1345,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("JobDescription")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
-
-                    b.Property<DateTimeOffset?>("Level1ApprovedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("Level1ApproverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Level1Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTimeOffset?>("Level2ApprovedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("Level2ApproverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Level2Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
@@ -2172,10 +1400,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
-
-                    b.HasIndex("Level1ApproverId");
-
-                    b.HasIndex("Level2ApproverId");
 
                     b.HasIndex("RequestCode")
                         .IsUnique();
@@ -2379,48 +1603,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("RolePermissions", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.SalaryRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateOnly>("EffectiveFrom")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly?>("EffectiveTo")
-                        .HasColumnType("date");
-
-                    b.Property<decimal>("HourlyRate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "EffectiveTo");
-
-                    b.ToTable("SalaryRecords", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Store", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2536,523 +1718,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("StoreHours", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.TaskActivityLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NewValue")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("OldValue")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<Guid>("TaskID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("TaskActivityLogs", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskAssignee", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("AssignedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("AssignedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsPrimaryAssignee")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("TaskID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserID");
-
-                    b.HasIndex("TaskID", "UserID")
-                        .IsUnique();
-
-                    b.ToTable("TaskAssignees", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskAttachment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DataUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MimeType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<long>("Size")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UploadedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskId");
-
-                    b.ToTable("TaskAttachments", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskComment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("ParentCommentID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TaskID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentCommentID");
-
-                    b.HasIndex("TaskID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("TaskComments", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskDependency", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BlockedTaskId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BlockerTaskId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DependencyType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlockedTaskId");
-
-                    b.HasIndex("BlockerTaskId", "BlockedTaskId")
-                        .IsUnique();
-
-                    b.ToTable("TaskDependencies", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskFollower", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("FollowedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("TaskID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserID");
-
-                    b.HasIndex("TaskID", "UserID")
-                        .IsUnique();
-
-                    b.ToTable("TaskFollowers", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("ActualHours")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<DateTimeOffset?>("CompletedDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
-
-                    b.Property<DateTimeOffset?>("DueDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<decimal?>("EstimatedHours")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("ParentTaskId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PriorityId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Progress")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RecurringPattern")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTimeOffset?>("StartDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("StatusId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TaskCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("TaskType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentTaskId");
-
-                    b.HasIndex("PriorityId");
-
-                    b.HasIndex("StatusId");
-
-                    b.HasIndex("TaskCode")
-                        .IsUnique();
-
-                    b.ToTable("TaskItems", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskItemStatus", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFinalState")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsInitialState")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSystem")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("TaskStatuses", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskKpi", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("KpiId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("TaskID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("Weight")
-                        .HasPrecision(5, 4)
-                        .HasColumnType("decimal(5,4)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskID", "KpiId")
-                        .IsUnique();
-
-                    b.ToTable("TaskKpis", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskLmsCourse", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset?>("CompletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CompletionStatus")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<Guid>("CourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("RequiredForCompletion")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("TaskID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskID", "CourseId")
-                        .IsUnique();
-
-                    b.ToTable("TaskLmsCourses", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskPriority", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSystem")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("TaskPriorities", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.TaskTemplate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("DefaultDurationDays")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("DefaultPriorityId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("TemplateName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DefaultPriorityId");
-
-                    b.ToTable("TaskTemplates", (string)null);
-                });
-
             modelBuilder.Entity("Domain.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3090,7 +1755,7 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("JobLevelId")
+                    b.Property<Guid?>("JobTitleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ManagerId")
@@ -3120,7 +1785,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("EmployeeTypeId");
 
-                    b.HasIndex("JobLevelId");
+                    b.HasIndex("JobTitleId");
 
                     b.HasIndex("ManagerId");
 
@@ -3226,9 +1891,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("DepartmentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DepartmentJobLevelId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateOnly?>("EndDate")
                         .HasColumnType("date");
 
@@ -3250,8 +1912,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
-
-                    b.HasIndex("DepartmentJobLevelId");
 
                     b.HasIndex("UserId", "DepartmentId")
                         .IsUnique();
@@ -3500,6 +2160,12 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<Guid?>("ScopeEntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ScopeType")
+                        .HasColumnType("int");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -3527,7 +2193,13 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("ActedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid>("AssignedTo")
+                    b.Property<Guid?>("ActedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AssignedTo")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AssignedToRoleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -3545,6 +2217,12 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Note")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -3565,6 +2243,8 @@ namespace Infrastructure.Migrations
                     b.HasIndex("InstanceId");
 
                     b.HasIndex("AssignedTo", "Status");
+
+                    b.HasIndex("AssignedToRoleId", "Status");
 
                     b.ToTable("WorkflowTasks", (string)null);
                 });
@@ -3722,61 +2402,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Evaluator");
                 });
 
-            modelBuilder.Entity("Domain.ConversationActivityLog", b =>
-                {
-                    b.HasOne("Domain.Conversation", "Conversation")
-                        .WithMany("ActivityLogs")
-                        .HasForeignKey("ConversationID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Conversation");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.ConversationMember", b =>
-                {
-                    b.HasOne("Domain.Conversation", "Conversation")
-                        .WithMany("Members")
-                        .HasForeignKey("ConversationID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Message", "LastReadMessage")
-                        .WithMany()
-                        .HasForeignKey("LastReadMessageID")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Conversation");
-
-                    b.Navigation("LastReadMessage");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Counter", b =>
-                {
-                    b.HasOne("Domain.Store", "Store")
-                        .WithMany("Counters")
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Store");
-                });
-
             modelBuilder.Entity("Domain.CustomFieldOption", b =>
                 {
                     b.HasOne("Domain.CustomFieldDefinition", "Definition")
@@ -3803,39 +2428,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Manager");
 
                     b.Navigation("ParentDepartment");
-                });
-
-            modelBuilder.Entity("Domain.DepartmentJobLevel", b =>
-                {
-                    b.HasOne("Domain.BonusPolicy", "BonusPolicy")
-                        .WithMany()
-                        .HasForeignKey("BonusPolicyId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.Department", "Department")
-                        .WithMany("DepartmentJobLevels")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Domain.JobLevel", "JobLevel")
-                        .WithMany()
-                        .HasForeignKey("JobLevelId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Domain.KpiTemplate", "KpiTemplate")
-                        .WithMany()
-                        .HasForeignKey("KpiTemplateId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("BonusPolicy");
-
-                    b.Navigation("Department");
-
-                    b.Navigation("JobLevel");
-
-                    b.Navigation("KpiTemplate");
                 });
 
             modelBuilder.Entity("Domain.EmployeeDocument", b =>
@@ -3961,148 +2553,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("RecruitmentRequest");
                 });
 
-            modelBuilder.Entity("Domain.KpiEntry", b =>
-                {
-                    b.HasOne("Domain.KpiMetric", "KpiMetric")
-                        .WithMany()
-                        .HasForeignKey("KpiMetricId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("KpiMetric");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.KpiMetric", b =>
-                {
-                    b.HasOne("Domain.KpiTemplate", "Template")
-                        .WithMany("Metrics")
-                        .HasForeignKey("TemplateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Template");
-                });
-
-            modelBuilder.Entity("Domain.KpiTemplate", b =>
-                {
-                    b.HasOne("Domain.Department", "Department")
-                        .WithMany("KpiTemplates")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Domain.JobLevel", "JobLevel")
-                        .WithMany()
-                        .HasForeignKey("JobLevelId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Department");
-
-                    b.Navigation("JobLevel");
-                });
-
-            modelBuilder.Entity("Domain.Message", b =>
-                {
-                    b.HasOne("Domain.Conversation", "Conversation")
-                        .WithMany("Messages")
-                        .HasForeignKey("ConversationID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Message", "ParentMessage")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentMessageID")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Conversation");
-
-                    b.Navigation("ParentMessage");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.MessageAttachment", b =>
-                {
-                    b.HasOne("Domain.Message", "Message")
-                        .WithMany("Attachments")
-                        .HasForeignKey("MessageID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-                });
-
-            modelBuilder.Entity("Domain.MessageReaction", b =>
-                {
-                    b.HasOne("Domain.Message", "Message")
-                        .WithMany("Reactions")
-                        .HasForeignKey("MessageID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.MessageReadStatus", b =>
-                {
-                    b.HasOne("Domain.Message", "Message")
-                        .WithMany("ReadStatuses")
-                        .HasForeignKey("MessageID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.MessageTask", b =>
-                {
-                    b.HasOne("Domain.Message", "Message")
-                        .WithMany("MessageTasks")
-                        .HasForeignKey("MessageID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.TaskItem", "Task")
-                        .WithMany()
-                        .HasForeignKey("TaskID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-
-                    b.Navigation("Task");
-                });
-
             modelBuilder.Entity("Domain.NotificationTemplate", b =>
                 {
                     b.HasOne("Domain.NotificationEventType", "EventType")
@@ -4122,25 +2572,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("EventType");
-                });
-
-            modelBuilder.Entity("Domain.PayrollEntry", b =>
-                {
-                    b.HasOne("Domain.PayrollRun", "PayrollRun")
-                        .WithMany("Entries")
-                        .HasForeignKey("PayrollRunId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("PayrollRun");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.RecruitmentApproverConfig", b =>
@@ -4167,16 +2598,6 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("Domain.User", "Level1Approver")
-                        .WithMany()
-                        .HasForeignKey("Level1ApproverId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.User", "Level2Approver")
-                        .WithMany()
-                        .HasForeignKey("Level2ApproverId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("Domain.User", "RequestedBy")
                         .WithMany()
                         .HasForeignKey("RequestedByUserId")
@@ -4194,10 +2615,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Department");
-
-                    b.Navigation("Level1Approver");
-
-                    b.Navigation("Level2Approver");
 
                     b.Navigation("RequestedBy");
 
@@ -4246,17 +2663,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Domain.SalaryRecord", b =>
-                {
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Domain.Store", b =>
                 {
                     b.HasOne("Domain.User", "Manager")
@@ -4285,186 +2691,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("Domain.TaskActivityLog", b =>
-                {
-                    b.HasOne("Domain.TaskItem", "Task")
-                        .WithMany("ActivityLogs")
-                        .HasForeignKey("TaskID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.TaskAssignee", b =>
-                {
-                    b.HasOne("Domain.TaskItem", "Task")
-                        .WithMany("Assignees")
-                        .HasForeignKey("TaskID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.TaskAttachment", b =>
-                {
-                    b.HasOne("Domain.TaskItem", "Task")
-                        .WithMany("Attachments")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-                });
-
-            modelBuilder.Entity("Domain.TaskComment", b =>
-                {
-                    b.HasOne("Domain.TaskComment", "ParentComment")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentCommentID")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.TaskItem", "Task")
-                        .WithMany("Comments")
-                        .HasForeignKey("TaskID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("ParentComment");
-
-                    b.Navigation("Task");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.TaskDependency", b =>
-                {
-                    b.HasOne("Domain.TaskItem", "BlockedTask")
-                        .WithMany("BlockedByTasks")
-                        .HasForeignKey("BlockedTaskId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Domain.TaskItem", "BlockerTask")
-                        .WithMany("BlockingTasks")
-                        .HasForeignKey("BlockerTaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BlockedTask");
-
-                    b.Navigation("BlockerTask");
-                });
-
-            modelBuilder.Entity("Domain.TaskFollower", b =>
-                {
-                    b.HasOne("Domain.TaskItem", "Task")
-                        .WithMany("Followers")
-                        .HasForeignKey("TaskID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.TaskItem", b =>
-                {
-                    b.HasOne("Domain.TaskItem", "ParentTask")
-                        .WithMany("Subtasks")
-                        .HasForeignKey("ParentTaskId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.TaskPriority", "Priority")
-                        .WithMany("Tasks")
-                        .HasForeignKey("PriorityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.TaskItemStatus", "Status")
-                        .WithMany("Tasks")
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ParentTask");
-
-                    b.Navigation("Priority");
-
-                    b.Navigation("Status");
-                });
-
-            modelBuilder.Entity("Domain.TaskKpi", b =>
-                {
-                    b.HasOne("Domain.TaskItem", "Task")
-                        .WithMany("TaskKpis")
-                        .HasForeignKey("TaskID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-                });
-
-            modelBuilder.Entity("Domain.TaskLmsCourse", b =>
-                {
-                    b.HasOne("Domain.TaskItem", "Task")
-                        .WithMany("TaskLmsCourses")
-                        .HasForeignKey("TaskID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-                });
-
-            modelBuilder.Entity("Domain.TaskTemplate", b =>
-                {
-                    b.HasOne("Domain.TaskPriority", "DefaultPriority")
-                        .WithMany()
-                        .HasForeignKey("DefaultPriorityId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("DefaultPriority");
-                });
-
             modelBuilder.Entity("Domain.User", b =>
                 {
                     b.HasOne("Domain.EmployeeType", "EmployeeType")
                         .WithMany("Users")
                         .HasForeignKey("EmployeeTypeId");
 
-                    b.HasOne("Domain.JobLevel", "JobLevel")
+                    b.HasOne("Domain.JobTitle", "JobTitle")
                         .WithMany("Users")
-                        .HasForeignKey("JobLevelId")
+                        .HasForeignKey("JobTitleId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.User", "Manager")
@@ -4474,7 +2709,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("EmployeeType");
 
-                    b.Navigation("JobLevel");
+                    b.Navigation("JobTitle");
 
                     b.Navigation("Manager");
                 });
@@ -4517,11 +2752,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.DepartmentJobLevel", "DepartmentJobLevel")
-                        .WithMany()
-                        .HasForeignKey("DepartmentJobLevelId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("Domain.User", "User")
                         .WithMany("UserDepartments")
                         .HasForeignKey("UserId")
@@ -4529,8 +2759,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Department");
-
-                    b.Navigation("DepartmentJobLevel");
 
                     b.Navigation("User");
                 });
@@ -4667,15 +2895,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Contracts");
                 });
 
-            modelBuilder.Entity("Domain.Conversation", b =>
-                {
-                    b.Navigation("ActivityLogs");
-
-                    b.Navigation("Members");
-
-                    b.Navigation("Messages");
-                });
-
             modelBuilder.Entity("Domain.CustomFieldDefinition", b =>
                 {
                     b.Navigation("Options");
@@ -4687,10 +2906,6 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("ChildDepartments");
 
-                    b.Navigation("DepartmentJobLevels");
-
-                    b.Navigation("KpiTemplates");
-
                     b.Navigation("UserDepartments");
                 });
 
@@ -4699,14 +2914,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("Domain.JobLevel", b =>
+            modelBuilder.Entity("Domain.JobTitle", b =>
                 {
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("Domain.KpiTemplate", b =>
-                {
-                    b.Navigation("Metrics");
                 });
 
             modelBuilder.Entity("Domain.Label", b =>
@@ -4714,29 +2924,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("UserLabels");
                 });
 
-            modelBuilder.Entity("Domain.Message", b =>
-                {
-                    b.Navigation("Attachments");
-
-                    b.Navigation("MessageTasks");
-
-                    b.Navigation("Reactions");
-
-                    b.Navigation("ReadStatuses");
-
-                    b.Navigation("Replies");
-                });
-
             modelBuilder.Entity("Domain.NotificationEventType", b =>
                 {
                     b.Navigation("Templates");
 
                     b.Navigation("TriggerBindings");
-                });
-
-            modelBuilder.Entity("Domain.PayrollRun", b =>
-                {
-                    b.Navigation("Entries");
                 });
 
             modelBuilder.Entity("Domain.Permission", b =>
@@ -4767,49 +2959,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Store", b =>
                 {
-                    b.Navigation("Counters");
-
                     b.Navigation("StoreHours");
 
                     b.Navigation("UserStores");
-                });
-
-            modelBuilder.Entity("Domain.TaskComment", b =>
-                {
-                    b.Navigation("Replies");
-                });
-
-            modelBuilder.Entity("Domain.TaskItem", b =>
-                {
-                    b.Navigation("ActivityLogs");
-
-                    b.Navigation("Assignees");
-
-                    b.Navigation("Attachments");
-
-                    b.Navigation("BlockedByTasks");
-
-                    b.Navigation("BlockingTasks");
-
-                    b.Navigation("Comments");
-
-                    b.Navigation("Followers");
-
-                    b.Navigation("Subtasks");
-
-                    b.Navigation("TaskKpis");
-
-                    b.Navigation("TaskLmsCourses");
-                });
-
-            modelBuilder.Entity("Domain.TaskItemStatus", b =>
-                {
-                    b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("Domain.TaskPriority", b =>
-                {
-                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("Domain.User", b =>

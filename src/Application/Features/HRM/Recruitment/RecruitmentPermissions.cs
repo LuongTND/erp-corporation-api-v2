@@ -22,10 +22,7 @@ public static class RecruitmentPermissions
     [PermissionInfo("Gửi phiếu đề xuất tuyển dụng", "Gửi phiếu đề xuất tuyển dụng đi để chờ duyệt")]
     public const string SubmitRequest = "hrm:recruitment:request:submit";
 
-    [PermissionInfo("Duyệt phiếu tuyển dụng cấp 1", "Giám sát vùng / Trưởng bộ phận duyệt phiếu đề xuất tuyển dụng cấp 1")]
-    public const string ApproveRequestLevel1 = "hrm:recruitment:request:approve-level1";
-
-    [PermissionInfo("Duyệt phiếu tuyển dụng cấp 2", "Trưởng phòng Nhân sự phê duyệt cuối phiếu đề xuất tuyển dụng")]
+    [PermissionInfo("Duyệt phiếu tuyển dụng", "Duyệt phiếu đề xuất tuyển dụng — workflow engine tự guard theo bước hiện tại")]
     public const string ApproveRequest = "hrm:recruitment:request:approve";
 
     [PermissionInfo("Từ chối phiếu đề xuất tuyển dụng", "Từ chối phiếu đề xuất tuyển dụng kèm lý do")]

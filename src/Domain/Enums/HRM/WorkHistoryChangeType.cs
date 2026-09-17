@@ -3,7 +3,7 @@ namespace Domain;
 public enum WorkHistoryChangeType
 {
     Status,
-    JobLevel,
+    JobTitle,
     Department,
     Salary,
     ContractType,

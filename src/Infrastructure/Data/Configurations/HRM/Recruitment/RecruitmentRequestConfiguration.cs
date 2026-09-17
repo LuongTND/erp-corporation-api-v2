@@ -44,10 +44,7 @@ public class RecruitmentRequestConfiguration : AuditableEntityConfiguration<Recr
         builder.Property(r => r.NeedMoreInfoNote)
             .HasMaxLength(1000);
 
-        builder.Property(r => r.Level1Note)
-            .HasMaxLength(1000);
-
-        builder.Property(r => r.Level2Note)
+        builder.Property(r => r.CancelNote)
             .HasMaxLength(1000);
 
         builder.Property(r => r.WorkflowInstanceId).IsRequired(false);
@@ -81,16 +78,6 @@ public class RecruitmentRequestConfiguration : AuditableEntityConfiguration<Recr
             .WithMany()
             .HasForeignKey(r => r.RequestedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(r => r.Level1Approver)
-            .WithMany()
-            .HasForeignKey(r => r.Level1ApproverId)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        builder.HasOne(r => r.Level2Approver)
-            .WithMany()
-            .HasForeignKey(r => r.Level2ApproverId)
-            .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasMany(r => r.Candidates)
             .WithOne(c => c.RecruitmentRequest)

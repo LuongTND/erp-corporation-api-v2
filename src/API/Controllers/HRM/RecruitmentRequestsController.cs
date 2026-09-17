@@ -46,15 +46,8 @@ public sealed class RecruitmentRequestsController(ISender sender) : ControllerBa
         Guid requestId, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(new SubmitRecruitmentRequestCommand(requestId), ct)));
 
-    // HRM-051a: Giám sát vùng / Trưởng BP duyệt cấp 1
-    [HasPermission(RecruitmentPermissions.ApproveRequestLevel1)]
-    [HttpPost("{requestId:guid}/approve-level1")]
-    public async Task<ActionResult<ApiResponse<Unit>>> ApproveLevel1(
-        Guid requestId, [FromBody] ApproveLevel1RecruitmentRequestCommand cmd, CancellationToken ct)
-        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { RequestId = requestId }, ct)));
-
-    // HRM-051b: Trưởng phòng NS duyệt cấp 2
-    [HasPermission(RecruitmentPermissions.ApproveRequest)]
+    // HRM-051: Duyệt phiếu — workflow engine tự xác định bước hiện tại và guard AssignedTo
+    [Authorize]
     [HttpPost("{requestId:guid}/approve")]
     public async Task<ActionResult<ApiResponse<Unit>>> Approve(
         Guid requestId, [FromBody] ApproveRecruitmentRequestCommand cmd, CancellationToken ct)
@@ -74,11 +67,18 @@ public sealed class RecruitmentRequestsController(ISender sender) : ControllerBa
         Guid requestId, [FromBody] RequestMoreInfoRecruitmentCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { RequestId = requestId }, ct)));
 
+    // Người tạo huỷ phiếu đang chờ duyệt
+    [HasPermission(RecruitmentPermissions.SubmitRequest)]
+    [HttpPost("{requestId:guid}/cancel")]
+    public async Task<ActionResult<ApiResponse<Unit>>> Cancel(
+        Guid requestId, [FromBody] CancelRecruitmentRequestCommand cmd, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(cmd with { RequestId = requestId }, ct)));
+
     [HasPermission(RecruitmentPermissions.CreateRequest)]
     [HttpDelete("{requestId:guid}")]
     public async Task<ActionResult<ApiResponse<Unit>>> Delete(
-        Guid requestId, CancellationToken ct)
-        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new DeleteRecruitmentRequestCommand(requestId), ct)));
+        Guid requestId, [FromQuery] string? note, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new DeleteRecruitmentRequestCommand(requestId, note), ct)));
 
     // HRM-055 / HRM-056 / HRM-057
     [HasPermission(RecruitmentPermissions.ManageJobPosting)]

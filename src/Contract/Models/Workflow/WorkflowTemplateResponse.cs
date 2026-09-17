@@ -19,4 +19,5 @@ public sealed record WorkflowTemplateStepResponse
     public string StepName { get; init; } = string.Empty;
     public string ApproverType { get; init; } = string.Empty;
     public Guid? ApproverId { get; init; }
+    public string? ApproverName { get; init; }
 }

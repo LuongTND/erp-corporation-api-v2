@@ -3,7 +3,7 @@ namespace Application;
 public sealed record CreateEmployeeCommand(
     string FullName,
     string Email,
-    Guid JobLevelId,
+    Guid JobTitleId,
     DateOnly DateOfJoin,
     string? EmployeeCode = null,
     Gender? Gender = null,

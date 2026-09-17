@@ -19,7 +19,7 @@ public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStora
 
         var user = await unitOfWork.Repository<User>().Query()
             .Where(u => u.Id == query.UserId)
-            .Include(u => u.JobLevel)
+            .Include(u => u.JobTitle)
             .Include(u => u.Manager)
             .Include(u => u.Profile)
             .Include(u => u.Identity)
@@ -68,8 +68,8 @@ public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStora
             Status = user.Status.ToString(),
             IsActive = user.IsActive,
             IsLocked = account?.IsLocked ?? false,
-            JobLevelId = user.JobLevelId,
-            JobLevelName = user.JobLevel?.LevelName,
+            JobTitleId = user.JobTitleId,
+            JobName = user.JobTitle?.Name,
             ManagerId = user.ManagerId,
             ManagerName = user.Manager?.FullName,
             EmployeeTypeId = user.EmployeeTypeId,
