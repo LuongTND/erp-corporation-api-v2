@@ -5,28 +5,24 @@ public sealed class ResolveInterviewRuleQueryHandler(IUnitOfWork unitOfWork)
 {
     public async Task<InterviewRuleConfigResponse?> Handle(ResolveInterviewRuleQuery q, CancellationToken ct)
     {
-        var candidate = await unitOfWork.Repository<Candidate>()
-            .FindAsync(c => c.Id == q.CandidateId, ct)
-            ?? throw new NotFoundException(ExceptionMessages.NotFound("Candidate", q.CandidateId));
+        var application = await unitOfWork.Repository<Domain.Application>()
+            .FindAsync(a => a.Id == q.ApplicationId, ct)
+            ?? throw new NotFoundException(ExceptionMessages.NotFound("Application", q.ApplicationId));
 
-        var request = candidate.RecruitmentRequestId.HasValue
+        var request = application.RecruitmentRequestId.HasValue
             ? await unitOfWork.Repository<RecruitmentRequest>()
-                .FindAsync(r => r.Id == candidate.RecruitmentRequestId.Value, ct)
+                .FindAsync(r => r.Id == application.RecruitmentRequestId.Value, ct)
             : null;
 
         if (request == null)
             return null;
 
-        // Lấy tất cả rule active theo context, sort priority desc
         var queryInfo = new QueryInfo { Top = 50, Skip = 0, NeedTotalCount = false };
         var rules = await unitOfWork.Repository<Domain.InterviewRuleConfig>()
             .GetPagedAsync(queryInfo,
                 filter: r => r.IsActive && r.Context == request.RequestContext,
                 ct: ct);
 
-        // Chọn rule phù hợp nhất theo priority:
-        // Store: ưu tiên rule có RegionId khớp, fallback rule không có RegionId
-        // Department: ưu tiên rule có DepartmentId khớp, fallback rule không có DepartmentId
         var sorted = rules.Items.OrderByDescending(r => r.Priority).ToList();
 
         Domain.InterviewRuleConfig? matched;

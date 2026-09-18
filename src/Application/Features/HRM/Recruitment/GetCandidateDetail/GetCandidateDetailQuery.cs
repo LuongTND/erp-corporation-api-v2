@@ -1,3 +1,3 @@
 namespace Application;
 
-public sealed record GetCandidateDetailQuery(Guid CandidateId) : IRequest<CandidateDetailResponse>;
+public sealed record GetCandidateDetailQuery(Guid ApplicationId) : IRequest<CandidateDetailResponse>;

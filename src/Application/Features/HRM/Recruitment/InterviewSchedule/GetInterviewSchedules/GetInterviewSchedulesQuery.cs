@@ -1,3 +1,3 @@
 namespace Application;
 
-public sealed record GetInterviewSchedulesQuery(Guid CandidateId) : IRequest<IEnumerable<InterviewScheduleResponse>>;
+public sealed record GetInterviewSchedulesQuery(Guid ApplicationId) : IRequest<IEnumerable<InterviewScheduleResponse>>;

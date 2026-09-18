@@ -6,8 +6,10 @@ public sealed class InterviewRuleConfigMappingConfig : IRegister
     {
         config.NewConfig<Domain.InterviewRuleConfig, InterviewRuleConfigResponse>()
             .Map(dest => dest.Context, src => src.Context.ToString())
-            .Map(dest => dest.Location, src => src.Location.ToString())
             .Map(dest => dest.RegionName, src => src.Region != null ? src.Region.Name : null)
-            .Map(dest => dest.DepartmentName, src => src.Department != null ? src.Department.DepartmentName : null);
+            .Map(dest => dest.DepartmentName, src => src.Department != null ? src.Department.DepartmentName : null)
+            .Map(dest => dest.Steps, src => src.Steps);
+
+        config.NewConfig<Domain.InterviewRuleConfigStep, InterviewRuleConfigStepResponse>();
     }
 }

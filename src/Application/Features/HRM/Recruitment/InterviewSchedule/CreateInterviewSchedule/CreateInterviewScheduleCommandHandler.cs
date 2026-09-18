@@ -5,23 +5,23 @@ public sealed class CreateInterviewScheduleCommandHandler(IUnitOfWork unitOfWork
 {
     public async Task<Guid> Handle(CreateInterviewScheduleCommand cmd, CancellationToken ct)
     {
-        var candidate = await unitOfWork.Repository<Candidate>()
-            .FindAsync(c => c.Id == cmd.CandidateId, ct)
-            ?? throw new NotFoundException(ExceptionMessages.NotFound("Candidate", cmd.CandidateId));
+        var application = await unitOfWork.Repository<Domain.Application>()
+            .FindAsync(a => a.Id == cmd.ApplicationId, ct)
+            ?? throw new NotFoundException(ExceptionMessages.NotFound("Application", cmd.ApplicationId));
 
-        if (candidate.Stage is not (CandidateStage.Screening or CandidateStage.StoreInterview or CandidateStage.ProductionInterview))
+        if (application.Stage is not (ApplicationStage.Screening or ApplicationStage.Interview))
             throw new BadRequestException("Ứng viên phải qua sơ loại CV trước khi hẹn lịch phỏng vấn.");
 
         var schedule = new Domain.InterviewSchedule
         {
             Id = Guid.NewGuid(),
-            CandidateId = cmd.CandidateId,
+            ApplicationId = cmd.ApplicationId,
             InterviewerId = cmd.InterviewerId,
             ScheduledAt = cmd.ScheduledAt,
             Location = cmd.Location,
             LocationNote = cmd.LocationNote,
             Notes = cmd.Notes,
-            Status = InterviewScheduleStatus.Scheduled,
+            Status = InterviewScheduleStatus.Scheduled
         };
 
         await unitOfWork.Repository<Domain.InterviewSchedule>().AddAsync(schedule);

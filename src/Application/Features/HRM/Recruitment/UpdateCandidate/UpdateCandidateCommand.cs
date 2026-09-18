@@ -1,7 +1,7 @@
 namespace Application;
 
 public sealed record UpdateCandidateCommand(
-    Guid CandidateId,
+    Guid ApplicationId,
     string FullName,
     string? Email,
     string? Phone,

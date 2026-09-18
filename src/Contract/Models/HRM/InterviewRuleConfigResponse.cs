@@ -9,10 +9,17 @@ public class InterviewRuleConfigResponse
     public string? RegionName { get; init; }
     public Guid? DepartmentId { get; init; }
     public string? DepartmentName { get; init; }
-    public string InterviewerRoleKey { get; init; } = string.Empty;
-    public string Location { get; init; } = string.Empty;
-    public string SchedulerRoleKey { get; init; } = string.Empty;
-    public string NotifyRoleKey { get; init; } = string.Empty;
+    public string? NotifyRoleKey { get; init; }
     public int Priority { get; init; }
     public bool IsActive { get; init; }
+    public IEnumerable<InterviewRuleConfigStepResponse> Steps { get; init; } = [];
+}
+
+public class InterviewRuleConfigStepResponse
+{
+    public int RoundNumber { get; init; }
+    public string Label { get; init; } = string.Empty;
+    public string InterviewerRoleKey { get; init; } = string.Empty;
+    public string SchedulerRoleKey { get; init; } = string.Empty;
+    public string? Location { get; init; }
 }

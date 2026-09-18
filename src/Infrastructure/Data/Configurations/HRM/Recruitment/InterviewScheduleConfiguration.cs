@@ -8,6 +8,8 @@ public class InterviewScheduleConfiguration : AuditableEntityConfiguration<Inter
 
         builder.ToTable("InterviewSchedules");
 
+        builder.Property(s => s.Round).HasDefaultValue(1).IsRequired();
+
         builder.Property(s => s.Location)
             .HasConversion<string>().HasMaxLength(50).IsRequired();
 
@@ -18,13 +20,8 @@ public class InterviewScheduleConfiguration : AuditableEntityConfiguration<Inter
         builder.Property(s => s.Notes).HasMaxLength(2000);
         builder.Property(s => s.InterviewResult).HasMaxLength(2000);
 
-        builder.HasIndex(s => s.CandidateId);
+        builder.HasIndex(s => s.ApplicationId);
         builder.HasIndex(s => new { s.InterviewerId, s.ScheduledAt });
-
-        builder.HasOne(s => s.Candidate)
-            .WithMany(c => c.InterviewSchedules)
-            .HasForeignKey(s => s.CandidateId)
-            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(s => s.Interviewer)
             .WithMany()

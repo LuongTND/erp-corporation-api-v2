@@ -1,3 +1,3 @@
 namespace Application;
 
-public sealed record UploadCandidateCvCommand(Guid CandidateId, Stream FileStream, string FileName) : IRequest<string>;
+public sealed record UploadCandidateCvCommand(Guid ApplicantId, Stream FileStream, string FileName) : IRequest<string>;

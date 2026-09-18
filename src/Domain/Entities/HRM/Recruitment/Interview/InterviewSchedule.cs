@@ -2,11 +2,14 @@ namespace Domain;
 
 public class InterviewSchedule : AuditableEntityBase<Guid>
 {
-    public Guid CandidateId { get; set; }
-    public Candidate? Candidate { get; set; }
+    public Guid ApplicationId { get; set; }
+    public Application? Application { get; set; }
 
     public Guid InterviewerId { get; set; }
     public User? Interviewer { get; set; }
+
+    // vòng phỏng vấn, khớp với InterviewRuleConfigStep.RoundNumber
+    public int Round { get; set; } = 1;
 
     public DateTimeOffset ScheduledAt { get; set; }
 

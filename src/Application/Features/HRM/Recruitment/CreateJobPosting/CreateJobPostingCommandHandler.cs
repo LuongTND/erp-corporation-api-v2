@@ -10,14 +10,14 @@ public sealed class CreateJobPostingCommandHandler(IUnitOfWork unitOfWork)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("RecruitmentRequest", cmd.RecruitmentRequestId));
 
         if (request.Status != RecruitmentRequestStatus.Approved)
-            throw new BadRequestException("Chỉ có thể tạo JobPosting khi phiếu đã được duyệt.");
+            throw new BadRequestException("Chỉ có thể tạo tin tuyển dụng khi phiếu đã được duyệt.");
 
         var costStatus = cmd.EstimatedCost.HasValue && cmd.EstimatedCost > 0
             ? JobPostingCostStatus.PendingApproval
             : JobPostingCostStatus.NotRequired;
 
         if (!Enum.TryParse<RecruitmentChannel>(cmd.Channel, ignoreCase: true, out var channel))
-            throw new BadRequestException($"Channel không hợp lệ: {cmd.Channel}");
+            throw new BadRequestException($"Kênh tuyển dụng không hợp lệ: {cmd.Channel}");
 
         var posting = new JobPosting
         {

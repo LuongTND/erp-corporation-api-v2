@@ -6,8 +6,8 @@ public sealed class GetCandidateEvaluationsQueryHandler(IUnitOfWork unitOfWork)
     public async Task<QueryResult<CandidateEvaluationResponse>> Handle(GetCandidateEvaluationsQuery q, CancellationToken ct)
     {
         var queryInfo = new QueryInfo { Top = q.PageSize, Skip = (q.Page - 1) * q.PageSize, NeedTotalCount = true };
-        var result = await unitOfWork.Repository<CandidateEvaluation>()
-            .GetPagedAsync(queryInfo, filter: e => e.CandidateId == q.CandidateId, ct: ct);
+        var result = await unitOfWork.Repository<ApplicationEvaluation>()
+            .GetPagedAsync(queryInfo, filter: e => e.ApplicationId == q.ApplicationId, ct: ct);
 
         return new QueryResult<CandidateEvaluationResponse>
         {
@@ -15,9 +15,8 @@ public sealed class GetCandidateEvaluationsQueryHandler(IUnitOfWork unitOfWork)
             Items = result.Items.Select(e => new CandidateEvaluationResponse
             {
                 Id = e.Id,
-                CandidateId = e.CandidateId,
+                ApplicationId = e.ApplicationId,
                 EvaluatorId = e.EvaluatorId,
-                IsStoreEvaluation = e.IsStoreEvaluation,
                 Score = e.Score,
                 StrengthNotes = e.StrengthNotes,
                 WeaknessNotes = e.WeaknessNotes,

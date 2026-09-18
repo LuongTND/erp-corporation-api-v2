@@ -4,7 +4,7 @@ public class RecruitmentRequest : AuditableEntityBase<Guid>, ISoftDeletable
 {
     public RecruitmentRequestContext RequestContext { get; set; }
 
-    // HRM-046: Trưởng các BP  — set khi RequestContext = Department
+    // HRM-046: Trưởng các BP — set khi RequestContext = Department
     public Guid? DepartmentId { get; set; }
     public Department? Department { get; set; }
 
@@ -40,6 +40,6 @@ public class RecruitmentRequest : AuditableEntityBase<Guid>, ISoftDeletable
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid? DeletedBy { get; set; }
 
-    public ICollection<Candidate> Candidates { get; set; } = [];
+    public ICollection<Application> Applications { get; set; } = [];
     public ICollection<JobPosting> JobPostings { get; set; } = [];
 }

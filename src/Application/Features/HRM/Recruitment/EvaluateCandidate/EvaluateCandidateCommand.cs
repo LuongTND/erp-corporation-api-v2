@@ -1,8 +1,7 @@
 namespace Application;
 
 public sealed record EvaluateCandidateCommand(
-    Guid CandidateId,
-    bool IsStoreEvaluation,
+    Guid ApplicationId,
     int Score,
     string? StrengthNotes,
     string? WeaknessNotes,

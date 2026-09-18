@@ -5,15 +5,23 @@ public sealed class UploadCandidateCvCommandHandler(IUnitOfWork unitOfWork, IBlo
 {
     public async Task<string> Handle(UploadCandidateCvCommand cmd, CancellationToken ct)
     {
-        var candidate = await unitOfWork.Repository<Candidate>()
-            .FindAsync(c => c.Id == cmd.CandidateId, ct)
-            ?? throw new NotFoundException(ExceptionMessages.NotFound("Candidate", cmd.CandidateId));
+        var applicant = await unitOfWork.Repository<Applicant>()
+            .FindAsync(a => a.Id == cmd.ApplicantId, ct)
+            ?? throw new NotFoundException(ExceptionMessages.NotFound("Applicant", cmd.ApplicantId));
 
-        var blobName = $"{cmd.CandidateId}/{cmd.FileName}";
-        await blobStorage.UploadAsync("candidates-cv", blobName, cmd.FileStream, "application/octet-stream", ct: ct);
-        var url = blobStorage.GetUrl("candidates-cv", blobName);
+        var blobName = $"{applicant.Id}/{cmd.FileName}";
+        await blobStorage.UploadAsync("applicants-cv", blobName, cmd.FileStream, "application/octet-stream", ct: ct);
+        var url = blobStorage.GetUrl("applicants-cv", blobName);
 
-        candidate.CvUrl = url;
+        var doc = new ApplicantDocument
+        {
+            Id = Guid.NewGuid(),
+            ApplicantId = applicant.Id,
+            DocumentType = ApplicantDocumentType.Cv,
+            FileName = cmd.FileName,
+            FileUrl = url
+        };
+        await unitOfWork.Repository<ApplicantDocument>().AddAsync(doc);
         await unitOfWork.EnsureSaveAsync(ct);
         return url;
     }

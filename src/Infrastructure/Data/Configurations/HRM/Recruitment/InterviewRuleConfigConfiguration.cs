@@ -13,12 +13,7 @@ public class InterviewRuleConfigConfiguration : AuditableEntityConfiguration<Int
         builder.Property(r => r.Context)
             .HasConversion<string>().HasMaxLength(50).IsRequired();
 
-        builder.Property(r => r.Location)
-            .HasConversion<string>().HasMaxLength(50).IsRequired();
-
-        builder.Property(r => r.InterviewerRoleKey).HasMaxLength(200).IsRequired();
-        builder.Property(r => r.SchedulerRoleKey).HasMaxLength(200).IsRequired();
-        builder.Property(r => r.NotifyRoleKey).HasMaxLength(200).IsRequired();
+        builder.Property(r => r.NotifyRoleKey).HasMaxLength(200);
 
         builder.Property(r => r.IsActive).HasDefaultValue(true).IsRequired();
 
@@ -33,5 +28,10 @@ public class InterviewRuleConfigConfiguration : AuditableEntityConfiguration<Int
             .WithMany()
             .HasForeignKey(r => r.DepartmentId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasMany(r => r.Steps)
+            .WithOne(s => s.InterviewRuleConfig)
+            .HasForeignKey(s => s.InterviewRuleConfigId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

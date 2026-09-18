@@ -5,33 +5,37 @@ public sealed class GetCandidateDetailQueryHandler(IUnitOfWork unitOfWork)
 {
     public async Task<CandidateDetailResponse> Handle(GetCandidateDetailQuery q, CancellationToken ct)
     {
-        var c = await unitOfWork.Repository<Candidate>()
-            .FindAsync(x => x.Id == q.CandidateId, ct)
-            ?? throw new NotFoundException(ExceptionMessages.NotFound("Candidate", q.CandidateId));
+        var application = await unitOfWork.Repository<Domain.Application>()
+            .FindAsync(x => x.Id == q.ApplicationId, ct)
+            ?? throw new NotFoundException(ExceptionMessages.NotFound("Application", q.ApplicationId));
 
-        var evaluations = await unitOfWork.Repository<CandidateEvaluation>()
-            .GetPagedAsync(new QueryInfo { Top = 100, Skip = 0, NeedTotalCount = false }, filter: e => e.CandidateId == c.Id, ct: ct);
+        var applicant = await unitOfWork.Repository<Applicant>()
+            .FindAsync(a => a.Id == application.ApplicantId, ct)
+            ?? throw new NotFoundException(ExceptionMessages.NotFound("Applicant", application.ApplicantId));
+
+        var evaluations = await unitOfWork.Repository<ApplicationEvaluation>()
+            .GetPagedAsync(new QueryInfo { Top = 100, Skip = 0, NeedTotalCount = false },
+                filter: e => e.ApplicationId == application.Id, ct: ct);
 
         return new CandidateDetailResponse
         {
-            Id = c.Id,
-            RecruitmentRequestId = c.RecruitmentRequestId,
-            FullName = c.FullName,
-            Email = c.Email,
-            Phone = c.Phone,
-            CvUrl = c.CvUrl,
-            SourceChannel = c.SourceChannel.ToString(),
-            Stage = c.Stage.ToString(),
-            RejectionReason = c.RejectionReason,
-            Notes = c.Notes,
-            ConvertedEmployeeId = c.ConvertedEmployeeId,
-            CreatedAt = c.CreatedAt,
+            Id = application.Id,
+            ApplicantId = applicant.Id,
+            RecruitmentRequestId = application.RecruitmentRequestId,
+            FullName = applicant.FullName,
+            Email = applicant.Email,
+            Phone = applicant.Phone,
+            SourceChannel = application.SourceChannel.ToString(),
+            Stage = application.Stage.ToString(),
+            RejectionReason = application.RejectionReason,
+            Notes = applicant.Notes,
+            ConvertedEmployeeId = application.ConvertedEmployeeId,
+            CreatedAt = application.CreatedAt,
             Evaluations = evaluations.Items.Select(e => new CandidateEvaluationResponse
             {
                 Id = e.Id,
-                CandidateId = e.CandidateId,
+                ApplicationId = e.ApplicationId,
                 EvaluatorId = e.EvaluatorId,
-                IsStoreEvaluation = e.IsStoreEvaluation,
                 Score = e.Score,
                 StrengthNotes = e.StrengthNotes,
                 WeaknessNotes = e.WeaknessNotes,

@@ -1,14 +1,15 @@
 namespace Domain;
 
-public class CandidateEvaluation : AuditableEntityBase<Guid>
+public class ApplicationEvaluation : AuditableEntityBase<Guid>
 {
-    public Guid CandidateId { get; set; }
-    public Candidate? Candidate { get; set; }
+    public Guid ApplicationId { get; set; }
+    public Application? Application { get; set; }
+
+    public Guid? InterviewScheduleId { get; set; }
+    public InterviewSchedule? InterviewSchedule { get; set; }
 
     public Guid EvaluatorId { get; set; }
     public User? Evaluator { get; set; }
-
-    public bool IsStoreEvaluation { get; set; }
 
     public int Score { get; set; }
 

@@ -1,3 +1,3 @@
 namespace Application;
 
-public sealed record HireCandidateCommand(Guid CandidateId, DateOnly? TrialStartDate) : IRequest<Unit>;
+public sealed record HireCandidateCommand(Guid ApplicationId, DateOnly? TrialStartDate) : IRequest<Unit>;

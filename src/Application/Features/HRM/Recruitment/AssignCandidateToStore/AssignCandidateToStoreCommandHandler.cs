@@ -5,14 +5,14 @@ public sealed class AssignCandidateToStoreCommandHandler(IUnitOfWork unitOfWork)
 {
     public async Task<Unit> Handle(AssignCandidateToStoreCommand cmd, CancellationToken ct)
     {
-        var candidate = await unitOfWork.Repository<Candidate>()
-            .FindAsync(c => c.Id == cmd.CandidateId, ct)
-            ?? throw new NotFoundException(ExceptionMessages.NotFound("Candidate", cmd.CandidateId));
+        var application = await unitOfWork.Repository<Domain.Application>()
+            .FindAsync(a => a.Id == cmd.ApplicationId, ct)
+            ?? throw new NotFoundException(ExceptionMessages.NotFound("Application", cmd.ApplicationId));
 
-        if (candidate.Stage != CandidateStage.Screening)
-            throw new BadRequestException("Chỉ có thể chuyển sang phỏng vấn cửa hàng từ giai đoạn Screening.");
+        if (application.Stage != ApplicationStage.Screening)
+            throw new BadRequestException("Chỉ có thể chuyển sang phỏng vấn từ giai đoạn Screening.");
 
-        candidate.Stage = CandidateStage.StoreInterview;
+        application.Stage = ApplicationStage.Interview;
         await unitOfWork.EnsureSaveAsync(ct);
         return Unit.Value;
     }

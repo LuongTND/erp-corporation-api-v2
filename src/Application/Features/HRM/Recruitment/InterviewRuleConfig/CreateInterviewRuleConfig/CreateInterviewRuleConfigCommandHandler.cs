@@ -12,14 +12,26 @@ public sealed class CreateInterviewRuleConfigCommandHandler(IUnitOfWork unitOfWo
             Context = cmd.Context,
             RegionId = cmd.RegionId,
             DepartmentId = cmd.DepartmentId,
-            InterviewerRoleKey = cmd.InterviewerRoleKey,
-            Location = cmd.Location,
-            SchedulerRoleKey = cmd.SchedulerRoleKey,
             NotifyRoleKey = cmd.NotifyRoleKey,
             Priority = cmd.Priority,
-            IsActive = true,
+            IsActive = true
         };
         await unitOfWork.Repository<Domain.InterviewRuleConfig>().AddAsync(config);
+
+        foreach (var s in cmd.Steps)
+        {
+            await unitOfWork.Repository<InterviewRuleConfigStep>().AddAsync(new InterviewRuleConfigStep
+            {
+                Id = Guid.NewGuid(),
+                InterviewRuleConfigId = config.Id,
+                RoundNumber = s.RoundNumber,
+                Label = s.Label,
+                InterviewerRoleKey = s.InterviewerRoleKey,
+                SchedulerRoleKey = s.SchedulerRoleKey,
+                Location = s.Location
+            });
+        }
+
         await unitOfWork.EnsureSaveAsync(ct);
         return config.Id;
     }

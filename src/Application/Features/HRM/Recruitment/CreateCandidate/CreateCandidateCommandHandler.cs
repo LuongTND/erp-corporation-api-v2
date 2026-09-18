@@ -18,20 +18,27 @@ public sealed class CreateCandidateCommandHandler(IUnitOfWork unitOfWork)
         if (!Enum.TryParse<RecruitmentChannel>(cmd.SourceChannel, ignoreCase: true, out var sourceChannel))
             throw new BadRequestException($"SourceChannel không hợp lệ: {cmd.SourceChannel}");
 
-        var candidate = new Candidate
+        var applicant = new Applicant
         {
             Id = Guid.NewGuid(),
-            RecruitmentRequestId = cmd.RecruitmentRequestId,
             FullName = cmd.FullName,
             Email = cmd.Email,
             Phone = cmd.Phone,
-            SourceChannel = sourceChannel,
-            Notes = cmd.Notes,
-            Stage = CandidateStage.New
+            Notes = cmd.Notes
         };
+        await unitOfWork.Repository<Applicant>().AddAsync(applicant);
 
-        await unitOfWork.Repository<Candidate>().AddAsync(candidate);
+        var application = new Domain.Application
+        {
+            Id = Guid.NewGuid(),
+            ApplicantId = applicant.Id,
+            RecruitmentRequestId = cmd.RecruitmentRequestId,
+            SourceChannel = sourceChannel,
+            Stage = ApplicationStage.New
+        };
+        await unitOfWork.Repository<Domain.Application>().AddAsync(application);
+
         await unitOfWork.EnsureSaveAsync(ct);
-        return candidate.Id;
+        return application.Id;
     }
 }

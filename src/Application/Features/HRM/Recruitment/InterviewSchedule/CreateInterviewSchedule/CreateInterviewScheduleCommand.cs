@@ -1,7 +1,7 @@
 namespace Application;
 
 public sealed record CreateInterviewScheduleCommand(
-    Guid CandidateId,
+    Guid ApplicationId,
     Guid InterviewerId,
     DateTimeOffset ScheduledAt,
     InterviewLocation Location,

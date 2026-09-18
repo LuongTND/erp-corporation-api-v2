@@ -3,7 +3,7 @@ namespace Contract;
 public class InterviewScheduleResponse
 {
     public Guid Id { get; init; }
-    public Guid CandidateId { get; init; }
+    public Guid ApplicationId { get; init; }
     public string CandidateName { get; init; } = string.Empty;
     public Guid InterviewerId { get; init; }
     public string InterviewerName { get; init; } = string.Empty;
