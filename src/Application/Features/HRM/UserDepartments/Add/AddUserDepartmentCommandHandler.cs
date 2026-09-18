@@ -20,20 +20,12 @@ public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUse
         if (alreadyAssigned)
             throw new ConflictException("Nhân viên đã thuộc phòng ban này.");
 
-        if (cmd.JobLevelId.HasValue)
+        if (cmd.JobTitleId.HasValue)
         {
-            var levelExists = await unitOfWork.Repository<JobLevel>()
-                .AnyAsync(jl => jl.Id == cmd.JobLevelId.Value && !jl.IsDeleted, ct);
+            var levelExists = await unitOfWork.Repository<JobTitle>()
+                .AnyAsync(jl => jl.Id == cmd.JobTitleId.Value && !jl.IsDeleted, ct);
             if (!levelExists)
-                throw new NotFoundException(ExceptionMessages.NotFound("JobLevel", cmd.JobLevelId.Value));
-        }
-
-        Guid? departmentJobLevelId = null;
-        if (cmd.JobLevelId.HasValue)
-        {
-            var djl = await unitOfWork.Repository<DepartmentJobLevel>()
-                .FindAsync(d => d.DepartmentId == cmd.DepartmentId && d.JobLevelId == cmd.JobLevelId.Value, ct);
-            departmentJobLevelId = djl?.Id;
+                throw new NotFoundException(ExceptionMessages.NotFound("JobTitle", cmd.JobTitleId.Value));
         }
 
         var ud = new UserDepartment
@@ -41,7 +33,6 @@ public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUse
             Id = Guid.NewGuid(),
             UserId = cmd.UserId,
             DepartmentId = cmd.DepartmentId,
-            DepartmentJobLevelId = departmentJobLevelId,
             IsPrimary = false,
             StartDate = cmd.StartDate,
             IsActive = true
@@ -49,13 +40,13 @@ public sealed class AddUserDepartmentCommandHandler(IUnitOfWork unitOfWork, IUse
 
         await unitOfWork.Repository<UserDepartment>().AddAsync(ud);
 
-        // sync to User.JobLevelId — single source of truth for job title
-        if (cmd.JobLevelId.HasValue)
+        // sync to User.JobTitleId — single source of truth for job title
+        if (cmd.JobTitleId.HasValue)
         {
             var user = await unitOfWork.Repository<User>()
                 .FindTrackedAsync(u => u.Id == cmd.UserId, ct);
             if (user is not null)
-                user.JobLevelId = cmd.JobLevelId;
+                user.JobTitleId = cmd.JobTitleId;
         }
 
         var dept = await unitOfWork.Repository<Department>().FindAsync(d => d.Id == cmd.DepartmentId, ct);

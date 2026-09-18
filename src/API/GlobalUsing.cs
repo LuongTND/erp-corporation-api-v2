@@ -14,3 +14,4 @@ global using Serilog;
 global using System.Text.Json;
 global using Microsoft.AspNetCore.SignalR;
 global using Microsoft.OpenApi;
+global using Microsoft.EntityFrameworkCore;

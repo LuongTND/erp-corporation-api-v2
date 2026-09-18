@@ -17,6 +17,8 @@ public class EmployeeDocument : EntityBase<Guid>
     public DateTimeOffset? ExpiryDate { get; set; }
     public string? Notes { get; set; }
 
+    public bool IsVisibleToEmployee { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
     public Guid? CreatedBy { get; set; }
 }

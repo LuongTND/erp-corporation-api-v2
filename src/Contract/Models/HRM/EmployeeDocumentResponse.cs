@@ -16,4 +16,6 @@ public sealed class EmployeeDocumentResponse
     public DateTimeOffset CreatedAt { get; init; }
     public bool IsExpired { get; init; }
     public bool IsExpiringSoon { get; init; }
+    public bool IsVisibleToEmployee { get; init; }
+    public Guid? UploadedById { get; init; }
 }

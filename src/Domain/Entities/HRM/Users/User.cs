@@ -7,8 +7,8 @@ public class User : AuditableEntityBase<Guid>
     public string Email { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
 
-    public Guid? JobLevelId { get; set; }
-    public JobLevel? JobLevel { get; set; }
+    public Guid? JobTitleId { get; set; }
+    public JobTitle? JobTitle { get; set; }
 
     public Guid? EmployeeTypeId { get; set; }
     public EmployeeType? EmployeeType { get; set; }
@@ -29,7 +29,6 @@ public class User : AuditableEntityBase<Guid>
     public ICollection<UserStore> UserStores { get; set; } = [];
     public ICollection<UserRole> UserRoles { get; set; } = [];
     public ICollection<UserCustomFieldValue> CustomFieldValues { get; set; } = [];
-
     public ICollection<UserLabel> UserLabels { get; set; } = [];
     public ICollection<EmployeeDocument> Documents { get; set; } = [];
     public ICollection<WorkHistory> WorkHistories { get; set; } = [];

@@ -3,5 +3,5 @@ namespace Application;
 public sealed record UpdateUserDepartmentCommand(
     Guid UserId,
     Guid DepartmentId,
-    Guid? JobLevelId
+    Guid? JobTitleId
 ) : IRequest<Unit>;

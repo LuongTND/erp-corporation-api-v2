@@ -7,51 +7,50 @@ public class AppData
         await context.SaveChangesAsync();
 
         await UserData.SeedAdminAsync(context, hasher);
-        await StaffData.SeedAsync(context, hasher);
+        // await StaffData.SeedAsync(context, hasher);
     }
 
     public static async Task SyncPermissionsAsync(ApplicationDbContext context, Assembly assembly)
     {
-        var allKeys = assembly
+        var allDefs = typeof(PermissionInfoAttribute).Assembly
             .GetTypes()
-            .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Instance))
-            .SelectMany(m => m.GetCustomAttributes<HasPermissionAttribute>())
-            .Select(a => a.Permission)
-            .ToHashSet();
+            .SelectMany(t => t.GetFields(BindingFlags.Public | BindingFlags.Static))
+            .Where(f => f.IsLiteral && f.FieldType == typeof(string))
+            .Select(f => (Code: (string)f.GetRawConstantValue()!, Info: f.GetCustomAttribute<PermissionInfoAttribute>()))
+            .Where(x => x.Info is not null)
+            .Select(x => (x.Code, x.Info!.Name, x.Info.Description))
+            .ToList();
 
-        var existing = await context.Permissions.Select(p => p.PermissionCode).ToHashSetAsync();
+        var allKeys = allDefs.Select(d => d.Code).ToHashSet();
 
-        // Update PermissionName + Description for existing permissions
-        var existingPerms = await context.Permissions.ToListAsync();
-        foreach (var perm in existingPerms)
+        Console.WriteLine($"[SyncPermissions] Found {allDefs.Count} permission defs in assembly: {typeof(PermissionInfoAttribute).Assembly.FullName}");
+
+        var existing = await context.Permissions.ToListAsync();
+
+        foreach (var perm in existing)
         {
-            if (PermissionNames.Map.TryGetValue(perm.PermissionCode, out var info))
+            var def = allDefs.FirstOrDefault(d => d.Code == perm.PermissionCode);
+            if (def != default)
             {
-                perm.PermissionName = info.Name;
-                perm.Description = info.Description;
+                perm.PermissionName = def.Name;
+                perm.Description    = def.Description;
             }
         }
 
-        var toAdd = allKeys.Except(existing).Select(key =>
-        {
-            var (name, desc) = PermissionNames.Map.TryGetValue(key, out var info)
-                ? info
-                : (key, null);
-            return new Permission
+        var existingKeys = existing.Select(p => p.PermissionCode).ToHashSet();
+        var toAdd = allDefs
+            .Where(d => !existingKeys.Contains(d.Code))
+            .Select(d => new Permission
             {
-                Id = Guid.NewGuid(),
-                PermissionCode = key,
-                PermissionName = name,
-                Description = desc
-            };
-        });
+                Id             = Guid.NewGuid(),
+                PermissionCode = d.Code,
+                PermissionName = d.Name,
+                Description    = d.Description
+            });
 
         context.Permissions.AddRange(toAdd);
 
-        var obsolete = await context.Permissions
-            .Where(p => !allKeys.Contains(p.PermissionCode))
-            .ToListAsync();
-
+        var obsolete = existing.Where(p => !allKeys.Contains(p.PermissionCode)).ToList();
         context.Permissions.RemoveRange(obsolete);
 
         await context.SaveChangesAsync();

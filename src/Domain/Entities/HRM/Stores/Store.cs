@@ -19,6 +19,5 @@ public class Store : AuditableEntityBase<Guid>, ISoftDeletable
     public Guid? DeletedBy { get; set; }
 
     public ICollection<StoreHours> StoreHours { get; set; } = [];
-    public ICollection<Counter> Counters { get; set; } = [];
     public ICollection<UserStore> UserStores { get; set; } = [];
 }

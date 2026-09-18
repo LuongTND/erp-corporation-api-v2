@@ -25,8 +25,8 @@ public sealed class RolesController(ISender sender) : ControllerBase
     [HasPermission(RolePermissions.Delete)]
     [HttpDelete("{roleId:guid}")]
     public async Task<ActionResult<ApiResponse<Unit>>> Delete(
-        Guid roleId, CancellationToken ct)
-        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new DeleteRoleCommand(roleId), ct)));
+        Guid roleId, [FromQuery] bool force, CancellationToken ct)
+        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new DeleteRoleCommand(roleId, force), ct)));
 
     [HasPermission(RolePermissions.AssignPermission)]
     [HttpPut("{roleId:guid}/permissions")]

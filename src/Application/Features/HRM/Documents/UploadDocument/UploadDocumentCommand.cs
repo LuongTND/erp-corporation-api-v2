@@ -10,5 +10,7 @@ public sealed record UploadDocumentCommand(
     long FileSizeBytes,
     DateTimeOffset? IssuedDate,
     DateTimeOffset? ExpiryDate,
-    string? Notes
+    string? Notes,
+    bool IsVisibleToEmployee = false,
+    bool IsHrUpload = false          // true = HR route, bỏ category whitelist
 ) : IRequest<EmployeeDocumentResponse>;

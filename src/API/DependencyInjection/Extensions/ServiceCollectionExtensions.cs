@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
                         e => e.Key,
                         e => e.Value!.Errors.Select(x => x.ErrorMessage).ToArray());
                 var response = ApiResponse<object>.Fail("Validation failed", 400, errors);
-                return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(response);
+                return new BadRequestObjectResult(response);
             };
         });
 

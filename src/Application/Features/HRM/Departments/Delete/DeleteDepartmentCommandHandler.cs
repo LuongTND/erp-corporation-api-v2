@@ -19,10 +19,7 @@ public sealed class DeleteDepartmentCommandHandler(IUnitOfWork unitOfWork)
         if (hasActiveChildren)
             throw new ConflictException("Phòng ban còn phòng con đang hoạt động, không thể xóa.");
 
-        dept.IsDeleted = true;
-        dept.DeletedAt = DateTimeOffset.UtcNow;
-        dept.IsActive = false;
-
+        await unitOfWork.Repository<Department>().RemoveAsync(dept);
         await unitOfWork.EnsureSaveAsync(ct);
         return Unit.Value;
     }

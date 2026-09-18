@@ -32,12 +32,13 @@ public sealed class UsersController(ISender sender) : ControllerBase
 
     [HasPermission(UserPermissions.UpdateProfile)]
     [HttpPost("{userId:guid}/avatar")]
+    [Consumes("multipart/form-data")]
     [RequestSizeLimit(5 * 1024 * 1024)]
     public async Task<ActionResult<ApiResponse<string>>> UploadAvatar(
-        Guid userId, [FromForm] IFormFile file, CancellationToken ct)
+        Guid userId, [FromForm] UploadAvatarRequest request, CancellationToken ct)
     {
-        using var stream = file.OpenReadStream();
-        var url = await sender.Send(new UploadAvatarCommand(userId, stream, file.ContentType, file.FileName), ct);
+        using var stream = request.File.OpenReadStream();
+        var url = await sender.Send(new UploadAvatarCommand(userId, stream, request.File.ContentType, request.File.FileName), ct);
         return Ok(ApiResponse<string>.Ok(url));
     }
 
@@ -46,12 +47,6 @@ public sealed class UsersController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<Unit>>> UpsertCustomFields(
         Guid userId, [FromBody] IEnumerable<CustomFieldValueInput> values, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(new UpsertUserCustomFieldValuesCommand(userId, values), ct)));
-
-    [HasPermission(UserPermissions.RemoveJobLevel)]
-    [HttpDelete("{userId:guid}/job-level")]
-    public async Task<ActionResult<ApiResponse<Unit>>> UnassignJobLevel(
-        Guid userId, CancellationToken ct)
-        => Ok(ApiResponse<Unit>.Ok(await sender.Send(new UnassignJobLevelCommand(userId), ct)));
 
     // --- Department ---
 

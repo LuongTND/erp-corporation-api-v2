@@ -17,9 +17,9 @@ public class UserConfiguration : AuditableEntityConfiguration<User, Guid>
         builder.Property(u => u.AvatarUrl).HasMaxLength(1000);
         builder.Property(u => u.Status).HasConversion<string>().HasMaxLength(30);
 
-        builder.HasOne(u => u.JobLevel)
+        builder.HasOne(u => u.JobTitle)
             .WithMany(j => j.Users)
-            .HasForeignKey(u => u.JobLevelId)
+            .HasForeignKey(u => u.JobTitleId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(u => u.Manager)

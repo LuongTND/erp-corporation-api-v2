@@ -16,7 +16,7 @@ public sealed class OutboxProcessorHostedService(
             {
                 await ProcessBatchAsync(stoppingToken);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            catch (Exception ex) when (!stoppingToken.IsCancellationRequested && ex is not OperationCanceledException)
             {
                 logger.LogError(ex, "Outbox processor batch failed.");
             }

@@ -33,6 +33,11 @@ public sealed class GetRolesQueryHandler(IUnitOfWork unitOfWork)
                     PermissionName = permMap[rp.PermissionId].PermissionName
                 }));
 
+        var userRoleCounts = (await unitOfWork.Repository<UserRole>().GetAllAsync(
+                ur => roleIds.Contains(ur.RoleId) && ur.IsActive, ct))
+            .GroupBy(ur => ur.RoleId)
+            .ToDictionary(g => g.Key, g => g.Count());
+
         return roles.Select(r => new RoleResponse
         {
             Id = r.Id,
@@ -41,7 +46,8 @@ public sealed class GetRolesQueryHandler(IUnitOfWork unitOfWork)
             Description = r.Description,
             IsSystemRole = r.IsSystemRole,
             DefaultDataScope = r.DefaultDataScope.ToString(),
-            Permissions = rolePermMap.TryGetValue(r.Id, out var perms) ? perms : []
+            Permissions = rolePermMap.TryGetValue(r.Id, out var perms) ? perms : [],
+            UserCount = userRoleCounts.TryGetValue(r.Id, out var count) ? count : 0
         });
     }
 }

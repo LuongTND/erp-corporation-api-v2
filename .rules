@@ -7,6 +7,7 @@
 - Add to existing files before creating new ones.
 - No generic names (`Service`, `Manager`, `Helper`) — use `AuthService`, `UserRepository`.
 - Primary constructor injection only. Never inject `IServiceProvider`.
+- Self-service commands/queries (employee acting on their own data) use the `My` prefix: `GetMyStore`, `UpdateMyProfile`. Admin-scoped equivalents targeting an arbitrary user ID do not use `My`.
 
 ## Layers
 | Layer | Contains |
@@ -60,6 +61,7 @@ Manual registration allowed **only** for: `AddDbContext`, `AddMediatR`, `AddAuth
 | Filter / pagination inputs | `Application/Features/<Domain>/<Feature>/` | Query-specific, not shared |
 
 Never put Response DTOs in `Application/Features/` — they belong in `Contract`.
+- No `Shared/` carve-out in `Application/Features/`. If a DTO is reused across more than one handler or feature, move it to `Contract/Models/<Domain>/`.
 
 ## Services (shared infra only)
 Use Services **only** for cross-cutting concerns shared across Handlers: email, SMS, file storage, external APIs. Never use as a CRUD wrapper.
@@ -68,6 +70,8 @@ Use Services **only** for cross-cutting concerns shared across Handlers: email, 
 - Inject `ISender` only. No business logic.
 - Return `ActionResult<ApiResponse<T>>`. Use `Ok(ApiResponse<T>.Ok(result))`.
 - Never catch exceptions — global middleware handles all errors.
+- No `[FromServices]` in action parameters. Ambient context (current user ID, tenant, etc.) must be resolved inside the handler via `IUserContext` or equivalent contract interface.
+- Every action **must** have a `/// <summary>` XML doc comment (one line, tiếng Việt) describing what the endpoint does — shown in Swagger.
 
 ```csharp
 [HttpPost]
@@ -79,6 +83,8 @@ public async Task<ActionResult<ApiResponse<Guid>>> Create(CreateXxxCommand cmd, 
 - Mapster only. Config in Application layer.
 - Use `entity.Adapt<TDto>()` or `queryable.ProjectToType<TDto>()`.
 - Never map manually in Controllers or Repositories.
+- Do NOT inject `IMapper`/`ServiceMapper`. Use `.Adapt<T>()` directly.
+- Custom maps go in `IRegister` classes (`*MappingConfig.cs`) colocated with the feature handler — no global `Mappings/` folder.
 
 ## Async
 - `async/await` + `CancellationToken` on all DB and external calls.
@@ -99,7 +105,41 @@ Throw custom exceptions only — never `Exception`.
 
 All inherit `AppException` in `Contract/Exceptions/`.
 
+**Tất cả message exception phải viết bằng tiếng Việt.** Không dùng tiếng Anh trong message trả về client.
+
 ## Validation
 - FluentValidation validators in Application layer.
 - `ValidationPipelineBehavior` auto-runs via MediatR pipeline — throws on failure.
 - Business validation requiring DB checks goes in Command Handlers.
+
+### Rules by operation
+
+| Operation | Validator | Handler |
+|---|---|---|
+| **C** (Create) | Required fields, format, range, enum | FK existence check, uniqueness, business pre-conditions |
+| **R** (Read) | Id format (if route param) | `NotFoundException` if entity not found |
+| **U** (Update) | Same as Create for editable fields | Load entity → `NotFoundException`, ownership/status check before mutating |
+| **D** (Delete) | Id format | `NotFoundException`, guard cascading damage (e.g., InProgress instances) |
+
+- Validators check **shape only** (not-null, length, regex, range) — never hit the DB.
+- Handlers own **semantic** validation: FK existence, duplicate detection, state-machine guards.
+- For status transitions: assert current status is a valid source state before updating (`BadRequestException` if not).
+
+### Checklist bắt buộc cho mọi feature Create/Update/Delete
+
+**Create:**
+- [ ] Validate required fields (Validator)
+- [ ] Validate FK existence — mọi foreign key đều phải check tồn tại trước khi insert
+- [ ] Check trùng lặp (unique fields) → `ConflictException`
+- [ ] Validate enum values hợp lệ (Validator: `IsInEnum()`)
+
+**Update:**
+- [ ] Load entity → `NotFoundException` nếu không tìm thấy
+- [ ] Validate FK existence nếu field FK có thể thay đổi
+- [ ] Check trùng lặp (unique fields, loại trừ chính nó) → `ConflictException`
+- [ ] Không cho phép update entity đã soft-delete → `BadRequestException`
+
+**Delete:**
+- [ ] Load entity → `NotFoundException` nếu không tìm thấy
+- [ ] Guard cascade: kiểm tra entity có đang được tham chiếu bởi entity khác không → `ConflictException` với message rõ ràng
+- [ ] Không hard-delete — dùng soft-delete (`IsDeleted = true`) trừ khi có lý do cụ thể

@@ -12,11 +12,16 @@ public sealed class DeleteRoleCommandHandler(IUnitOfWork unitOfWork)
         if (role.IsSystemRole)
             throw new BadRequestException("Không thể xóa role hệ thống.");
 
-        var hasUsers = await unitOfWork.Repository<UserRole>()
-            .FindAsync(ur => ur.RoleId == cmd.RoleId && ur.IsActive, ct);
+        var activeUserRoles = await unitOfWork.Repository<UserRole>()
+            .GetAllAsync(ur => ur.RoleId == cmd.RoleId && ur.IsActive, ct);
 
-        if (hasUsers is not null)
-            throw new ConflictException("Role đang được gán cho người dùng, không thể xóa.");
+        if (activeUserRoles.Any())
+        {
+            if (!cmd.Force)
+                throw new ConflictException("Role đang được gán cho người dùng, không thể xóa.");
+
+            await unitOfWork.Repository<UserRole>().RemoveRangeAsync(activeUserRoles);
+        }
 
         await unitOfWork.Repository<Role>().RemoveAsync(role);
         await unitOfWork.EnsureSaveAsync(ct);

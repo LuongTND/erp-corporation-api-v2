@@ -10,5 +10,4 @@ public sealed record StorePortalResponse
     public string? RegionName { get; init; }
     public bool IsActive { get; init; }
     public StoreHoursResponse? TodayHours { get; init; }
-    public IEnumerable<CounterResponse> Counters { get; init; } = [];
 }

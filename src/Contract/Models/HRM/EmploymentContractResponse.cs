@@ -29,5 +29,4 @@ public sealed class ContractSalaryComparisonResponse
     public decimal? ContractSalary { get; set; }
     public decimal? ActualHourlyRate { get; set; }
     public bool HasActiveContract { get; set; }
-    public bool HasSalaryRecord { get; set; }
 }

@@ -7,14 +7,19 @@ public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStora
 {
     public async Task<UserDetailResponse> Handle(GetUserDetailQuery query, CancellationToken ct)
     {
-        var scopedQuery = await dataScope.ApplyScopeAsync(
-            unitOfWork.Repository<User>().Query().Where(u => u.Id == query.UserId), query.CallerId, ct);
-        if (!await scopedQuery.AnyAsync(ct))
-            throw new ForbiddenException("Bạn không có quyền xem hồ sơ nhân sự này");
+        // Tự xem hồ sơ của mình — bỏ qua data-scope để tránh bị chặn bởi scope Store/Region
+        var isSelf = query.UserId == query.CallerId;
+        if (!isSelf)
+        {
+            var scopedQuery = await dataScope.ApplyScopeAsync(
+                unitOfWork.Repository<User>().Query().Where(u => u.Id == query.UserId), query.CallerId, ct);
+            if (!await scopedQuery.AnyAsync(ct))
+                throw new ForbiddenException("Bạn không có quyền xem hồ sơ nhân sự này");
+        }
 
         var user = await unitOfWork.Repository<User>().Query()
             .Where(u => u.Id == query.UserId)
-            .Include(u => u.JobLevel)
+            .Include(u => u.JobTitle)
             .Include(u => u.Manager)
             .Include(u => u.Profile)
             .Include(u => u.Identity)
@@ -63,8 +68,8 @@ public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStora
             Status = user.Status.ToString(),
             IsActive = user.IsActive,
             IsLocked = account?.IsLocked ?? false,
-            JobLevelId = user.JobLevelId,
-            JobLevelName = user.JobLevel?.LevelName,
+            JobTitleId = user.JobTitleId,
+            JobName = user.JobTitle?.Name,
             ManagerId = user.ManagerId,
             ManagerName = user.Manager?.FullName,
             EmployeeTypeId = user.EmployeeTypeId,

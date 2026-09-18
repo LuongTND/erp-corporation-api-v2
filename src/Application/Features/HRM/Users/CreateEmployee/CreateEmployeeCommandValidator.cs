@@ -6,7 +6,7 @@ public sealed class CreateEmployeeCommandValidator : AbstractValidator<CreateEmp
     {
         RuleFor(x => x.FullName).NotEmpty().MaximumLength(255);
         RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(255);
-        RuleFor(x => x.JobLevelId).NotEmpty();
+        RuleFor(x => x.JobTitleId).NotEmpty();
         RuleFor(x => x.DateOfJoin).NotEmpty();
         RuleFor(x => x.EmployeeCode).MaximumLength(50).When(x => x.EmployeeCode != null);
         RuleFor(x => x.PhoneNumber).MaximumLength(20).When(x => x.PhoneNumber != null);

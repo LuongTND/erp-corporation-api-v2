@@ -8,14 +8,16 @@ public static class UserData
         if (await context.Set<UserAccount>().AnyAsync(a => a.LoginEmail == adminEmail))
             return;
 
-        var jobLevelId = GuidHelper.From("Admin");
-        if (!await context.Set<JobLevel>().AnyAsync(j => j.Id == jobLevelId))
+        var JobTitleId = GuidHelper.From("Admin");
+        if (!await context.Set<JobTitle>().AnyAsync(j => j.Id == JobTitleId))
         {
-            context.Set<JobLevel>().Add(new JobLevel
+            context.Set<JobTitle>().Add(new JobTitle
             {
-                Id = jobLevelId,
-                LevelName = "Admin",
-                LevelOrder = 0,
+                Id = JobTitleId,
+                Code = "ADMIN",
+                Name = "Admin",
+                Level = JobTitleLevel.Leadership,
+                UnitType = JobTitleUnitType.Company,
             });
             await context.SaveChangesAsync();
         }
@@ -27,7 +29,7 @@ public static class UserData
             EmployeeCode = "ADMIN001",
             FullName = "System Admin",
             Email = adminEmail,
-            JobLevelId = jobLevelId,
+            JobTitleId = JobTitleId,
         };
         user.ChangeStatus(UserStatus.Active);
         context.Set<User>().Add(user);

@@ -4,5 +4,5 @@ public sealed record AddUserDepartmentCommand(
     Guid UserId,
     Guid DepartmentId,
     DateOnly StartDate,
-    Guid? JobLevelId = null
+    Guid? JobTitleId = null
 ) : IRequest<Guid>;

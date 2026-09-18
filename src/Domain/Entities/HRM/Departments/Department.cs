@@ -19,6 +19,4 @@ public class Department : AuditableEntityBase<Guid>, ISoftDeletable
     public Guid? DeletedBy { get; set; }
 
     public ICollection<UserDepartment> UserDepartments { get; set; } = [];
-    public ICollection<DepartmentJobLevel> DepartmentJobLevels { get; set; } = [];
-    public ICollection<KpiTemplate> KpiTemplates { get; set; } = [];
 }

@@ -20,23 +20,23 @@ public sealed class GetDepartmentMembersQueryHandler(IUnitOfWork unitOfWork)
             ct: ct)).Items.ToDictionary(u => u.Id);
 
         var allLevelIds = users.Values
-            .Where(u => u.JobLevelId.HasValue)
-            .Select(u => u.JobLevelId!.Value)
+            .Where(u => u.JobTitleId.HasValue)
+            .Select(u => u.JobTitleId!.Value)
             .Distinct().ToList();
 
         var jobLevels = allLevelIds.Count > 0
-            ? (await unitOfWork.Repository<JobLevel>().GetPagedAsync(
+            ? (await unitOfWork.Repository<JobTitle>().GetPagedAsync(
                 new QueryInfo { Top = allLevelIds.Count, NeedTotalCount = false },
                 filter: jl => allLevelIds.Contains(jl.Id),
                 ct: ct)).Items.ToDictionary(jl => jl.Id)
-            : new Dictionary<Guid, JobLevel>();
+            : new Dictionary<Guid, JobTitle>();
 
         return memberships
             .Where(ud => users.ContainsKey(ud.UserId))
             .Select(ud =>
             {
                 var user = users[ud.UserId];
-                var levelId = user.JobLevelId;
+                var levelId = user.JobTitleId;
                 jobLevels.TryGetValue(levelId ?? Guid.Empty, out var level);
                 return new DepartmentMemberResponse
                 {
@@ -46,14 +46,13 @@ public sealed class GetDepartmentMembersQueryHandler(IUnitOfWork unitOfWork)
                     EmployeeCode = user.EmployeeCode,
                     Email = user.Email,
                     AvatarUrl = user.AvatarUrl,
-                    JobLevelId = levelId == Guid.Empty ? null : levelId,
-                    JobLevelName = level?.LevelName,
-                    JobLevelOrder = level?.LevelOrder,
+                    JobTitleId = levelId == Guid.Empty ? null : levelId,
+                    JobName = level?.Name,
                     IsPrimary = ud.IsPrimary,
                     StartDate = ud.StartDate
                 };
             })
-            .OrderBy(m => m.JobLevelOrder ?? int.MaxValue)
+            .OrderBy(m => m.JobName ?? "zzz")
             .ThenBy(m => m.FullName);
     }
 }

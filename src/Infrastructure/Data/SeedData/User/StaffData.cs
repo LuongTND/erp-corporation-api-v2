@@ -15,14 +15,16 @@ public static class StaffData
 
     public static async Task SeedAsync(ApplicationDbContext context, IPasswordHasher hasher)
     {
-        var jobLevelId = GuidHelper.From("Staff");
-        if (!await context.Set<JobLevel>().AnyAsync(j => j.Id == jobLevelId))
+        var JobTitleId = GuidHelper.From("Staff");
+        if (!await context.Set<JobTitle>().AnyAsync(j => j.Id == JobTitleId))
         {
-            context.Set<JobLevel>().Add(new JobLevel
+            context.Set<JobTitle>().Add(new JobTitle
             {
-                Id = jobLevelId,
-                LevelName = "Staff",
-                LevelOrder = 1,
+                Id = JobTitleId,
+                Code = "STAFF",
+                Name = "Staff",
+                Level = JobTitleLevel.Staff,
+                UnitType = JobTitleUnitType.Department,
             });
             await context.SaveChangesAsync();
         }
@@ -40,7 +42,7 @@ public static class StaffData
                 EmployeeCode = username.ToUpper(),
                 FullName = username,
                 Email = email,
-                JobLevelId = jobLevelId,
+                JobTitleId = JobTitleId,
             };
             user.ChangeStatus(UserStatus.Active);
             context.Set<User>().Add(user);

@@ -9,4 +9,5 @@ public sealed class RoleResponse
     public bool IsSystemRole { get; set; }
     public string DefaultDataScope { get; set; } = string.Empty;
     public IEnumerable<PermissionResponse> Permissions { get; set; } = [];
+    public int UserCount { get; set; }
 }

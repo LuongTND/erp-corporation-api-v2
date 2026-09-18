@@ -35,6 +35,12 @@ internal sealed class GlobalExceptionHandler : IExceptionHandler
 
             response = ApiResponse<object>.Fail("Validation failed", StatusCodes.Status400BadRequest, errors);
         }
+        else if (exception is DbUpdateConcurrencyException)
+        {
+            _logger.LogWarning("Concurrency conflict");
+            httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+            response = ApiResponse<object>.Fail("Dữ liệu đã thay đổi, vui lòng tải lại và thử lại.", StatusCodes.Status409Conflict);
+        }
         else
         {
             _logger.LogError(exception, "Unhandled exception");
