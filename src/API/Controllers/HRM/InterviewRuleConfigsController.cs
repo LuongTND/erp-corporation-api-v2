@@ -5,6 +5,7 @@ namespace API;
 [Route("api/interview-rule-configs")]
 public sealed class InterviewRuleConfigsController(ISender sender) : ControllerBase
 {
+    /// <summary>Lấy danh sách cấu hình quy trình phỏng vấn</summary>
     [HasPermission(RecruitmentPermissions.ManageInterviewRule)]
     [HttpGet]
     public async Task<ActionResult<ApiResponse<IEnumerable<InterviewRuleConfigResponse>>>> GetList(
@@ -14,12 +15,14 @@ public sealed class InterviewRuleConfigsController(ISender sender) : ControllerB
         => Ok(ApiResponse<IEnumerable<InterviewRuleConfigResponse>>.Ok(
             await sender.Send(new GetInterviewRuleConfigsQuery(context, isActive), ct)));
 
+    /// <summary>Tạo mới cấu hình quy trình phỏng vấn</summary>
     [HasPermission(RecruitmentPermissions.ManageInterviewRule)]
     [HttpPost]
     public async Task<ActionResult<ApiResponse<Guid>>> Create(
         [FromBody] CreateInterviewRuleConfigCommand cmd, CancellationToken ct)
         => Ok(ApiResponse<Guid>.Ok(await sender.Send(cmd, ct)));
 
+    /// <summary>Cập nhật cấu hình quy trình phỏng vấn</summary>
     [HasPermission(RecruitmentPermissions.ManageInterviewRule)]
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<ApiResponse<Unit>>> Update(

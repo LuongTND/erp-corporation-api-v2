@@ -6,7 +6,7 @@ public sealed class UpdateInterviewRuleConfigCommandHandler(IUnitOfWork unitOfWo
     public async Task<Unit> Handle(UpdateInterviewRuleConfigCommand cmd, CancellationToken ct)
     {
         var config = await unitOfWork.Repository<Domain.InterviewRuleConfig>()
-            .FindAsync(r => r.Id == cmd.Id, ct)
+            .FindTrackedAsync(r => r.Id == cmd.Id, ct)
             ?? throw new NotFoundException(ExceptionMessages.NotFound("InterviewRuleConfig", cmd.Id));
 
         config.Name = cmd.Name;
@@ -26,7 +26,8 @@ public sealed class UpdateInterviewRuleConfigCommandHandler(IUnitOfWork unitOfWo
                 Id = Guid.NewGuid(),
                 InterviewRuleConfigId = config.Id,
                 RoundNumber = s.RoundNumber,
-                Label = s.Label,
+                RoundTypeId = s.RoundTypeId,
+                Name = s.Name,
                 InterviewerRoleKey = s.InterviewerRoleKey,
                 SchedulerRoleKey = s.SchedulerRoleKey,
                 Location = s.Location
