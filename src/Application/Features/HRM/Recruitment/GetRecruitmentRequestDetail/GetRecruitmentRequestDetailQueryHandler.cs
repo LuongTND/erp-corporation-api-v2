@@ -73,21 +73,14 @@ public sealed class GetRecruitmentRequestDetailQueryHandler(IUnitOfWork unitOfWo
             WorkflowInstanceId = r.WorkflowInstanceId,
             ApprovalHistory = approvalHistory,
             CreatedAt = r.CreatedAt,
-            JobPostings = postings.Items.Select(p => new JobPostingResponse
+            JobPostings = postings.Items.Select(p => new JobPostingSummaryResponse
             {
                 Id = p.Id,
-                RecruitmentRequestId = p.RecruitmentRequestId,
-                Title = p.Title,
                 Channel = p.Channel.ToString(),
                 PostUrl = p.PostUrl,
-                EstimatedCost = p.EstimatedCost,
-                CostStatus = p.CostStatus.ToString(),
-                CostApprovedByUserId = p.CostApprovedByUserId,
-                CostApprovedAt = p.CostApprovedAt,
-                CostRejectionNote = p.CostRejectionNote,
+                Status = p.Status.ToString(),
                 PostedAt = p.PostedAt,
                 ExpiresAt = p.ExpiresAt,
-                CreatedAt = p.CreatedAt
             })
         };
     }

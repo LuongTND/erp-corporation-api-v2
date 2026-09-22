@@ -1,20 +1,22 @@
 namespace Contract;
 
-public sealed class JobPostingResponse
+public class JobPostingSummaryResponse
 {
     public Guid Id { get; init; }
-    public Guid RecruitmentRequestId { get; init; }
-    public string? RequestCode { get; init; }
-    public string Title { get; init; } = string.Empty;
+    public string? Title { get; init; }
     public string Channel { get; init; } = string.Empty;
+    public string? WorkLocation { get; init; }
     public string? PostUrl { get; init; }
-    public decimal? EstimatedCost { get; init; }
-    public string CostStatus { get; init; } = string.Empty;
-    public Guid? CostApprovedByUserId { get; init; }
-    public string? CostApprovedByName { get; init; }
-    public DateTimeOffset? CostApprovedAt { get; init; }
-    public string? CostRejectionNote { get; init; }
+    public string Status { get; init; } = string.Empty;
     public DateTimeOffset? PostedAt { get; init; }
-    public DateTimeOffset? ExpiresAt { get; init; }
-    public DateTimeOffset CreatedAt { get; init; }
+    public DateOnly? ExpiresAt { get; init; }
+}
+
+public sealed class JobPostingResponse : JobPostingSummaryResponse
+{
+    public Guid RecruitmentRequestId { get; init; }
+    public string? Requirements { get; init; }
+    public Guid? AssignedToUserId { get; init; }
+    public string? AssignedToName { get; init; }
+    public int ApplicationCount { get; init; }
 }

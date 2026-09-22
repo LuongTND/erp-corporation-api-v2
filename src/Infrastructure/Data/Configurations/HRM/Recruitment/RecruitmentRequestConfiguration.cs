@@ -79,10 +79,10 @@ public class RecruitmentRequestConfiguration : AuditableEntityConfiguration<Recr
             .HasForeignKey(r => r.RequestedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(r => r.Applications)
-            .WithOne(a => a.RecruitmentRequest)
-            .HasForeignKey(a => a.RecruitmentRequestId)
-            .OnDelete(DeleteBehavior.NoAction);
+        // builder.HasMany(r => r.Applications)
+        //     .WithOne(a => a.RecruitmentRequest)
+        //     .HasForeignKey(a => a.RecruitmentRequestId)
+        //     .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasMany(r => r.JobPostings)
             .WithOne(j => j.RecruitmentRequest)

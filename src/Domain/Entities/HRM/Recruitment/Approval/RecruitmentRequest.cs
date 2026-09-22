@@ -1,14 +1,20 @@
 namespace Domain;
 
+/// <summary>
+/// Phiếu đề xuất tuyển dụng — gốc của toàn bộ vòng đời tuyển dụng.
+/// Được tạo bởi cửa hàng hoặc phòng ban khi phát sinh nhu cầu nhân sự,
+/// trải qua workflow duyệt (Trưởng BP → TPNS) trước khi HR tiếp nhận.
+/// Sau khi Approved, HR tạo JobPosting và bắt đầu nhận CV ứng viên.
+/// </summary>
 public class RecruitmentRequest : AuditableEntityBase<Guid>, ISoftDeletable
 {
     public RecruitmentRequestContext RequestContext { get; set; }
 
-    // HRM-046: Trưởng các BP — set khi RequestContext = Department
+    /// <summary>Set khi RequestContext = Department (Trưởng các BP).</summary>
     public Guid? DepartmentId { get; set; }
     public Department? Department { get; set; }
 
-    // HRM-045: QLCH — set khi RequestContext = Store
+    /// <summary>Set khi RequestContext = Store (QLCH).</summary>
     public Guid? StoreId { get; set; }
     public Store? Store { get; set; }
 

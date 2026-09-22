@@ -18,5 +18,18 @@ public class Department : AuditableEntityBase<Guid>, ISoftDeletable
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid? DeletedBy { get; set; }
 
+    /// <summary>
+    /// Role key của người phỏng vấn cho department này.
+    /// null = kế thừa từ ParentDepartment (Khối cha).
+    /// Ví dụ: Khối Sản Xuất set "production_manager", 8 dept con tự kế thừa.
+    /// </summary>
+    public string? InterviewerRoleKey { get; set; }
+
+    /// <summary>
+    /// Role key được thông báo sau khi ứng viên đạt (chốt Hired).
+    /// null = kế thừa từ ParentDepartment.
+    /// </summary>
+    public string? NotifyAfterHiredRoleKey { get; set; }
+
     public ICollection<UserDepartment> UserDepartments { get; set; } = [];
 }

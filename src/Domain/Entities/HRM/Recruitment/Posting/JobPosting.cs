@@ -1,40 +1,36 @@
 namespace Domain;
 
+/// <summary>
+/// Tin tuyển dụng — bản ghi kênh đăng từ một RecruitmentRequest đã được duyệt.
+/// HR tự đăng bên ngoài (Facebook, Zalo...), hệ thống chỉ lưu thông tin để gom CV.
+/// Một Request có thể có nhiều JobPosting trên nhiều kênh khác nhau.
+/// </summary>
 public class JobPosting : AuditableEntityBase<Guid>
 {
     public Guid RecruitmentRequestId { get; set; }
     public RecruitmentRequest? RecruitmentRequest { get; set; }
 
-    public string Title { get; set; } = string.Empty;
+    public RecruitmentChannel Channel { get; set; }
+
+    /// <summary>Tiêu đề tin đăng hiển thị trên kênh ngoài (Facebook, Zalo...). VD: "Tuyển Nhân Viên Bán Hàng - CH Liên Chiểu".</summary>
+    public string? Title { get; set; }
+
+    /// <summary>Địa điểm làm việc cụ thể. VD: "Cửa hàng 559 Trần Cao Vân" hoặc "Văn phòng tầng 3 - 120 Phan Châu Trinh".</summary>
+    public string? WorkLocation { get; set; }
+
+    /// <summary>Link bài đăng bên ngoài (Facebook post, Zalo OA...), null khi Channel = Internal.</summary>
+    public string? PostUrl { get; set; }
+
+    /// <summary>Tiêu chí sàng lọc CV — HR dùng nội bộ khi xem hồ sơ. VD: "Cao 1m65+, biết pha chế, ưu tiên có kinh nghiệm F&B".</summary>
+    public string? Requirements { get; set; }
+
+    public Guid? AssignedToUserId { get; set; }
+    public User? AssignedTo { get; set; }
 
     public JobPostingStatus Status { get; set; } = JobPostingStatus.Draft;
 
-    public RecruitmentChannel Channel { get; set; }
-
-    public string? PostUrl { get; set; }
-
-    // Nội dung public hiển thị trên nền tảng (khác JobDescription nội bộ trong RecruitmentRequest)
-    public string? Description { get; set; }
-    public string? Requirements { get; set; }
-
-    public decimal? SalaryMin { get; set; }
-    public decimal? SalaryMax { get; set; }
-    public bool SalaryVisible { get; set; } = false;
-
-    public string? WorkingLocation { get; set; }
-
-    public JobType JobType { get; set; } = JobType.FullTime;
-
-    public decimal? EstimatedCost { get; set; }
-    public JobPostingCostStatus CostStatus { get; set; } = JobPostingCostStatus.NotRequired;
-
-    public Guid? CostApprovedByUserId { get; set; }
-    public User? CostApprovedBy { get; set; }
-    public DateTimeOffset? CostApprovedAt { get; set; }
-    public string? CostRejectionNote { get; set; }
-
     public DateTimeOffset? PostedAt { get; set; }
-    public DateTimeOffset? ExpiresAt { get; set; }
+    public DateOnly? ExpiresAt { get; set; }
 
     public ICollection<Application> Applications { get; set; } = [];
 }

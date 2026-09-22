@@ -31,54 +31,28 @@ public static class RecruitmentPermissions
     [PermissionInfo("Yêu cầu bổ sung thông tin tuyển dụng", "Yêu cầu người tạo bổ sung thêm thông tin phiếu đề xuất")]
     public const string RequestMoreInfo = "hrm:recruitment:request:more-info";
 
-    [PermissionInfo("Xem lịch sử duyệt tuyển dụng", "Xem lịch sử phê duyệt các phiếu đề xuất tuyển dụng")]
-    public const string ViewRequestHistory = "hrm:recruitment:request:history";
+    // ── Tin tuyển dụng ──────────────────────────────────────────────────────
+    [PermissionInfo("Quản lý tin tuyển dụng", "Tạo và quản lý tin đăng tuyển (lưu kênh + URL)")]
+    public const string ManageJobPosting = "hrm:recruitment:posting:manage";
 
-    // ── Ứng viên ────────────────────────────────────────────────────────────
-    [PermissionInfo("Xem ứng viên", "Xem danh sách và thông tin chi tiết ứng viên")]
-    public const string ViewCandidate = "hrm:recruitment:candidate:view";
+    // ── Ứng viên / Hồ sơ ────────────────────────────────────────────────────
+    [PermissionInfo("Xem hồ sơ ứng viên", "Xem danh sách và chi tiết hồ sơ ứng viên")]
+    public const string ViewApplication = "hrm:recruitment:application:view";
 
-    [PermissionInfo("Thêm ứng viên", "Nhập hồ sơ ứng viên mới vào hệ thống")]
-    public const string CreateCandidate = "hrm:recruitment:candidate:create";
+    [PermissionInfo("Thêm hồ sơ ứng viên", "Upload và nhập hồ sơ ứng viên mới vào tin tuyển dụng")]
+    public const string CreateApplication = "hrm:recruitment:application:create";
 
-    [PermissionInfo("Cập nhật ứng viên", "Chỉnh sửa thông tin ứng viên")]
-    public const string UpdateCandidate = "hrm:recruitment:candidate:update";
-
-    [PermissionInfo("Tải lên CV ứng viên", "Đính kèm file CV của ứng viên")]
-    public const string UploadCv = "hrm:recruitment:candidate:upload-cv";
-
-    [PermissionInfo("Sơ loại ứng viên", "Thực hiện sơ loại hồ sơ ứng viên")]
-    public const string ScreenCandidate = "hrm:recruitment:candidate:screen";
-
-    [PermissionInfo("Chuyển ứng viên sang đánh giá", "Chuyển ứng viên đạt sơ loại sang bộ phận phỏng vấn")]
-    public const string AssignCandidate = "hrm:recruitment:candidate:assign";
-
-    [PermissionInfo("Đánh giá ứng viên", "Nhập kết quả đánh giá phỏng vấn ứng viên")]
-    public const string EvaluateCandidate = "hrm:recruitment:candidate:evaluate";
-
-    [PermissionInfo("Từ chối ứng viên", "Từ chối ứng viên kèm lý do")]
-    public const string RejectCandidate = "hrm:recruitment:candidate:reject";
-
-    [PermissionInfo("Chấp nhận ứng viên vào học việc", "Chuyển ứng viên đạt sang trạng thái học việc")]
-    public const string HireCandidate = "hrm:recruitment:candidate:hire";
+    [PermissionInfo("Cập nhật hồ sơ ứng viên", "Chỉnh sửa thông tin hồ sơ ứng viên")]
+    public const string UpdateApplication = "hrm:recruitment:application:update";
 
     // ── Phỏng vấn ───────────────────────────────────────────────────────────
-    [PermissionInfo("Quản lý rule phỏng vấn", "Cấu hình quy tắc hẹn lịch phỏng vấn theo vùng / bộ phận")]
-    public const string ManageInterviewRule = "hrm:recruitment:interview-rule:manage";
-
     [PermissionInfo("Quản lý lịch phỏng vấn", "Tạo và huỷ lịch phỏng vấn ứng viên")]
     public const string ManageInterviewSchedule = "hrm:recruitment:interview-schedule:manage";
 
     [PermissionInfo("Hoàn tất phỏng vấn", "Đánh dấu hoàn thành và nhập kết quả phỏng vấn")]
     public const string CompleteInterviewSchedule = "hrm:recruitment:interview-schedule:complete";
 
-    // ── Tin tuyển dụng ──────────────────────────────────────────────────────
-    [PermissionInfo("Quản lý tin tuyển dụng", "Tạo và quản lý tin đăng tuyển dụng")]
-    public const string ManageJobPosting = "hrm:recruitment:posting:manage";
-
-    [PermissionInfo("Tạo yêu cầu kênh tuyển phí", "Tạo yêu cầu đăng tuyển trên kênh trả phí")]
-    public const string CreatePaidPosting = "hrm:recruitment:posting:paid-create";
-
-    [PermissionInfo("Duyệt chi phí kênh tuyển", "Phê duyệt hoặc từ chối chi phí đăng tuyển kênh phí")]
-    public const string ApprovePaidPosting = "hrm:recruitment:posting:paid-approve";
+    // ── Chốt kết quả ────────────────────────────────────────────────────────
+    [PermissionInfo("Chốt kết quả ứng viên", "Chuyển ứng viên sang Hired hoặc Rejected")]
+    public const string FinalizeApplication = "hrm:recruitment:application:finalize";
 }

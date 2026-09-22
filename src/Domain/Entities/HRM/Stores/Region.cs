@@ -14,6 +14,13 @@ public class Region : AuditableEntityBase<Guid>, ISoftDeletable
     public DateTimeOffset? DeletedAt { get; set; }
     public Guid? DeletedBy { get; set; }
 
+    /// <summary>
+    /// true = khu vực này phỏng vấn tại cửa hàng (QL CH phỏng vấn, notify NS sau).
+    /// false = P. Nhân sự phỏng vấn (NS phỏng vấn, notify QL sau).
+    /// Cấu hình tại trang "Thiết lập phỏng vấn" của HR Admin.
+    /// </summary>
+    public bool InterviewAtStore { get; set; } = false;
+
     public ICollection<Store> Stores { get; set; } = [];
     public ICollection<RegionHours> RegionHours { get; set; } = [];
 }

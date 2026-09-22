@@ -1,31 +1,29 @@
 namespace Infrastructure;
 
-public class InterviewScheduleConfiguration : AuditableEntityConfiguration<InterviewSchedule, Guid>
+public sealed class InterviewScheduleConfiguration : IEntityTypeConfiguration<InterviewSchedule>
 {
-    public override void Configure(EntityTypeBuilder<InterviewSchedule> builder)
+    public void Configure(EntityTypeBuilder<InterviewSchedule> b)
     {
-        base.Configure(builder);
+        b.ToTable("InterviewSchedules");
+        b.HasKey(x => x.Id);
 
-        builder.ToTable("InterviewSchedules");
+        b.Property(x => x.LocationNote).HasMaxLength(500);
+        b.Property(x => x.Notes).HasMaxLength(2000);
+        b.Property(x => x.InterviewResult).HasMaxLength(2000);
 
-        builder.Property(s => s.Round).HasDefaultValue(1).IsRequired();
+        b.HasOne(x => x.Application)
+            .WithMany(x => x.InterviewSchedules)
+            .HasForeignKey(x => x.ApplicationId)
+            .OnDelete(DeleteBehavior.ClientCascade);
 
-        builder.Property(s => s.Location)
-            .HasConversion<string>().HasMaxLength(50).IsRequired();
-
-        builder.Property(s => s.Status)
-            .HasConversion<string>().HasMaxLength(50).IsRequired();
-
-        builder.Property(s => s.LocationNote).HasMaxLength(500);
-        builder.Property(s => s.Notes).HasMaxLength(2000);
-        builder.Property(s => s.InterviewResult).HasMaxLength(2000);
-
-        builder.HasIndex(s => s.ApplicationId);
-        builder.HasIndex(s => new { s.InterviewerId, s.ScheduledAt });
-
-        builder.HasOne(s => s.Interviewer)
+        b.HasOne(x => x.Interviewer)
             .WithMany()
-            .HasForeignKey(s => s.InterviewerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(x => x.InterviewerId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        b.HasMany(x => x.Evaluations)
+            .WithOne(x => x.InterviewSchedule)
+            .HasForeignKey(x => x.InterviewScheduleId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

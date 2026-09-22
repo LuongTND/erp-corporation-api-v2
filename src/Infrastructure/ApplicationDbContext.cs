@@ -44,14 +44,7 @@ public sealed class ApplicationDbContext(
     public DbSet<ApplicantDocument> ApplicantDocuments => Set<ApplicantDocument>();
     public DbSet<ApplicationStageHistory> ApplicationStageHistories => Set<ApplicationStageHistory>();
 
-    // Recruitment — Pipeline
-    public DbSet<RecruitmentPipeline> RecruitmentPipelines => Set<RecruitmentPipeline>();
-    public DbSet<RecruitmentPipelineStage> RecruitmentPipelineStages => Set<RecruitmentPipelineStage>();
-
     // Recruitment — Interview
-    public DbSet<RoundType> RoundTypes => Set<RoundType>();
-    public DbSet<InterviewRuleConfig> InterviewRuleConfigs => Set<InterviewRuleConfig>();
-    public DbSet<InterviewRuleConfigStep> InterviewRuleConfigSteps => Set<InterviewRuleConfigStep>();
     public DbSet<InterviewSchedule> InterviewSchedules => Set<InterviewSchedule>();
     public DbSet<ApplicationEvaluation> ApplicationEvaluations => Set<ApplicationEvaluation>();
 

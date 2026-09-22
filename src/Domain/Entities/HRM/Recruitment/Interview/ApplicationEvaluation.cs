@@ -1,5 +1,10 @@
 namespace Domain;
 
+/// <summary>
+/// Đánh giá của interviewer sau một vòng phỏng vấn.
+/// Gắn với InterviewSchedule để biết đánh giá thuộc vòng nào.
+/// Recommendation = StrongHire/Hire/NoHire quyết định Application có pass vòng đó không.
+/// </summary>
 public class ApplicationEvaluation : AuditableEntityBase<Guid>
 {
     public Guid ApplicationId { get; set; }
