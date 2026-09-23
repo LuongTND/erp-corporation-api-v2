@@ -36,4 +36,19 @@ public sealed class JobPostingsController(ISender sender) : ControllerBase
     public async Task<ActionResult<ApiResponse<Unit>>> Delete(
         Guid postingId, CancellationToken ct)
         => Ok(ApiResponse<Unit>.Ok(await sender.Send(new DeleteJobPostingCommand(postingId), ct)));
+
+    [HasPermission(RecruitmentPermissions.ViewApplication)]
+    [HttpGet("{postingId:guid}/applications")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<ApplicationSummaryResponse>>>> GetApplications(
+        Guid postingId, [FromQuery] string? stage, [FromQuery] string? search, CancellationToken ct)
+        => Ok(ApiResponse<IEnumerable<ApplicationSummaryResponse>>.Ok(
+            await sender.Send(new GetApplicationsQuery(postingId, stage, search), ct)));
+
+    [HasPermission(RecruitmentPermissions.ViewApplication)]
+    [HttpGet("{postingId:guid}/interview-schedules")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<InterviewScheduleListItemResponse>>>> GetInterviewSchedules(
+        Guid postingId, [FromQuery] DateOnly? from, [FromQuery] DateOnly? to,
+        [FromQuery] Guid? interviewerId, CancellationToken ct)
+        => Ok(ApiResponse<IEnumerable<InterviewScheduleListItemResponse>>.Ok(
+            await sender.Send(new GetInterviewSchedulesQuery(postingId, from, to, interviewerId), ct)));
 }

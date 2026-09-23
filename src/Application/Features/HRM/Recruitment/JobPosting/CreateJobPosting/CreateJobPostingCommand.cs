@@ -7,7 +7,8 @@ public sealed record CreateJobPostingCommand(
     string? PostUrl,
     string? Requirements,
     Guid? AssignedToUserId,
-    DateOnly? ExpiresAt
+    DateOnly? ExpiresAt,
+    JobPostingStatus Status = JobPostingStatus.Draft
 ) : IRequest<Guid>
 {
     public Guid RecruitmentRequestId { get; init; }

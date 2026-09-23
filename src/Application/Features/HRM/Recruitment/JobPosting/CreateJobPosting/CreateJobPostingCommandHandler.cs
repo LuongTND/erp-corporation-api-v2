@@ -28,7 +28,8 @@ public sealed class CreateJobPostingCommandHandler(IUnitOfWork unitOfWork)
             Requirements = cmd.Requirements,
             AssignedToUserId = cmd.AssignedToUserId,
             ExpiresAt = cmd.ExpiresAt,
-            Status = JobPostingStatus.Draft,
+            Status = cmd.Status,
+            PostedAt = cmd.Status == JobPostingStatus.Published ? DateTimeOffset.UtcNow : null,
         };
 
         await unitOfWork.Repository<Domain.JobPosting>().AddAsync(posting);

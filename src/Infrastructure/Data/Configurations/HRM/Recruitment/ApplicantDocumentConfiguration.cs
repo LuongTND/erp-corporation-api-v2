@@ -8,10 +8,7 @@ public class ApplicantDocumentConfiguration : AuditableEntityConfiguration<Appli
 
         builder.ToTable("ApplicantDocuments");
 
-        builder.Property(d => d.DocumentType)
-            .HasConversion<string>()
-            .HasMaxLength(50)
-            .IsRequired();
+        builder.Property(d => d.DocumentType).HasMaxLength(100);
 
         builder.Property(d => d.FileName).HasMaxLength(500).IsRequired();
         builder.Property(d => d.FileUrl).HasMaxLength(1000).IsRequired();
