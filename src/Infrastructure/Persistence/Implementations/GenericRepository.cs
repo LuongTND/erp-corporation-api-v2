@@ -13,10 +13,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase<G
         _dbSet = db.Set<T>();
     }
 
-    public async Task<T> AddAsync(T entity)
+    public Task<T> AddAsync(T entity)
     {
-        await _dbSet.AddAsync(entity);
-        return entity;
+        _dbSet.Add(entity);
+        return Task.FromResult(entity);
     }
 
     public Task RemoveAsync(T entity)
@@ -48,6 +48,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase<G
     public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
         => await _dbSet.AnyAsync(predicate, ct);
 
+    public async Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+        => await _dbSet.AsNoTracking().Where(predicate).ToListAsync(ct);
+
+    public async Task<IReadOnlyList<T>> GetAllTrackedAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+        => await _dbSet.Where(predicate).ToListAsync(ct);
+
     public IQueryable<T> Query(bool tracking = false)
         => tracking ? _dbSet : _dbSet.AsNoTracking();
 
@@ -63,7 +69,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase<G
 
         var total = query.NeedTotalCount ? await q.CountAsync(ct) : 0;
 
-        if (orderBy != null) q = orderBy(q);
+        q = orderBy != null ? orderBy(q) : q.OrderBy(e => e.Id);
 
         var items = await q.Skip(query.Skip).Take(Math.Min(query.Top, AppConstants.MaxPageSize)).ToListAsync(ct);
 

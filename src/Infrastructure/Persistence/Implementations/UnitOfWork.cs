@@ -1,29 +1,23 @@
-using Microsoft.EntityFrameworkCore.Storage;
-
 namespace Infrastructure;
 
 [RegisterService(typeof(IUnitOfWork))]
-public sealed class UnitOfWork : IUnitOfWork
+public sealed class UnitOfWork(ApplicationDbContext db) : IUnitOfWork
 {
-    private readonly ApplicationDbContext _db;
-    private readonly Dictionary<string, object> _repos = [];
+    private readonly Dictionary<Type, object> _repos = [];
     private IDbContextTransaction? _transaction;
-
-    public UnitOfWork(ApplicationDbContext db) => _db = db;
 
     public IGenericRepository<T> Repository<T>() where T : EntityBase<Guid>
     {
-        var key = typeof(T).Name;
-        if (!_repos.TryGetValue(key, out var repo))
-            _repos[key] = repo = new GenericRepository<T>(_db);
+        if (!_repos.TryGetValue(typeof(T), out var repo))
+            _repos[typeof(T)] = repo = new GenericRepository<T>(db);
         return (IGenericRepository<T>)repo;
     }
 
     public Task<int> SaveChangesAsync(CancellationToken ct = default)
-        => _db.SaveChangesAsync(ct);
+        => db.SaveChangesAsync(ct);
 
     public async Task BeginTransactionAsync(CancellationToken ct = default)
-        => _transaction = await _db.Database.BeginTransactionAsync(ct);
+        => _transaction = await db.Database.BeginTransactionAsync(ct);
 
     public async Task CommitTransactionAsync()
     {

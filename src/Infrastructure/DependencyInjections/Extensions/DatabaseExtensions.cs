@@ -16,6 +16,12 @@ internal static class DatabaseExtensions
             options.ConfigureWarnings(w =>
                 w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
         });
+        services.AddDbContext<PosReadDbContext>(options =>
+        {
+            options.UseSqlServer(configuration.GetConnectionString("PosConnection"));
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        });
+
         return services;
     }
 }

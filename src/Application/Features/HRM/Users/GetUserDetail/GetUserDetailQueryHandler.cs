@@ -1,0 +1,128 @@
+using Microsoft.EntityFrameworkCore;
+
+namespace Application;
+
+public sealed class GetUserDetailQueryHandler(IUnitOfWork unitOfWork, IBlobStorageService blobStorage, IDataScopeService dataScope)
+    : IRequestHandler<GetUserDetailQuery, UserDetailResponse>
+{
+    public async Task<UserDetailResponse> Handle(GetUserDetailQuery query, CancellationToken ct)
+    {
+        // Tự xem hồ sơ của mình — bỏ qua data-scope để tránh bị chặn bởi scope Store/Region
+        var isSelf = query.UserId == query.CallerId;
+        if (!isSelf)
+        {
+            var scopedQuery = await dataScope.ApplyScopeAsync(
+                unitOfWork.Repository<User>().Query().Where(u => u.Id == query.UserId), query.CallerId, ct);
+            if (!await scopedQuery.AnyAsync(ct))
+                throw new ForbiddenException("Bạn không có quyền xem hồ sơ nhân sự này");
+        }
+
+        var user = await unitOfWork.Repository<User>().Query()
+            .Where(u => u.Id == query.UserId)
+            .Include(u => u.JobTitle)
+            .Include(u => u.Manager)
+            .Include(u => u.Profile)
+            .Include(u => u.Identity)
+            .Include(u => u.EmploymentInfo)
+            .Include(u => u.UserDepartments)
+            .Include(u => u.UserAccount)
+            .Include(u => u.CustomFieldValues)
+                .ThenInclude(v => v.Definition)
+            .Include(u => u.UserLabels)
+                .ThenInclude(ul => ul.Label)
+            .FirstOrDefaultAsync(ct)
+            ?? throw new NotFoundException(ExceptionMessages.NotFound("User", query.UserId));
+
+        var departmentIds = user.UserDepartments.Select(ud => ud.DepartmentId).ToHashSet();
+        var departments = await unitOfWork.Repository<Department>()
+            .GetAllAsync(d => departmentIds.Contains(d.Id), ct);
+        var departmentMap = departments.ToDictionary(d => d.Id);
+
+        var deptManagerIds = departments.Where(d => d.ManagerId.HasValue).Select(d => d.ManagerId!.Value).ToHashSet();
+        var deptManagers = await unitOfWork.Repository<User>()
+            .GetAllAsync(u => deptManagerIds.Contains(u.Id), ct);
+        var deptManagerMap = deptManagers.ToDictionary(u => u.Id);
+
+        var account = user.UserAccount;
+        var customFieldValues = user.CustomFieldValues
+            .Where(v => v.Definition?.IsActive == true)
+            .ToList();
+        var labelEntities = user.UserLabels
+            .Where(ul => ul.Label is not null)
+            .Select(ul => ul.Label!)
+            .ToList();
+
+        return MapToResponse(user, account, customFieldValues, departmentMap, deptManagerMap, blobStorage, labelEntities);
+    }
+
+    private const string Container = "avatars";
+
+    private static UserDetailResponse MapToResponse(User user, UserAccount? account, IEnumerable<UserCustomFieldValue> customFields, Dictionary<Guid, Department> departmentMap, Dictionary<Guid, User> deptManagerMap, IBlobStorageService blobStorage, IEnumerable<Label> labels)
+        => new()
+        {
+            Id = user.Id,
+            EmployeeCode = user.EmployeeCode,
+            FullName = user.FullName,
+            Email = user.Email,
+            AvatarUrl = user.AvatarUrl is null ? null : blobStorage.GetUrl(Container, user.AvatarUrl),
+            Status = user.Status.ToString(),
+            IsActive = user.IsActive,
+            IsLocked = account?.IsLocked ?? false,
+            JobTitleId = user.JobTitleId,
+            JobName = user.JobTitle?.Name,
+            ManagerId = user.ManagerId,
+            ManagerName = user.Manager?.FullName,
+            EmployeeTypeId = user.EmployeeTypeId,
+            Profile = user.Profile is null ? null : new UserProfileDetailResponse
+            {
+                Gender = user.Profile.Gender?.ToString(),
+                DateOfBirth = user.Profile.DateOfBirth,
+                PhoneNumber = user.Profile.PhoneNumber,
+                PermanentAddress = user.Profile.PermanentAddress,
+                CurrentAddress = user.Profile.CurrentAddress,
+            },
+            Identity = user.Identity is null ? null : new UserIdentityDetailResponse
+            {
+                IdentityCardNumber = user.Identity.IdentityCardNumber,
+                IdentityCardIssuedDate = user.Identity.IdentityCardIssuedDate,
+                IdentityCardIssuedPlace = user.Identity.IdentityCardIssuedPlace,
+                PassportNumber = user.Identity.PassportNumber,
+                PassportExpiryDate = user.Identity.PassportExpiryDate,
+            },
+            Employment = user.EmploymentInfo is null ? null : new UserEmploymentDetailResponse
+            {
+                DateOfJoin = user.EmploymentInfo.DateOfJoin,
+                ContractType = user.EmploymentInfo.ContractType?.ToString(),
+                TaxCode = user.EmploymentInfo.TaxCode,
+                SocialInsuranceCode = user.EmploymentInfo.SocialInsuranceCode,
+                BankName = user.EmploymentInfo.BankName,
+                BankAccountNumber = user.EmploymentInfo.BankAccountNumber,
+                BankBranch = user.EmploymentInfo.BankBranch,
+                ResignedAt = user.EmploymentInfo.ResignedAt,
+                HandoverCompleted = user.EmploymentInfo.HandoverCompleted,
+            },
+            Departments = user.UserDepartments
+                .Where(ud => ud.IsActive)
+                .Select(ud => new UserDepartmentDetailResponse
+                {
+                    DepartmentId = ud.DepartmentId,
+                    DepartmentName = departmentMap.TryGetValue(ud.DepartmentId, out var dept) ? dept.DepartmentName : string.Empty,
+                    IsPrimary = ud.IsPrimary,
+                    ManagerId = dept?.ManagerId,
+                    ManagerName = dept?.ManagerId.HasValue == true && deptManagerMap.TryGetValue(dept.ManagerId.Value, out var mgr) ? mgr.FullName : null,
+                }),
+            CustomFields = customFields
+                .OrderBy(v => v.Definition!.SortOrder)
+                .Select(v => new CustomFieldValueResponse
+                {
+                    DefinitionId = v.DefinitionId,
+                    Code = v.Definition!.Code,
+                    Name = v.Definition.Name,
+                    FieldType = v.Definition.FieldType.ToString(),
+                    Group = v.Definition.Group,
+                    SortOrder = v.Definition.SortOrder,
+                    Value = v.Value,
+                }),
+            Labels = labels.Select(l => new LabelResponse { Id = l.Id, Name = l.Name, Color = l.Color, IsActive = l.IsActive }),
+        };
+}

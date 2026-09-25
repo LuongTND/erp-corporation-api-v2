@@ -10,7 +10,7 @@ public sealed class RedisCacheService(IConnectionMultiplexer multiplexer) : IRed
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    private readonly IDatabase _db = multiplexer.GetDatabase();
+    private readonly StackExchange.Redis.IDatabase _db = multiplexer.GetDatabase();
 
     public async Task SetRecordAsync<T>(string key, T value, TimeSpan expiry)
     {

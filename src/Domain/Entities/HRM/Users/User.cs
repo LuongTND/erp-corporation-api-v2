@@ -1,0 +1,42 @@
+namespace Domain;
+
+public class User : AuditableEntityBase<Guid>
+{
+    public string EmployeeCode { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
+
+    public Guid? JobTitleId { get; set; }
+    public JobTitle? JobTitle { get; set; }
+
+    public Guid? EmployeeTypeId { get; set; }
+    public EmployeeType? EmployeeType { get; set; }
+
+    public Guid? ManagerId { get; set; }
+    public User? Manager { get; set; }
+    public ICollection<User> DirectReports { get; set; } = [];
+
+    public UserStatus Status { get; private set; }
+    public bool IsActive { get; private set; }
+    public ScopeType? ScopeOverride { get; set; }
+
+    public UserAccount? UserAccount { get; set; }
+    public EmployeeProfile? Profile { get; set; }
+    public EmployeeIdentity? Identity { get; set; }
+    public EmploymentInfo? EmploymentInfo { get; set; }
+    public ICollection<UserDepartment> UserDepartments { get; set; } = [];
+    public ICollection<UserStore> UserStores { get; set; } = [];
+    public ICollection<UserRole> UserRoles { get; set; } = [];
+    public ICollection<UserCustomFieldValue> CustomFieldValues { get; set; } = [];
+    public ICollection<UserLabel> UserLabels { get; set; } = [];
+    public ICollection<EmployeeDocument> Documents { get; set; } = [];
+    public ICollection<WorkHistory> WorkHistories { get; set; } = [];
+
+    public void ChangeStatus(UserStatus newStatus)
+    {
+        Status = newStatus;
+        IsActive = newStatus is UserStatus.Active or UserStatus.Probation
+            or UserStatus.Apprentice or UserStatus.Official;
+    }
+}

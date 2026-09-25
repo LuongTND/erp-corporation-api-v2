@@ -1,3 +1,3 @@
 namespace Application;
 
-public sealed record LogoutCommand : IRequest<MediatR.Unit>;
+public sealed record LogoutCommand : IRequest<Unit>;

@@ -1,6 +1,7 @@
 global using Contract;
 global using Domain;
 global using Application;
+global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using System.Reflection;
 global using Microsoft.Extensions.Configuration;

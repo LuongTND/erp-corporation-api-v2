@@ -2,10 +2,11 @@ namespace Application;
 
 public sealed class LogoutCommandHandler(
     IUserContext userContext,
-    IUnitOfWork unitOfWork)
-    : IRequestHandler<LogoutCommand, MediatR.Unit>
+    IUnitOfWork unitOfWork,
+    IPermissionService permissionService)
+    : IRequestHandler<LogoutCommand, Unit>
 {
-    public async Task<MediatR.Unit> Handle(LogoutCommand cmd, CancellationToken ct)
+    public async Task<Unit> Handle(LogoutCommand cmd, CancellationToken ct)
     {
         var account = await unitOfWork.Repository<UserAccount>()
             .FindTrackedAsync(a => a.UserId == userContext.UserId, ct);
@@ -16,6 +17,8 @@ public sealed class LogoutCommandHandler(
             await unitOfWork.EnsureSaveAsync(ct);
         }
 
-        return MediatR.Unit.Value;
+        await permissionService.InvalidateCacheForUserAsync(userContext.UserId);
+
+        return Unit.Value;
     }
 }

@@ -1,6 +1,7 @@
 global using API;
 global using Contract;
 global using Application;
+global using Domain;
 global using MediatR;
 global using Infrastructure;
 global using Microsoft.AspNetCore.Diagnostics;
@@ -13,3 +14,4 @@ global using Serilog;
 global using System.Text.Json;
 global using Microsoft.AspNetCore.SignalR;
 global using Microsoft.OpenApi;
+global using Microsoft.EntityFrameworkCore;

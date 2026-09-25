@@ -14,9 +14,11 @@ public class ApiResponse<T>
     public required string Message { get; init; }
 
     [JsonPropertyName("data")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public T? Data { get; init; }
 
     [JsonPropertyName("errors")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Bỏ qua khi Errors bị null
     public IDictionary<string, string[]>? Errors { get; init; }
 
     public static ApiResponse<T> Ok(T data, string message = "Success", int statusCode = 200)

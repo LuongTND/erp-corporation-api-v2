@@ -1,0 +1,58 @@
+namespace Application;
+
+public static class RecruitmentPermissions
+{
+    // ── Cấu hình người duyệt ────────────────────────────────────────────────
+    [PermissionInfo("Xem cấu hình người duyệt tuyển dụng", "Xem danh sách người duyệt phiếu đề xuất tuyển dụng")]
+    public const string ViewApproverConfig = "hrm:recruitment:approver-config:view";
+
+    [PermissionInfo("Quản lý cấu hình người duyệt tuyển dụng", "Thêm, sửa, xóa cấu hình người duyệt phiếu đề xuất tuyển dụng")]
+    public const string ManageApproverConfig = "hrm:recruitment:approver-config:manage";
+
+    // ── Phiếu đề xuất ───────────────────────────────────────────────────────
+    [PermissionInfo("Xem phiếu đề xuất tuyển dụng", "Xem danh sách và chi tiết phiếu đề xuất tuyển dụng")]
+    public const string ViewRequest = "hrm:recruitment:request:view";
+
+    [PermissionInfo("Tạo phiếu đề xuất tuyển dụng", "Tạo mới phiếu đề xuất tuyển dụng cho cửa hàng hoặc bộ phận")]
+    public const string CreateRequest = "hrm:recruitment:request:create";
+
+    [PermissionInfo("Cập nhật phiếu đề xuất tuyển dụng", "Chỉnh sửa thông tin phiếu đề xuất tuyển dụng")]
+    public const string UpdateRequest = "hrm:recruitment:request:update";
+
+    [PermissionInfo("Gửi phiếu đề xuất tuyển dụng", "Gửi phiếu đề xuất tuyển dụng đi để chờ duyệt")]
+    public const string SubmitRequest = "hrm:recruitment:request:submit";
+
+    [PermissionInfo("Duyệt phiếu tuyển dụng", "Duyệt phiếu đề xuất tuyển dụng — workflow engine tự guard theo bước hiện tại")]
+    public const string ApproveRequest = "hrm:recruitment:request:approve";
+
+    [PermissionInfo("Từ chối phiếu đề xuất tuyển dụng", "Từ chối phiếu đề xuất tuyển dụng kèm lý do")]
+    public const string RejectRequest = "hrm:recruitment:request:reject";
+
+    [PermissionInfo("Yêu cầu bổ sung thông tin tuyển dụng", "Yêu cầu người tạo bổ sung thêm thông tin phiếu đề xuất")]
+    public const string RequestMoreInfo = "hrm:recruitment:request:more-info";
+
+    // ── Tin tuyển dụng ──────────────────────────────────────────────────────
+    [PermissionInfo("Quản lý tin tuyển dụng", "Tạo và quản lý tin đăng tuyển (lưu kênh + URL)")]
+    public const string ManageJobPosting = "hrm:recruitment:posting:manage";
+
+    // ── Ứng viên / Hồ sơ ────────────────────────────────────────────────────
+    [PermissionInfo("Xem hồ sơ ứng viên", "Xem danh sách và chi tiết hồ sơ ứng viên")]
+    public const string ViewApplication = "hrm:recruitment:application:view";
+
+    [PermissionInfo("Thêm hồ sơ ứng viên", "Upload và nhập hồ sơ ứng viên mới vào tin tuyển dụng")]
+    public const string CreateApplication = "hrm:recruitment:application:create";
+
+    [PermissionInfo("Cập nhật hồ sơ ứng viên", "Chỉnh sửa thông tin hồ sơ ứng viên")]
+    public const string UpdateApplication = "hrm:recruitment:application:update";
+
+    // ── Phỏng vấn ───────────────────────────────────────────────────────────
+    [PermissionInfo("Quản lý lịch phỏng vấn", "Tạo và huỷ lịch phỏng vấn ứng viên")]
+    public const string ManageInterviewSchedule = "hrm:recruitment:interview-schedule:manage";
+
+    [PermissionInfo("Hoàn tất phỏng vấn", "Đánh dấu hoàn thành và nhập kết quả phỏng vấn")]
+    public const string CompleteInterviewSchedule = "hrm:recruitment:interview-schedule:complete";
+
+    // ── Chốt kết quả ────────────────────────────────────────────────────────
+    [PermissionInfo("Chốt kết quả ứng viên", "Chuyển ứng viên sang Hired hoặc Rejected")]
+    public const string FinalizeApplication = "hrm:recruitment:application:finalize";
+}

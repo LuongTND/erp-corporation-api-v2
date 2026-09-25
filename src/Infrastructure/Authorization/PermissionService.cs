@@ -13,22 +13,16 @@ public sealed class PermissionService(ApplicationDbContext db, IRedisCacheServic
         if (cached is not null) return cached;
 
         var now = DateTimeOffset.UtcNow;
-        var roleIds = await db.Set<UserRole>()
+        var permissions = await db.Set<UserRole>()
             .AsNoTracking()
             .Where(ur => ur.UserId == userId
                       && ur.IsActive
                       && ur.RevokedAt == null
                       && (ur.ExpiresAt == null || ur.ExpiresAt > now))
-            .Select(ur => ur.RoleId)
-            .ToListAsync();
-
-        var permissions = roleIds.Count == 0
-            ? []
-            : await db.RolePermissions
-                .AsNoTracking()
-                .Where(rp => roleIds.Contains(rp.RoleId))
-                .Select(rp => rp.Permission!.PermissionCode)
-                .ToHashSetAsync();
+            .SelectMany(ur => ur.Role!.RolePermissions)
+            .Select(rp => rp.Permission!.PermissionCode)
+            .Distinct()
+            .ToHashSetAsync();
 
         await cache.SetRecordAsync(CacheKey(userId), permissions, CacheTtl);
         return permissions;
@@ -45,4 +39,7 @@ public sealed class PermissionService(ApplicationDbContext db, IRedisCacheServic
         if (userIds.Count == 0) return;
         await cache.RemoveManyAsync(userIds.Select(id => CacheKey(id)).ToArray());
     }
+
+    public Task InvalidateCacheForUserAsync(Guid userId)
+        => cache.RemoveRecordAsync(CacheKey(userId));
 }

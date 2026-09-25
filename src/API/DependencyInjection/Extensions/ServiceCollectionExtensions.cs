@@ -9,6 +9,7 @@ public static class ServiceCollectionExtensions
         {
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
         });
 
         services.Configure<ApiBehaviorOptions>(options =>
@@ -21,7 +22,7 @@ public static class ServiceCollectionExtensions
                         e => e.Key,
                         e => e.Value!.Errors.Select(x => x.ErrorMessage).ToArray());
                 var response = ApiResponse<object>.Fail("Validation failed", 400, errors);
-                return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(response);
+                return new BadRequestObjectResult(response);
             };
         });
 
