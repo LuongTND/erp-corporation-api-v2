@@ -5,26 +5,35 @@ public sealed class CreateInterviewScheduleCommandHandler(IUnitOfWork unitOfWork
 {
     public async Task<Guid> Handle(CreateInterviewScheduleCommand cmd, CancellationToken ct)
     {
-        var candidate = await unitOfWork.Repository<Candidate>()
-            .FindAsync(c => c.Id == cmd.CandidateId, ct)
-            ?? throw new NotFoundException(ExceptionMessages.NotFound("Candidate", cmd.CandidateId));
+        var application = await unitOfWork.Repository<Domain.Application>()
+            .FindTrackedAsync(a => a.Id == cmd.ApplicationId, ct)
+            ?? throw new NotFoundException(ExceptionMessages.NotFound("Application", cmd.ApplicationId));
 
-        if (candidate.Stage is not (CandidateStage.Screening or CandidateStage.StoreInterview or CandidateStage.ProductionInterview))
-            throw new BadRequestException("Ứng viên phải qua sơ loại CV trước khi hẹn lịch phỏng vấn.");
+        if (application.Stage == ApplicationStage.Hired || application.Stage == ApplicationStage.Rejected)
+            throw new BadRequestException("Không thể đặt lịch phỏng vấn cho hồ sơ đã kết thúc.");
+
+        if (cmd.InterviewerId.HasValue)
+            _ = await unitOfWork.Repository<User>()
+                .FindAsync(u => u.Id == cmd.InterviewerId.Value, ct)
+                ?? throw new NotFoundException(ExceptionMessages.NotFound("User", cmd.InterviewerId.Value));
 
         var schedule = new Domain.InterviewSchedule
         {
             Id = Guid.NewGuid(),
-            CandidateId = cmd.CandidateId,
-            InterviewerId = cmd.InterviewerId,
+            ApplicationId = cmd.ApplicationId,
             ScheduledAt = cmd.ScheduledAt,
-            Location = cmd.Location,
             LocationNote = cmd.LocationNote,
             Notes = cmd.Notes,
+            InterviewerId = cmd.InterviewerId,
             Status = InterviewScheduleStatus.Scheduled,
         };
 
         await unitOfWork.Repository<Domain.InterviewSchedule>().AddAsync(schedule);
+
+        // Tự chuyển stage nếu đang New
+        if (application.Stage == ApplicationStage.New)
+            application.Stage = ApplicationStage.Scheduled;
+
         await unitOfWork.EnsureSaveAsync(ct);
         return schedule.Id;
     }

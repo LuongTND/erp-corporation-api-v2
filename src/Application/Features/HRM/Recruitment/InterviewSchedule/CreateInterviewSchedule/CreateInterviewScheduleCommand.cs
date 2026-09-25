@@ -1,10 +1,9 @@
 namespace Application;
 
 public sealed record CreateInterviewScheduleCommand(
-    Guid CandidateId,
-    Guid InterviewerId,
+    Guid ApplicationId,
     DateTimeOffset ScheduledAt,
-    InterviewLocation Location,
     string? LocationNote,
-    string? Notes
+    string? Notes,
+    Guid? InterviewerId
 ) : IRequest<Guid>;

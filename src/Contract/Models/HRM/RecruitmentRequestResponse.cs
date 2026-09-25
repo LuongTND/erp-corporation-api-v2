@@ -28,5 +28,5 @@ public sealed class RecruitmentRequestDetailResponse : RecruitmentRequestRespons
     public string? CancelNote { get; init; }
     public Guid? WorkflowInstanceId { get; init; }
     public IEnumerable<WorkflowTaskResponse> ApprovalHistory { get; init; } = [];
-    public IEnumerable<JobPostingResponse> JobPostings { get; init; } = [];
+    public IEnumerable<JobPostingSummaryResponse> JobPostings { get; init; } = [];
 }

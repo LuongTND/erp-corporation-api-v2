@@ -32,14 +32,21 @@ public sealed class ApplicationDbContext(
     public DbSet<Label> Labels => Set<Label>();
     public DbSet<UserLabel> UserLabels => Set<UserLabel>();
 
-    // Recruitment
-    public DbSet<RecruitmentApproverConfig> RecruitmentApproverConfigs => Set<RecruitmentApproverConfig>();
+    // Recruitment — Approval
     public DbSet<RecruitmentRequest> RecruitmentRequests => Set<RecruitmentRequest>();
-    public DbSet<Candidate> Candidates => Set<Candidate>();
-    public DbSet<CandidateEvaluation> CandidateEvaluations => Set<CandidateEvaluation>();
+
+    // Recruitment — Posting
     public DbSet<JobPosting> JobPostings => Set<JobPosting>();
-    public DbSet<InterviewRuleConfig> InterviewRuleConfigs => Set<InterviewRuleConfig>();
+
+    // Recruitment — Application
+    public DbSet<Applicant> Applicants => Set<Applicant>();
+    public DbSet<Domain.Application> Applications => Set<Domain.Application>();
+    public DbSet<ApplicantDocument> ApplicantDocuments => Set<ApplicantDocument>();
+    public DbSet<ApplicationStageHistory> ApplicationStageHistories => Set<ApplicationStageHistory>();
+
+    // Recruitment — Interview
     public DbSet<InterviewSchedule> InterviewSchedules => Set<InterviewSchedule>();
+    public DbSet<ApplicationEvaluation> ApplicationEvaluations => Set<ApplicationEvaluation>();
 
     // Custom Fields
     public DbSet<CustomFieldDefinition> CustomFieldDefinitions => Set<CustomFieldDefinition>();
